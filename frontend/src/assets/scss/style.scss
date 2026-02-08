@@ -1,0 +1,8 @@
+// Override default variables from Bootstrap
+@import "variables";
+
+// Import Bootstrap's SCSS
+@import "bootstrap/scss/bootstrap";
+
+// Custom styles
+@import "layout";

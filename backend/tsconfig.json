@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    /* Basic settings */
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023"],
+    "skipLibCheck": true,
+
+    /* Convenience (makes it feel like Vite/React) */
+    "allowImportingTsExtensions": true, // Allows .ts in imports if desired
+    "noEmit": true,                     // Let tsx or Node handle execution
+    "isolatedModules": true,            // Required for fast transpilers like esbuild/tsx
+    "allowJs": true,
+    "checkJs": false,
+
+    /* Strict code quality */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Import aliases */
+    "paths": {
+      "@shared/*": ["../shared/*"],
+    },
+  },
+  "include": ["src/**/*", "prisma.config.ts", "prisma/seed.ts"],
+  "exclude": ["node_modules", "**/_*.*", "**/_*/**"]
+}
