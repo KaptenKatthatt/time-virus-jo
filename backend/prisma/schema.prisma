@@ -13,3 +13,26 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id String @id @map("_id")
+  name String
+}
+
+model Game {
+  id String @id @map("_id")
+  name String 
+  player_one_name String
+  player_two_name String
+  player_one_score Int
+  player_two_score Int
+}
+
+model Scoreboard {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String  
+  player_one_name String
+  player_two_name String
+  player_one_score Int
+  player_two_score Int
+}
