@@ -7,6 +7,7 @@ import { io, Socket } from "socket.io-client";
 import { GameBoard } from "./components/GameBoard";
 // Styling
 import "./assets/scss/style.scss";
+import Lobby from "./pages/lobby";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -17,11 +18,23 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
 /**
  * Component inits
  */
-GameBoard();
+// GameBoard();
+
+/**
+ * Page Component inits
+ */
+const lobbyPage = Lobby()
 
 /**
  * DOM References
  */
+const app = document.querySelector<HTMLDivElement>("#app")!
+
+/**
+ * Add page to index.html
+ */
+app.appendChild(lobbyPage)
+
 
 /**
  * Variables
