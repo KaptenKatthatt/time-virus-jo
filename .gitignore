@@ -1,3 +1,4 @@
 /**/*-nogit
 /**/*.env
 node_modules/
+.vscode
