@@ -25,5 +25,12 @@ export function GameBoard() {
 		const randY = Math.round(Math.random() * 10);
 		const virusCell = document.querySelector(`#cell-${randX}-${randY}`);
 		virusCell?.classList.add("virus");
-	}, 2000);
+
+		virusCell?.addEventListener("click", (e) => {
+			const clickedVirus = e.target as HTMLElement;
+			if (clickedVirus) {
+				virusCell.classList.remove("virus");
+			}
+		});
+	}, 1000);
 }
