@@ -15,21 +15,33 @@ export function GameBoard() {
 	gameBoard.addEventListener("click", (e) => {
 		const clickedCell = e.target as HTMLElement;
 
+		// Log to console coords of virus
 		if (clickedCell.classList.contains("cell")) {
 			console.log(clickedCell.dataset.x, clickedCell.dataset.y);
 		}
 	});
 
-	setInterval(() => {
-		const randX = Math.round(Math.random() * 10);
-		const randY = Math.round(Math.random() * 10);
-		const virusCell = document.querySelector(`#cell-${randX}-${randY}`);
-		virusCell?.classList.add("virus");
+	let score: number = 0;
+	const playerOneScore = document.querySelector<HTMLSpanElement>(".player-1-score")!;
+	playerOneScore.textContent = String(score);
 
-		virusCell?.addEventListener("click", (e) => {
+	setInterval(() => {
+		const currentVirus = document.querySelector(".virus");
+		if (currentVirus) {
+			currentVirus.classList.remove("virus");
+		}
+		const randX = Math.floor(Math.random() * 10);
+		const randY = Math.floor(Math.random() * 10);
+		const virusCell = document.querySelector(`#cell-${randX}-${randY}`)!;
+		virusCell.classList.add("virus");
+
+		virusCell.addEventListener("click", (e) => {
 			const clickedVirus = e.target as HTMLElement;
 			if (clickedVirus) {
 				virusCell.classList.remove("virus");
+				score++;
+				console.log("Score:", score);
+				playerOneScore.textContent = String(score);
 			}
 		});
 	}, 1000);
