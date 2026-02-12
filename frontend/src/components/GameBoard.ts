@@ -19,6 +19,11 @@ export function GameBoard() {
 		if (clickedCell.classList.contains("cell")) {
 			console.log(clickedCell.dataset.x, clickedCell.dataset.y);
 		}
+		if (clickedCell.classList.contains("virus")) {
+			clickedCell.classList.remove("virus");
+			score++;
+			playerOneScore.textContent = String(score);
+		}
 	});
 
 	let score: number = 0;
@@ -34,15 +39,5 @@ export function GameBoard() {
 		const randY = Math.floor(Math.random() * 10);
 		const virusCell = document.querySelector(`#cell-${randX}-${randY}`)!;
 		virusCell.classList.add("virus");
-
-		virusCell.addEventListener("click", (e) => {
-			const clickedVirus = e.target as HTMLElement;
-			if (clickedVirus) {
-				virusCell.classList.remove("virus");
-				score++;
-				console.log("Score:", score);
-				playerOneScore.textContent = String(score);
-			}
-		});
 	}, 1000);
 }
