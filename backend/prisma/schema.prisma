@@ -15,24 +15,26 @@ datasource db {
 }
 
 model User {
-  id String @id @map("_id")
+  id   String @id @map("_id")
   name String
 }
 
+// Data for currently running games
 model Game {
-  id String @id @map("_id")
-  name String 
-  player_one_name String
-  player_two_name String
+  id               String @id @map("_id")
+  name             String
+  player_one_name  String
+  player_two_name  String
   player_one_score Int
   player_two_score Int
 }
 
+// Data for archived games
 model Scoreboard {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String  
-  player_one_name String
-  player_two_name String
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  player_one_name  String
+  player_two_name  String
   player_one_score Int
   player_two_score Int
 }
