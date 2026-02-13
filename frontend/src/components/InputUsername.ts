@@ -22,15 +22,14 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 		button.className = "btn btn-primary px-3 py-2 px-lg-4 py-lg-2";
 		button.innerText = "Join";
 
-		button.addEventListener("click", (e) => {
-			e.preventDefault();
+		button.addEventListener("click", () => {
+			// e.preventDefault();
 
-			const name = input.value.trim();
-			if (!name) {
+			const playerName = input.value.trim();
+			if (!playerName) {
 				return;
 			}
-
-			socket.emit("userJoinRequest", name);
+			socket.emit("playerJoinRequest", playerName);
 		});
 
 		wrapper.appendChild(title);

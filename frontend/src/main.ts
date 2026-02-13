@@ -20,12 +20,12 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
  * Component inits
  */
 // GameBoard(socket);
-const usernameInput = UsernameInput(socket);
 
 /**
  * Page Component inits
  */
 const lobbyPage = Lobby();
+const usernameInput = UsernameInput(socket);
 
 /**
  * DOM References

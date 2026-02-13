@@ -24,25 +24,20 @@ export const handleConnection = (
 	debug("🙋 A user connected with id: %s", socket.id);
 
 	/**
-	 * Login user and save name to DB 
+	 * Login user and save name to DB
 	 */
 
-	socket.on("userJoinRequest", async (name:string) => {
-        // 1. Create User, set id to socket.id and roomId to the roomId they want to join
-        const user = await createUser({
-            id: socket.id,
-            name,
-			gameId: null,
-			scoreboardId: null,
-        });
-
-        debug("👶 Created user: %o", user);
-		
-        // Broadcast to everyone in the room (including ourselves) that a user has joined
-        // io.to(roomId).emit("userJoined", username, Date.now());
-        // Broadcast a list of online users to the room (except ourselves)
-        // socket.to(roomId).emit("userList", usersInRoom);
-    });
+	socket.on("playerJoinRequest", async (playerName: string) => {
+		try {
+			const user = await createUser({
+				id: socket.id,
+				name: playerName,
+			});
+			debug("✅Created user: %o", user);
+		} catch (err) {
+			console.error("⚠️Error handling playerJoinRequest:", err);
+		}
+	});
 
 	// Handle user disconnecting
 	socket.on("disconnect", () => {
@@ -68,6 +63,6 @@ export const handleConnection = (
 	 */
 
 	/**
-	 * 
+	 *
 	 */
 };
