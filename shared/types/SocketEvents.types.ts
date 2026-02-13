@@ -14,7 +14,7 @@ export interface ScorePayload {
   id: string;
   score: number;
   playerNbr: number;
-  playerJoinRequest: string;
+  playerName: string;
 }
 
 export interface TimestampPayload {
