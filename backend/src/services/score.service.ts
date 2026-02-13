@@ -1,4 +1,4 @@
-import type { ScorePayload } from "@shared/types/SocketEvents.types.ts";
+import type { ScorePayload } from "@shared/types/payloads.types.ts";
 import { prisma } from "../lib/prisma.ts";
 
 export const updateScoreBoard = async (payload: ScorePayload) => {

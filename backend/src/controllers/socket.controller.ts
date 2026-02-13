@@ -1,15 +1,12 @@
 /**
  * Socket Controller
  */
-import {
-	ClientToServerEvents,
-	ServerToClientEvents,
-	type ScorePayload,
-} from "@shared/types/SocketEvents.types.ts";
+import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types.ts";
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { updateScoreBoard } from "../services/score.service.ts";
 import { createUser } from "../services/player.service.ts";
+import type { ScorePayload } from "@shared/types/payloads.types.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
