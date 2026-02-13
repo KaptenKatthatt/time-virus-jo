@@ -33,6 +33,8 @@ export const handleConnection = (
 				id: socket.id,
 				name: playerName,
 			});
+			socket.emit("player:confirmed", user);
+
 			debug("✅Created user: %o", user);
 		} catch (err) {
 			console.error("⚠️Error handling playerJoinRequest:", err);

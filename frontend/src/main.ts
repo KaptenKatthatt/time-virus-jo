@@ -4,11 +4,12 @@ import type {
 } from "@shared/types/SocketEvents.types.ts";
 import { io, Socket } from "socket.io-client";
 
-import { GameBoard } from "./components/GameBoard";
+// import { GameBoard } from "./components/GameBoard";
 import { UsernameInput } from "./components/InputUsername";
 // Styling
 import "./assets/scss/style.scss";
 import Lobby from "./pages/lobby";
+import type { Player } from "../../backend/generated/prisma/client";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -69,6 +70,14 @@ socket.io.on("reconnect", () => {
  * Functions
  */
 
+const handlePlayerConfirmed = (player: Player) => {
+	console.log("Player %s joined", player.name);
+
+	app.innerHTML = "";
+	app.appendChild(lobbyPage);
+};
+
 /**
  * DOM Event Listeners
  */
+socket.on("player:confirmed", handlePlayerConfirmed);
