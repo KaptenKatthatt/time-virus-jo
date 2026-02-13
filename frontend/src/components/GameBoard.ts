@@ -1,4 +1,7 @@
+// Shall GameBoard receive input data?
 export function GameBoard() {
+	let score: number = 0;
+
 	const gameBoard = document.querySelector<HTMLDivElement>(".game-board")!;
 
 	// Generate squares with two loops
@@ -21,12 +24,37 @@ export function GameBoard() {
 		}
 		if (clickedCell.classList.contains("virus")) {
 			clickedCell.classList.remove("virus");
-			score++;
-			playerOneScore.textContent = String(score);
+
+			// Update score
+			// score++;
+			// playerOneScore.textContent = String(score);
+
+			// payload:
+			// PlayerNbr 1 clicked first? true/false
+			// Player1time
+			// Player Nbr 2 clicked first? true/false
+			// player2Time
+			// Player name
+			// Game id
+
+			//TODO: Receive game start timestamp from server
+
+			// TODO: Emit timestamp
+			const timestamp = Date.now();
+			const currentPlayer = "someUser";
+
+			const timeStampPayload = {
+				userId: currentPlayer,
+				timestamp,
+			};
+			socket.emit("sendTimestamp", timestampPayload);
+
+			// TODO: Receive new score and update UI
+
+			// socket.emit("updateScore", payload);
 		}
 	});
 
-	let score: number = 0;
 	const playerOneScore = document.querySelector<HTMLSpanElement>(".player-1-score")!;
 	playerOneScore.textContent = String(score);
 
