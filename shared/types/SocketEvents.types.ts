@@ -1,4 +1,4 @@
-import { GameOverPayload, GamePayload, VirusPayload, type ScorePayload } from "./payloads.types";
+import type { GameOverPayload, GamePayload, VirusPayload, ScorePayload } from "./payloads.types";
 
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
