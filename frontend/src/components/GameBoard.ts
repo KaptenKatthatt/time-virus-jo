@@ -1,5 +1,3 @@
-import type { ClientToServerEvents } from "@shared/types/SocketEvents.types";
-
 // Shall GameBoard receive input data?
 export function GameBoard() {
 	let score: number = 0;
@@ -39,7 +37,21 @@ export function GameBoard() {
 			// Player name
 			// Game id
 
-			socket.emit("updateScore", payload);
+			//TODO: Receive game start timestamp from server
+
+			// TODO: Emit timestamp
+			const timestamp = Date.now();
+			const currentPlayer = "someUser";
+
+			const timeStampPayload = {
+				userId: currentPlayer,
+				timestamp,
+			};
+			socket.emit("sendTimestamp", timestampPayload);
+
+			// TODO: Receive new score and update UI
+
+			// socket.emit("updateScore", payload);
 		}
 	});
 

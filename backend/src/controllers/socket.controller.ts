@@ -37,4 +37,11 @@ export const handleConnection = (
 		// Update score on client
 		socket.to(payload.id).emit("score", payload);
 	});
+
+	// calculateScore(timestamp1, timestamp2)
+	// Jämför
+
+	/**
+	 * Receive timestamp from client
+	 */
 };

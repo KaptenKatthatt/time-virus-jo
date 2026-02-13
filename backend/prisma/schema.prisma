@@ -14,27 +14,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id   String @id @map("_id")
-  name String
+model Player {
+  id           String      @id @map("_id")
+  name         String
+  game         Game?       @relation(fields: [gameId], references: [id])
+  gameId       String?     @db.ObjectId
+  scoreboard   Scoreboard? @relation(fields: [scoreboardId], references: [id])
+  scoreboardId String?     @db.ObjectId
 }
 
-// Data for currently running games
+// Data for currently running game(room)
 model Game {
-  id               String @id @map("_id")
-  name             String
+  id               String  @id @map("_id")
+  name             String?
   player_one_name  String
   player_two_name  String
   player_one_score Int
   player_two_score Int
+
+  startTime     Int
+  clickTime1    Int
+  clickTime2    Int
+  player_one_id String
+  player_two_id String
+  fastest_Time  String
+  players       Player[]
 }
 
 // Data for archived games
 model Scoreboard {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String?
   player_one_name  String
   player_two_name  String
   player_one_score Int
   player_two_score Int
+  players          Player[]
 }
