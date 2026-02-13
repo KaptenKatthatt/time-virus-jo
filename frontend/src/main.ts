@@ -5,6 +5,7 @@ import type {
 import { io, Socket } from "socket.io-client";
 
 import { GameBoard } from "./components/GameBoard";
+import { UsernameInput } from "./components/InputUsername";
 // Styling
 import "./assets/scss/style.scss";
 import Lobby from "./pages/lobby";
@@ -19,7 +20,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
  * Component inits
  */
 // GameBoard();
-
+UsernameInput(socket);
 /**
  * Page Component inits
  */
