@@ -6,8 +6,8 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 		const container = document.createElement("div");
 		container.className = "container d-flex justify-content-center align-items-center vh-100";
 
-		const wrapper = document.createElement("div");
-		wrapper.className = "text-center p-4 border rounded";
+		const form = document.createElement("form");
+		form.className = "text-center p-4 border rounded";
 
 		const title = document.createElement("h1");
 		title.className = "mb-2";
@@ -20,12 +20,12 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 		input.className = "form-control mb-3 p-2 p-lg-3";
 
 		const button = document.createElement("button");
+		button.type = "submit";
 		button.className = "btn btn-primary px-3 py-2 px-lg-4 py-lg-2";
 		button.innerText = "Join";
 
-		button.addEventListener("click", () => {
-			// e.preventDefault();
-
+		form.addEventListener("submit", (e) => {
+			e.preventDefault();
 			const playerName = input.value.trim();
 			if (!playerName) {
 				return;
@@ -33,11 +33,11 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 			socket.emit("playerJoinRequest", playerName);
 		});
 
-		wrapper.appendChild(title);
-		wrapper.appendChild(input);
-		wrapper.appendChild(button);
+		form.appendChild(title);
+		form.appendChild(input);
+		form.appendChild(button);
 
-		container.appendChild(wrapper);
+		container.appendChild(form);
 
 		return container;
 	};
