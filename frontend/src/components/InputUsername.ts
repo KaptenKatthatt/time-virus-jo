@@ -1,0 +1,39 @@
+export function UsernameInput(onSubmit: (name: string) => void) {
+    const render = () => {
+        const container = document.createElement("div");
+        container.className = "container d-flex justify-content-center align-items-center vh-100";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "text-center p-4 border rounded";
+
+        const title = document.createElement("h1");
+        title.className = "mb-2";
+        title.innerText = "Virus-game";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Enter a username";
+        input.className = "form-control mb-3 p-2 p-lg-3";
+
+        const button = document.createElement("button");
+        button.className = "btn btn-primary px-3 py-2 px-lg-4 py-lg-2";
+        button.innerText = "Join";
+
+        button.addEventListener("click", () => {
+            const name = input.value.trim();
+            if (name.length > 0) {
+                onSubmit(name);
+            }
+        });
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(input);
+        wrapper.appendChild(button);
+
+        container.appendChild(wrapper);
+
+        return container;
+    }
+
+    return render;
+} 
