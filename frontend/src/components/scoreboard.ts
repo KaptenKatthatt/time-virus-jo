@@ -1,9 +1,6 @@
-import type { PrismaScoreboard } from "@shared/types/Models.types";
-
-type ScoreboardOmitId = Omit<PrismaScoreboard, "id">;
+import type { ScoreboardOmitId } from "../types/scoreboard.types";
 
 export default function Scoreboard() {
-
 	//TODO: get scoreboard data from server
 	const data: ScoreboardOmitId[] = [
 		{
@@ -99,4 +96,3 @@ function TableBody(data: ScoreboardOmitId[]) {
 	};
 	return render();
 }
-
