@@ -1,4 +1,4 @@
-import { PrismaGame, PrismaPlayer } from "./Models.types.ts";
+import type { PrismaGame, PrismaPlayer } from "./Models.types.ts";
 
 export type GamePayload = PrismaGame;
 type PlayerId = Pick<PrismaPlayer, "id">;
