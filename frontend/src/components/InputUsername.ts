@@ -16,6 +16,7 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 		const input = document.createElement("input");
 		input.type = "text";
 		input.placeholder = "Enter a username";
+		input.autofocus = true;
 		input.className = "form-control mb-3 p-2 p-lg-3";
 
 		const button = document.createElement("button");
