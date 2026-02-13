@@ -30,7 +30,7 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
                 return;
             }
 
-            socket.emit("playerName", name);
+            socket.emit("userJoinRequest", name);
         });
 
         wrapper.appendChild(title);

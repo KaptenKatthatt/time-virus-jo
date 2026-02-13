@@ -19,7 +19,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
 /**
  * Component inits
  */
-// GameBoard();
+// GameBoard(socket);
 UsernameInput(socket);
 /**
  * Page Component inits
@@ -35,7 +35,6 @@ const app = document.querySelector<HTMLDivElement>("#app")!
  * Add page to index.html
  */
 app.appendChild(lobbyPage)
-
 
 /**
  * Variables

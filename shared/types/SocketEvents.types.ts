@@ -7,16 +7,23 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   updateScore: (payload: ScorePayload) => void;
   sendTimestamp: (timestampPayload: TimestampPayload) => void;
+  userJoinRequest: (name: string) => void;
+
 }
 
 export interface ScorePayload {
   id: string;
   score: number;
   playerNbr: number;
-  playerName: string;
+  userJoinRequest: string;
 }
 
 export interface TimestampPayload {
   userId: string;
   timestamp: number;
+}
+
+export interface Player{
+  id: string;
+  name: string;
 }

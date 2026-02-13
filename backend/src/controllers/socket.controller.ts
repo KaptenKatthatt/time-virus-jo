@@ -9,6 +9,7 @@ import {
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { updateScoreBoard } from "../services/score.service.ts";
+import { createUser } from "../services/player.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -21,6 +22,27 @@ export const handleConnection = (
 ) => {
 	// Yay someone connected to me
 	debug("🙋 A user connected with id: %s", socket.id);
+
+	/**
+	 * Login user and save name to DB 
+	 */
+
+	socket.on("userJoinRequest", async (name:string) => {
+        // 1. Create User, set id to socket.id and roomId to the roomId they want to join
+        const user = await createUser({
+            id: socket.id,
+            name,
+			gameId: null,
+			scoreboardId: null,
+        });
+
+        debug("👶 Created user: %o", user);
+		
+        // Broadcast to everyone in the room (including ourselves) that a user has joined
+        // io.to(roomId).emit("userJoined", username, Date.now());
+        // Broadcast a list of online users to the room (except ourselves)
+        // socket.to(roomId).emit("userList", usersInRoom);
+    });
 
 	// Handle user disconnecting
 	socket.on("disconnect", () => {
@@ -43,5 +65,9 @@ export const handleConnection = (
 
 	/**
 	 * Receive timestamp from client
+	 */
+
+	/**
+	 * 
 	 */
 };
