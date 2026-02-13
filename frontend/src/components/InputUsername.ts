@@ -1,4 +1,7 @@
-export function UsernameInput(onSubmit: (name: string) => void) {
+import { Socket } from "socket.io-client";
+import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+
+export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
     const render = () => {
         const container = document.createElement("div");
         container.className = "container d-flex justify-content-center align-items-center vh-100";
@@ -19,11 +22,15 @@ export function UsernameInput(onSubmit: (name: string) => void) {
         button.className = "btn btn-primary px-3 py-2 px-lg-4 py-lg-2";
         button.innerText = "Join";
 
-        button.addEventListener("click", () => {
+        button.addEventListener("submit", (e) => {
+            e.preventDefault();
+
             const name = input.value.trim();
-            if (name.length > 0) {
-                onSubmit(name);
+            if (!name) {
+                return;
             }
+
+            socket.emit("playerName", name);
         });
 
         wrapper.appendChild(title);
