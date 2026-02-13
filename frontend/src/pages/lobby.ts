@@ -1,3 +1,4 @@
+import Button from "../components/Button";
 import Scoreboard from "../components/scoreboard";
 
 function Lobby() {
@@ -23,24 +24,6 @@ function Lobby() {
 		div.appendChild(button);
 
 		return div;
-	};
-	return render();
-}
-
-function Button(text: string, cb?: (event?: PointerEvent) => void) {
-	const listener = (event: PointerEvent) => {
-		if (cb) {
-			cb(event);
-		}
-	};
-
-	const render = () => {
-		const button = document.createElement("button");
-
-		button.innerText = text;
-		button.addEventListener("click", listener);
-
-		return button;
 	};
 	return render();
 }
