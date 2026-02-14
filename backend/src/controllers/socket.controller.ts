@@ -9,6 +9,12 @@ import { createUser } from "../services/player.service.ts";
 import type { GameId, ScorePayload } from "@shared/types/payloads.types.ts";
 import { createGame, creategame } from "../services/game.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
+import {
+	addPlayerToGame,
+	addPlayerTwoToGame,
+	findAvailableGame,
+	joinGame,
+} from "../services/gameRoom.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -42,12 +48,31 @@ export const handleConnection = (
 	/**
 	 * Join game, await matchmaking
 	 */
-	socket.on("playerJoinGameRequest", async (playerName: string) => {
-		// 1.Create game in db
-		const newGame: Game = createGame();
-		const gameId: string = await newGame.id;
+	socket.on("playerJoinGameRequest", async (playerId: string) => {
+		// Look for a game where player_two_id is null;
+		// If found, add player to that gameId
+		// Else create game and add to player_one_id column
 
-		// 2. Add player to game(gameId)
+		// 1. Findfirst. Found any games?
+		// 1.1 Check if player_two is empy
+		// 1.2 Join it
+		// 2.  Else Create game
+
+		// Look for available games and create or join
+		const availableGame = await findAvailableGame();
+		if (availableGame === null) {
+			const newGame = await createGame(playerId);
+		} else {
+			joinGame(availableGame.id, playerId);
+		}
+
+		/*
+		// 1.Create game in db if no game
+		const newGame: Game = await createGame();
+		const gameId = newGame.id;
+
+		// 2.Else: Add player to game(gameId)
+		addPlayerTwoToGame(playerTwoId, gameId); */
 	});
 
 	// Handle user disconnecting
