@@ -73,13 +73,17 @@ export const handleConnection = (
 			// Emit to Player 1 that game is created and is waiting for opponent
 			socket.emit("game:created", gameCreatedPayload);
 		} else {
-			joinGame(availableGame.id, playerId);
+			await joinGame(playerId, availableGame.id);
 
 			// Send signal that games is full and to start game
 			const gameStartPayload: GameStartPayload = {
 				gameId: availableGame.id,
 				message: "All players joined. Starting game",
 			};
+			// Join player 2 into the game
+			socket.join(availableGame.id);
+
+			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
 		}
 	});
@@ -88,6 +92,9 @@ export const handleConnection = (
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected with id: %s", socket.id);
 		// TODO: Handle disconnect while waiting for matching. Delete game.
+		// const gameToDelete = await findGameToDelete(socket.id);
+
+		// await deleteGame(gametoDelete);
 	});
 
 	/**

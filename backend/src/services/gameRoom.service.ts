@@ -8,6 +8,7 @@ export const createGame = async (playerOneId: string) => {
 	return await prisma.game.create({
 		data: {
 			player_one_id: playerOneId,
+			player_two_id: null,
 		},
 	});
 };
@@ -28,3 +29,12 @@ export const joinGame = async (playerId: string, gameId: string) => {
 		},
 	});
 };
+
+// export const deleteGame = async (playerId) =>{
+// 	await prisma.game.delete({
+// 		where: {
+
+// 		}
+// 	})
+
+// }

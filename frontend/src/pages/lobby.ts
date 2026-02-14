@@ -22,6 +22,7 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 			console.log("start game");
 			// Send join game request to backend
 			if (socket.id) {
+				console.log("Sending join request");
 				socket.emit("playerJoinGameRequest", socket.id);
 			}
 

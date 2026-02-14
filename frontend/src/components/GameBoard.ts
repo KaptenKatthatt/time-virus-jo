@@ -6,6 +6,7 @@ import type { Socket } from "socket.io-client";
 function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, gameId: GameId) {
 	const gameBoard = document.createElement("div");
 	gameBoard.className = "game-board";
+	console.log("GameBoard rendering");
 
 	// Generate squares with two loops
 	for (let x = 0; x <= 9; x++) {
