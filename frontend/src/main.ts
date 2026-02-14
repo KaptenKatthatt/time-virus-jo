@@ -70,7 +70,7 @@ socket.io.on("reconnect", () => {
  * Functions
  */
 
-const handlePlayerConfirmed = (player: Player) => {
+const showLobbyAfterJoin = (player: Player) => {
 	console.log("Player %s joined", player.name);
 
 	app.innerHTML = "";
@@ -80,4 +80,4 @@ const handlePlayerConfirmed = (player: Player) => {
 /**
  * DOM Event Listeners
  */
-socket.on("player:confirmed", handlePlayerConfirmed);
+socket.on("player:confirmed", showLobbyAfterJoin);
