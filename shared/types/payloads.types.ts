@@ -13,6 +13,16 @@ export interface GameOverPayload extends GameScore {
   winner: PlayerId;
 }
 
+export interface GameCreatedPayload {
+  gameId: string;
+  message: string;
+}
+
+export interface GameStartPayload {
+  gameId: string;
+  message: string;
+}
+
 export interface ScorePayload {
   id: string;
   score: number;

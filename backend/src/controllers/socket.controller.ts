@@ -6,15 +6,15 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { updateScoreBoard } from "../services/score.service.ts";
 import { createUser } from "../services/player.service.ts";
-import type { GameId, ScorePayload } from "@shared/types/payloads.types.ts";
+import type {
+	GameCreatedPayload,
+	GameStartPayload,
+	ScorePayload,
+} from "@shared/types/payloads.types.ts";
 import { createGame, creategame } from "../services/game.service.ts";
+
+import { findAvailableGame, joinGame } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
-import {
-	addPlayerToGame,
-	addPlayerTwoToGame,
-	findAvailableGame,
-	joinGame,
-} from "../services/gameRoom.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -23,7 +23,7 @@ debug("Socket Controller initialized");
 // Handle new socket connection
 export const handleConnection = (
 	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
-	_io: Server<ClientToServerEvents, ServerToClientEvents>,
+	io: Server<ClientToServerEvents, ServerToClientEvents>,
 ) => {
 	// Yay someone connected to me
 	debug("🙋 A user connected with id: %s", socket.id);
@@ -61,23 +61,33 @@ export const handleConnection = (
 		// Look for available games and create or join
 		const availableGame = await findAvailableGame();
 		if (availableGame === null) {
-			const newGame = await createGame(playerId);
+			const newGame: Game = await createGame(playerId);
+
+			// Join Player 1 into game
+			socket.join(newGame.id);
+
+			const gameCreatedPayload: GameCreatedPayload = {
+				gameId: newGame.id,
+				message: "Waiting for opponent...",
+			};
+			// Emit to Player 1 that game is created and is waiting for opponent
+			socket.emit("game:created", gameCreatedPayload);
 		} else {
 			joinGame(availableGame.id, playerId);
+
+			// Send signal that games is full and to start game
+			const gameStartPayload: GameStartPayload = {
+				gameId: availableGame.id,
+				message: "All players joined. Starting game",
+			};
+			io.to(availableGame.id).emit("game:start", gameStartPayload);
 		}
-
-		/*
-		// 1.Create game in db if no game
-		const newGame: Game = await createGame();
-		const gameId = newGame.id;
-
-		// 2.Else: Add player to game(gameId)
-		addPlayerTwoToGame(playerTwoId, gameId); */
 	});
 
 	// Handle user disconnecting
 	socket.on("disconnect", () => {
 		debug("👋 A user disconnected with id: %s", socket.id);
+		// TODO: Handle disconnect while waiting for matching. Delete game.
 	});
 
 	/**

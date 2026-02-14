@@ -1,6 +1,13 @@
+import type { GameId } from "@shared/types/payloads.types";
+import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import type { Socket } from "socket.io-client";
+
 // Shall GameBoard receive input data?
-export function GameBoard() {
-	let score: number = 0;
+export function GameBoard(
+	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
+	gameId: string,
+) {
+	// let score: number = 0;
 
 	const gameBoard = document.querySelector<HTMLDivElement>(".game-board")!;
 

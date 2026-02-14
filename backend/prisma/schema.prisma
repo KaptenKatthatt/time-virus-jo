@@ -25,10 +25,10 @@ model Player {
 
 // Data for currently running game(room)
 model Game {
-  id               String  @id @map("_id")
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
   name             String?
-  // player_one_name  String
-  // player_two_name  String
+  player_one_name  String?
+  player_two_name  String?
   player_one_score Int?
   player_two_score Int?
 

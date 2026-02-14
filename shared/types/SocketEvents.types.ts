@@ -1,4 +1,11 @@
-import type { GameOverPayload, GamePayload, VirusPayload, ScorePayload } from "./payloads.types";
+import type {
+  GameOverPayload,
+  GamePayload,
+  VirusPayload,
+  ScorePayload,
+  GameCreatedPayload,
+  GameStartPayload,
+} from "./payloads.types";
 
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
@@ -7,6 +14,8 @@ export interface ServerToClientEvents {
   "game:data": (payload: GamePayload | GamePayload[]) => void;
   "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (player: Player) => void;
+  "game:created": (payload: GameCreatedPayload) => void;
+  "game:start": (payload: GameStartPayload) => void;
 }
 
 // Events emitted by the client to the server

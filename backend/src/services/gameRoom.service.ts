@@ -21,7 +21,7 @@ export const findAvailableGame = async () => {
 };
 
 export const joinGame = async (playerId: string, gameId: string) => {
-	await prisma.game.update({
+	return await prisma.game.update({
 		where: { id: gameId },
 		data: {
 			player_two_id: playerId,

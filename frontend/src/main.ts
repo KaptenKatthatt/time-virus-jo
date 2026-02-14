@@ -25,7 +25,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
 /**
  * Page Component inits
  */
-const lobbyPage = Lobby();
+const lobbyPage = Lobby(socket);
 const usernameInput = UsernameInput(socket);
 
 /**
