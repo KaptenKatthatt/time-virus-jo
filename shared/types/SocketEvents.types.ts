@@ -14,6 +14,7 @@ export interface ClientToServerEvents {
   updateScore: (payload: ScorePayload) => void;
   sendTimestamp: (timestampPayload: TimestampPayload) => void;
   playerJoinLobbyRequest: (playerName: string) => void;
+  playerJoinGameRequest: (playerName: string) => void;
 }
 
 export interface TimestampPayload {

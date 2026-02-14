@@ -1,7 +1,8 @@
 import type { PrismaGame, PrismaPlayer } from "./Models.types.ts";
 
 export type GamePayload = PrismaGame;
-type PlayerId = Pick<PrismaPlayer, "id">;
+export type GameId = Pick<GamePayload, "id">;
+export type PlayerId = Pick<PrismaPlayer, "id">;
 
 type GameScore = Pick<
   PrismaGame,

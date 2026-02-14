@@ -6,7 +6,9 @@ import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { updateScoreBoard } from "../services/score.service.ts";
 import { createUser } from "../services/player.service.ts";
-import type { ScorePayload } from "@shared/types/payloads.types.ts";
+import type { GameId, ScorePayload } from "@shared/types/payloads.types.ts";
+import { createGame, creategame } from "../services/game.service.ts";
+import type { Game } from "../../generated/prisma/client.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -23,7 +25,6 @@ export const handleConnection = (
 	/**
 	 * Login user and save name to DB
 	 */
-
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
 			const user = await createUser({
@@ -36,6 +37,17 @@ export const handleConnection = (
 		} catch (err) {
 			console.error("⚠️Error handling playerJoinLobbyRequest:", err);
 		}
+	});
+
+	/**
+	 * Join game, await matchmaking
+	 */
+	socket.on("playerJoinGameRequest", async (playerName: string) => {
+		// 1.Create game in db
+		const newGame: Game = createGame();
+		const gameId: string = await newGame.id;
+
+		// 2. Add player to game(gameId)
 	});
 
 	// Handle user disconnecting
