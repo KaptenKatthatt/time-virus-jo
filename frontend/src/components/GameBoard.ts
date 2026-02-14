@@ -63,14 +63,16 @@ function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, g
 	// // playerOneScore.textContent = String(score);
 
 	setInterval(() => {
-		const currentVirus = document.querySelector(".virus");
+		const currentVirus = gameBoard.querySelector(".virus") as HTMLElement | null;
 		if (currentVirus) {
 			currentVirus.classList.remove("virus");
 		}
 		const randX = Math.floor(Math.random() * 10);
 		const randY = Math.floor(Math.random() * 10);
-		const virusCell = document.querySelector(`#cell-${randX}-${randY}`)!;
-		virusCell.classList.add("virus");
+		const virusCell = gameBoard.querySelector(`#cell-${randX}-${randY}`) as HTMLElement | null;
+		if (virusCell) {
+			virusCell.classList.add("virus");
+		}
 	}, 1000);
 
 	return gameBoard;

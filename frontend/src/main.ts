@@ -6,12 +6,18 @@ import { io, Socket } from "socket.io-client";
 
 // import { GameBoard } from "./components/GameBoard";
 import { UsernameInput } from "./components/InputUsername";
+
 // Styling
 import "./assets/scss/style.scss";
-import Lobby from "./pages/lobby";
+import "../game/game.scss";
+
 import type { Player } from "../../backend/generated/prisma/client";
-import GameBoard from "./components/GameBoard";
 import type { GameStartPayload } from "@shared/types/payloads.types";
+
+// Pages
+import Lobby from "./pages/lobby";
+import GameBoard from "./components/GameBoard";
+import Game from "./pages/game";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -81,7 +87,7 @@ const showLobbyAfterJoin = (player: Player) => {
 
 const showGameBoardAtGameStart = (payload: GameStartPayload) => {
 	app.innerHTML = "";
-	app.appendChild(GameBoard(socket, payload.gameId));
+	app.appendChild(Game(socket, payload.gameId));
 };
 
 /**
