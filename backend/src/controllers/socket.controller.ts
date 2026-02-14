@@ -24,7 +24,7 @@ export const handleConnection = (
 	 * Login user and save name to DB
 	 */
 
-	socket.on("playerJoinRequest", async (playerName: string) => {
+	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
 			const user = await createUser({
 				id: socket.id,
@@ -34,7 +34,7 @@ export const handleConnection = (
 
 			debug("✅Created user: %o", user);
 		} catch (err) {
-			console.error("⚠️Error handling playerJoinRequest:", err);
+			console.error("⚠️Error handling playerJoinLobbyRequest:", err);
 		}
 	});
 

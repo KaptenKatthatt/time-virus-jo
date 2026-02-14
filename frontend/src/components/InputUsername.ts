@@ -30,7 +30,7 @@ export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServe
 			if (!playerName) {
 				return;
 			}
-			socket.emit("playerJoinRequest", playerName);
+			socket.emit("playerJoinLobbyRequest", playerName);
 		});
 
 		form.appendChild(title);

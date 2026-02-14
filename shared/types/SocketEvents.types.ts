@@ -13,7 +13,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   updateScore: (payload: ScorePayload) => void;
   sendTimestamp: (timestampPayload: TimestampPayload) => void;
-  playerJoinRequest: (playerName: string) => void;
+  playerJoinLobbyRequest: (playerName: string) => void;
 }
 
 export interface TimestampPayload {
