@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import PlayerData from "../components/game/PlayerData";
-import GameBoard from "../components/GameBoard";
+import GameBoard from "../components/game/GameBoard";
 import type { GameId } from "@shared/types/payloads.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 

@@ -2,7 +2,6 @@ import type { GameId } from "@shared/types/payloads.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { Socket } from "socket.io-client";
 
-// Shall GameBoard receive input data?
 function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, gameId: GameId) {
 	const gameBoard = document.createElement("div");
 	gameBoard.className = "game-board";
@@ -73,7 +72,7 @@ function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, g
 		if (virusCell) {
 			virusCell.classList.add("virus");
 		}
-	}, 1000);
+	}, 2000);
 
 	return gameBoard;
 }

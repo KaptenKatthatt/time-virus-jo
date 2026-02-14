@@ -4,19 +4,17 @@ import type {
 } from "@shared/types/SocketEvents.types.ts";
 import { io, Socket } from "socket.io-client";
 
-// import { GameBoard } from "./components/GameBoard";
-import { UsernameInput } from "./components/InputUsername";
-
 // Styling
 import "./assets/scss/style.scss";
-import "../game/game.scss";
+import "./assets/scss/game.scss";
 
+// Types
 import type { Player } from "../../backend/generated/prisma/client";
 import type { GameStartPayload } from "@shared/types/payloads.types";
 
 // Pages
+import { UsernameInput } from "./components/InputUsername";
 import Lobby from "./pages/lobby";
-import GameBoard from "./components/GameBoard";
 import Game from "./pages/game";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -24,11 +22,6 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 
 // Connect to Socket.IO Server
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOST);
-
-/**
- * Component inits
- */
-// GameBoard(socket);
 
 /**
  * Page Component inits
@@ -44,7 +37,6 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 /**
  * Add page to index.html
  */
-// app.appendChild(lobbyPage);
 app.appendChild(usernameInput);
 
 /**
@@ -77,7 +69,6 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-
 const showLobbyAfterJoin = (player: Player) => {
 	console.log("Player %s joined", player.name);
 
@@ -93,12 +84,14 @@ const showGameBoardAtGameStart = (payload: GameStartPayload) => {
 /**
  * DOM Event Listeners
  */
-socket.on("player:confirmed", showLobbyAfterJoin);
 
 // Gamestate listeners
+socket.on("player:confirmed", showLobbyAfterJoin);
+
 socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
+
 socket.on("game:start", (payload) => {
 	console.log(payload.message);
 	showGameBoardAtGameStart(payload);
