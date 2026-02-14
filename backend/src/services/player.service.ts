@@ -7,7 +7,7 @@ import { prisma } from "../lib/prisma.ts";
  * @returns {Player} Player
  */
 
-export const createUser = async (data: Prisma.PlayerCreateInput) => {
+export const createPlayer = async (data: Prisma.PlayerCreateInput) => {
 	return await prisma.player.upsert({
 		where: {
 			id: data.id as string,

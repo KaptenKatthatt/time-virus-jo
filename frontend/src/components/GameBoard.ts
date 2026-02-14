@@ -3,13 +3,9 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { Socket } from "socket.io-client";
 
 // Shall GameBoard receive input data?
-export function GameBoard(
-	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
-	gameId: string,
-) {
-	// let score: number = 0;
-
-	const gameBoard = document.querySelector<HTMLDivElement>(".game-board")!;
+function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, gameId: GameId) {
+	const gameBoard = document.createElement("div");
+	gameBoard.className = "game-board";
 
 	// Generate squares with two loops
 	for (let x = 0; x <= 9; x++) {
@@ -47,14 +43,14 @@ export function GameBoard(
 			//TODO: Receive game start timestamp from server
 
 			// TODO: Emit timestamp
-			const timestamp = Date.now();
-			const currentPlayer = "someUser";
+			// const timestamp = Date.now();
+			// const currentPlayer = "someUser";
 
-			const timeStampPayload = {
-				userId: currentPlayer,
-				timestamp,
-			};
-			socket.emit("sendTimestamp", timestampPayload);
+			// const timeStampPayload = {
+			// 	userId: currentPlayer,
+			// 	timestamp,
+			// };
+			// socket.emit("sendTimestamp", timeStampPayload);
 
 			// TODO: Receive new score and update UI
 
@@ -62,8 +58,8 @@ export function GameBoard(
 		}
 	});
 
-	const playerOneScore = document.querySelector<HTMLSpanElement>(".player-1-score")!;
-	playerOneScore.textContent = String(score);
+	// const playerOneScore = document.querySelector<HTMLSpanElement>(".player-1-score")!;
+	// // playerOneScore.textContent = String(score);
 
 	setInterval(() => {
 		const currentVirus = document.querySelector(".virus");
@@ -75,4 +71,8 @@ export function GameBoard(
 		const virusCell = document.querySelector(`#cell-${randX}-${randY}`)!;
 		virusCell.classList.add("virus");
 	}, 1000);
+
+	return gameBoard;
 }
+
+export default GameBoard;

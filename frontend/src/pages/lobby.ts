@@ -2,7 +2,6 @@ import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import Scoreboard from "../components/scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
-import { GameBoard } from "../components/GameBoard";
 
 function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	//send start matchmaking to server
@@ -22,7 +21,11 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 		const button = Button("Start game", () => {
 			console.log("start game");
 			// Send join game request to backend
-			// Open modal showing "Waiting for opponent..."
+			if (socket.id) {
+				socket.emit("playerJoinGameRequest", socket.id);
+			}
+
+			// TODO:Open modal showing "Waiting for opponent..."
 		});
 
 		div.appendChild(scoreboardEl);
@@ -31,13 +34,6 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 		return div;
 	};
 
-	socket.on("game:created", (payload) => {
-		console.log(payload.message);
-	});
-	socket.on("game:start", (payload) => {
-		console.log(payload.message);
-		GameBoard(socket, payload.gameId);
-	});
 	return render();
 }
 

@@ -5,6 +5,7 @@ import type {
   ScorePayload,
   GameCreatedPayload,
   GameStartPayload,
+  GameId,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -39,6 +40,6 @@ export interface TimestampPayload {
 export interface Player {
   id: string;
   name: string;
-  gameId: string | null;
+  gameId: GameId | null;
   scoreboardId: string | null;
 }

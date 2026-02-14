@@ -5,16 +5,16 @@ import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/Socket
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 import { updateScoreBoard } from "../services/score.service.ts";
-import { createUser } from "../services/player.service.ts";
+
 import type {
 	GameCreatedPayload,
 	GameStartPayload,
 	ScorePayload,
 } from "@shared/types/payloads.types.ts";
-import { createGame, creategame } from "../services/game.service.ts";
 
-import { findAvailableGame, joinGame } from "../services/gameRoom.service.ts";
+import { createGame, findAvailableGame, joinGame } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
+import { createPlayer } from "../services/player.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -33,13 +33,13 @@ export const handleConnection = (
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
-			const user = await createUser({
+			const player = await createPlayer({
 				id: socket.id,
 				name: playerName,
 			});
-			socket.emit("player:confirmed", user);
+			socket.emit("player:confirmed", player);
 
-			debug("✅Created user: %o", user);
+			debug("✅Created player: %o", player);
 		} catch (err) {
 			console.error("⚠️Error handling playerJoinLobbyRequest:", err);
 		}
