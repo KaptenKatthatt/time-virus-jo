@@ -1,4 +1,4 @@
-import type { GameId } from "@shared/types/payloads.types";
+import type { GameId, VirusPayload } from "@shared/types/payloads.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { Socket } from "socket.io-client";
 
@@ -18,6 +18,10 @@ function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, g
 			gameBoard.appendChild(cell);
 		}
 	}
+
+	// TODO Receive virus coords and delay
+	socket.on("game:sendVirus", (virus: VirusPayload) => {});
+
 	gameBoard.addEventListener("click", (e) => {
 		const clickedCell = e.target as HTMLElement;
 
