@@ -27,52 +27,16 @@ function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, g
 		}
 		if (clickedCell.classList.contains("virus")) {
 			clickedCell.classList.remove("virus");
-
-			// Update score
-			// score++;
-			// playerOneScore.textContent = String(score);
-
-			// payload:
-			// PlayerNbr 1 clicked first? true/false
-			// Player1time
-			// Player Nbr 2 clicked first? true/false
-			// player2Time
-			// Player name
-			// Game id
-
-			//TODO: Receive game start timestamp from server
-
-			// TODO: Emit timestamp
-			// const timestamp = Date.now();
-			// const currentPlayer = "someUser";
-
-			// const timeStampPayload = {
-			// 	userId: currentPlayer,
-			// 	timestamp,
-			// };
-			// socket.emit("sendTimestamp", timeStampPayload);
-
-			// TODO: Receive new score and update UI
-
-			// socket.emit("updateScore", payload);
 		}
 	});
-
-	// const playerOneScore = document.querySelector<HTMLSpanElement>(".player-1-score")!;
-	// // playerOneScore.textContent = String(score);
-
-	setInterval(() => {
-		const currentVirus = gameBoard.querySelector(".virus") as HTMLElement | null;
-		if (currentVirus) {
-			currentVirus.classList.remove("virus");
-		}
-		const randX = Math.floor(Math.random() * 10);
-		const randY = Math.floor(Math.random() * 10);
-		const virusCell = gameBoard.querySelector(`#cell-${randX}-${randY}`) as HTMLElement | null;
-		if (virusCell) {
-			virusCell.classList.add("virus");
-		}
-	}, 2000);
+	const currentVirus = gameBoard.querySelector(".virus") as HTMLElement | null;
+	if (currentVirus) {
+		currentVirus.classList.remove("virus");
+	}
+	const virusCell = gameBoard.querySelector(`#cell-${randX}-${randY}`) as HTMLElement | null;
+	if (virusCell) {
+		virusCell.classList.add("virus");
+	}
 
 	return gameBoard;
 }
