@@ -60,6 +60,11 @@ socket.on("disconnect", () => {
 		"🥺 Got disconnected from server",
 		socket.io.opts.hostname + ":" + socket.io.opts.port,
 	);
+	currentPlayer = undefined;
+
+	// Reset UI and go back to login screen
+	app.innerHTML = "";
+	app.appendChild(usernameInput);
 });
 
 // Listen for when we're reconnected (either due to ours or the servers fault)
