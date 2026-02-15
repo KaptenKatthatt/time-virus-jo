@@ -21,7 +21,7 @@ import {
 	getPlayerByPlayerId,
 	deletePlayer,
 } from "../services/gameRoom.service.ts";
-import type { Game, Player } from "../../generated/prisma/client.ts";
+import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 
 // Create a new debug instance
@@ -101,7 +101,7 @@ export const handleConnection = (
 		const gameToDelete = await getGameByPlayerId(socket.id);
 		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
-		if (gameToDelete && playerWhoLeft) {
+		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
 			socket.to(gameToDelete.id).emit("player:disconnected", playerWhoLeft);
 
