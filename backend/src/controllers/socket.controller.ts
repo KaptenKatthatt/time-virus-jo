@@ -12,7 +12,12 @@ import type {
 	ScorePayload,
 } from "@shared/types/payloads.types.ts";
 
-import { createGame, findAvailableGame, joinGame } from "../services/gameRoom.service.ts";
+import {
+	createGame,
+	findAvailableGame,
+	joinGame,
+	deleteGame,
+} from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 
@@ -89,12 +94,12 @@ export const handleConnection = (
 	});
 
 	// Handle user disconnecting
-	socket.on("disconnect", () => {
+	socket.on("disconnect", async () => {
 		debug("👋 A user disconnected with id: %s", socket.id);
-		// TODO: Handle disconnect while waiting for matching. Delete game.
-		// const gameToDelete = await findGameToDelete(socket.id);
 
-		// await deleteGame(gametoDelete);
+		// Delete game on quit
+		await deleteGame(socket.id);
+		console.log("Game deleted");
 	});
 
 	/**

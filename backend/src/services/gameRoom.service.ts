@@ -30,11 +30,10 @@ export const joinGame = async (playerId: string, gameId: string) => {
 	});
 };
 
-// export const deleteGame = async (playerId) =>{
-// 	await prisma.game.delete({
-// 		where: {
-
-// 		}
-// 	})
-
-// }
+export const deleteGame = async (playerId: string) => {
+	await prisma.game.deleteMany({
+		where: {
+			OR: [{ player_one_id: playerId }, { player_two_id: playerId }],
+		},
+	});
+};
