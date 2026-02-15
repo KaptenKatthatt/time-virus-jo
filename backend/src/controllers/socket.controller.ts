@@ -21,7 +21,7 @@ import {
 	getPlayerByPlayerId,
 	deletePlayer,
 } from "../services/gameRoom.service.ts";
-import type { Game } from "../../generated/prisma/client.ts";
+import type { Game, Player } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 
 // Create a new debug instance
@@ -108,8 +108,13 @@ export const handleConnection = (
 			// Delete game on disconnect
 			await deleteGame(socket.id);
 			debug("Game deleted", gameToDelete.id);
+		} else if (gameToDelete) {
+			// Delete game if we have an empty game
+			await deleteGame(socket.id);
+		}
 
-			// Delete player on disconnect
+		// Delete remaining unused players to avoid ghosts
+		if (playerWhoLeft) {
 			await deletePlayer(socket.id);
 			debug("Disconnected player deleted");
 		}
