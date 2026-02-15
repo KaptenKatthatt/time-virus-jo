@@ -37,3 +37,23 @@ export const deleteGame = async (playerId: string) => {
 		},
 	});
 };
+
+export const deletePlayer = async (playerId: string) => {
+	await prisma.player.delete({
+		where: { id: playerId },
+	});
+};
+
+export const getGameByPlayerId = async (playerId: string) => {
+	return await prisma.game.findFirst({
+		where: {
+			OR: [{ player_one_id: playerId }, { player_two_id: playerId }],
+		},
+	});
+};
+
+export const getPlayerByPlayerId = async (playerId: string) => {
+	return await prisma.player.findUnique({
+		where: { id: playerId },
+	});
+};

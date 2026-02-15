@@ -42,6 +42,7 @@ app.appendChild(usernameInput);
 /**
  * Variables
  */
+let currentPlayer: Player | undefined = undefined;
 
 /**
  * Socket Event Listeners
@@ -69,8 +70,11 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-const showLobbyAfterJoin = (player: Player) => {
-	console.log("Player %s joined", player.name);
+const showLobbyAfterJoin = (player?: Player) => {
+	if (player) {
+		console.log("Player %s joined", player.name);
+		currentPlayer = player;
+	}
 
 	app.innerHTML = "";
 	app.appendChild(lobbyPage);
@@ -95,4 +99,9 @@ socket.on("game:created", (payload) => {
 socket.on("game:start", (payload) => {
 	console.log(payload.message);
 	showGameBoardAtGameStart(payload);
+});
+
+socket.on("player:disconnected", (playerWhoLeft: Player) => {
+	alert(playerWhoLeft.name + " disconnected");
+	showLobbyAfterJoin(currentPlayer);
 });

@@ -17,6 +17,9 @@ import {
 	findAvailableGame,
 	joinGame,
 	deleteGame,
+	getGameByPlayerId,
+	getPlayerByPlayerId,
+	deletePlayer,
 } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
@@ -95,11 +98,23 @@ export const handleConnection = (
 
 	// Handle user disconnecting
 	socket.on("disconnect", async () => {
-		debug("👋 A user disconnected with id: %s", socket.id);
+		const gameToDelete = await getGameByPlayerId(socket.id);
+		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
-		// Delete game on quit
-		await deleteGame(socket.id);
-		console.log("Game deleted");
+		if (gameToDelete && playerWhoLeft) {
+			// Tell remaining player that opponent disconnected
+			socket.to(gameToDelete.id).emit("player:disconnected", playerWhoLeft);
+
+			// Delete game on disconnect
+			await deleteGame(socket.id);
+			debug("Game deleted", gameToDelete.id);
+
+			// Delete player on disconnect
+			await deletePlayer(socket.id);
+			debug("Disconnected player deleted");
+		}
+
+		debug("👋 A user disconnected with id: %s", socket.id);
 	});
 
 	/**
