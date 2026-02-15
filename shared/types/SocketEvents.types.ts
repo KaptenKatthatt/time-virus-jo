@@ -11,12 +11,13 @@ import type {
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
   score: (payload: ScorePayload) => void; // Remove Later
-  "game:over": (payload: GameOverPayload) => void;
+  "game:created": (payload: GameCreatedPayload) => void;
   "game:data": (payload: GamePayload | GamePayload[]) => void;
+  "game:over": (payload: GameOverPayload) => void;
+  "game:start": (payload: GameStartPayload) => void;
   "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (player: Player) => void;
-  "game:created": (payload: GameCreatedPayload) => void;
-  "game:start": (payload: GameStartPayload) => void;
+  "player:disconnected": (playerWhoLeft: Player) => void;
 }
 
 // Events emitted by the client to the server

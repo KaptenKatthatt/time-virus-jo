@@ -42,6 +42,7 @@ app.appendChild(usernameInput);
 /**
  * Variables
  */
+let currentPlayer: Player | undefined = undefined;
 
 /**
  * Socket Event Listeners
@@ -59,6 +60,11 @@ socket.on("disconnect", () => {
 		"🥺 Got disconnected from server",
 		socket.io.opts.hostname + ":" + socket.io.opts.port,
 	);
+	currentPlayer = undefined;
+
+	// Reset UI and go back to login screen
+	app.innerHTML = "";
+	app.appendChild(usernameInput);
 });
 
 // Listen for when we're reconnected (either due to ours or the servers fault)
@@ -69,8 +75,11 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-const showLobbyAfterJoin = (player: Player) => {
-	console.log("Player %s joined", player.name);
+const showLobbyAfterJoin = (player?: Player) => {
+	if (player) {
+		console.log("Player %s joined", player.name);
+		currentPlayer = player;
+	}
 
 	app.innerHTML = "";
 	app.appendChild(lobbyPage);
@@ -95,4 +104,9 @@ socket.on("game:created", (payload) => {
 socket.on("game:start", (payload) => {
 	console.log(payload.message);
 	showGameBoardAtGameStart(payload);
+});
+
+socket.on("player:disconnected", (playerWhoLeft: Player) => {
+	alert(playerWhoLeft.name + " disconnected");
+	showLobbyAfterJoin(currentPlayer);
 });

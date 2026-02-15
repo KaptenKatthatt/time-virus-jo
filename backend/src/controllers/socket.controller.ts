@@ -12,7 +12,15 @@ import type {
 	ScorePayload,
 } from "@shared/types/payloads.types.ts";
 
-import { createGame, findAvailableGame, joinGame } from "../services/gameRoom.service.ts";
+import {
+	createGame,
+	findAvailableGame,
+	joinGame,
+	deleteGame,
+	getGameByPlayerId,
+	getPlayerByPlayerId,
+	deletePlayer,
+} from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 
@@ -89,12 +97,29 @@ export const handleConnection = (
 	});
 
 	// Handle user disconnecting
-	socket.on("disconnect", () => {
-		debug("👋 A user disconnected with id: %s", socket.id);
-		// TODO: Handle disconnect while waiting for matching. Delete game.
-		// const gameToDelete = await findGameToDelete(socket.id);
+	socket.on("disconnect", async () => {
+		const gameToDelete = await getGameByPlayerId(socket.id);
+		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
-		// await deleteGame(gametoDelete);
+		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
+			// Tell remaining player that opponent disconnected
+			socket.to(gameToDelete.id).emit("player:disconnected", playerWhoLeft);
+
+			// Delete game on disconnect
+			await deleteGame(socket.id);
+			debug("Game deleted", gameToDelete.id);
+		} else if (gameToDelete) {
+			// Delete game if we have an empty game
+			await deleteGame(socket.id);
+		}
+
+		// Delete remaining unused players to avoid ghosts
+		if (playerWhoLeft) {
+			await deletePlayer(socket.id);
+			debug("Disconnected player deleted");
+		}
+
+		debug("👋 A user disconnected with id: %s", socket.id);
 	});
 
 	/**
