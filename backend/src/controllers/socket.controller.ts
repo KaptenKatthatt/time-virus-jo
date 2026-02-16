@@ -156,5 +156,5 @@ export const handleConnection = (
 	const virusPayload: VirusPayload = summonVirus();
 	const gameId = socket.data.gameId;
 	if (!gameId) return;
-	io.to(gameId).emit("game:sendVirus", virusPayload);
+	io.to(gameId).emit("game:virus", virusPayload);
 };

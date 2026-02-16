@@ -4,6 +4,8 @@ import Scoreboard from "../components/scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
 function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+	// TODO Move logic from button to here
+
 	//send start matchmaking to server
 	const render = () => {
 		const div = document.createElement("div");

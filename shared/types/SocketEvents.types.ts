@@ -15,7 +15,7 @@ export interface ServerToClientEvents {
   "game:data": (payload: GamePayload | GamePayload[]) => void;
   "game:over": (payload: GameOverPayload) => void;
   "game:start": (payload: GameStartPayload) => void;
-  "game:sendVirus": (payload: VirusPayload) => void;
+  "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (player: Player) => void;
   "player:disconnected": (playerWhoLeft: Player) => void;
 }

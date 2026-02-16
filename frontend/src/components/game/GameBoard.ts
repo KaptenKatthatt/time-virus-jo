@@ -19,28 +19,35 @@ function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>, g
 		}
 	}
 
+	// TODO Refactor into SASS classes
+
+	// row i / i+1. For loop i SASS?
 	// TODO Receive virus coords and delay
-	socket.on("game:sendVirus", (virus: VirusPayload) => {});
 
-	gameBoard.addEventListener("click", (e) => {
-		const clickedCell = e.target as HTMLElement;
+	socket.on("game:virus", (virus) => {
+		const virusCell = gameBoard.querySelector<HTMLDivElement>(`#cell-${virus.x}-${virus.y}`)!;
 
-		// Log to console coords of virus
-		if (clickedCell.classList.contains("cell")) {
-			console.log(clickedCell.dataset.x, clickedCell.dataset.y);
+		if (virusCell) {
+			virusCell.classList.add("virus");
 		}
-		if (clickedCell.classList.contains("virus")) {
-			clickedCell.classList.remove("virus");
+
+		virusCell.addEventListener("click", (e) => {
+			const clickedCell = e.target as HTMLDivElement;
+
+			// Log to console coords of virus
+			if (clickedCell.classList.contains("cell")) {
+				console.log(clickedCell.dataset.x, clickedCell.dataset.y);
+			}
+			if (clickedCell.classList.contains("virus")) {
+				clickedCell.classList.remove("virus");
+			}
+		});
+		const currentVirus = gameBoard.querySelector<HTMLDivElement>(".virus");
+
+		if (currentVirus) {
+			currentVirus.classList.remove("virus");
 		}
 	});
-	const currentVirus = gameBoard.querySelector(".virus") as HTMLElement | null;
-	if (currentVirus) {
-		currentVirus.classList.remove("virus");
-	}
-	const virusCell = gameBoard.querySelector(`#cell-${randX}-${randY}`) as HTMLElement | null;
-	if (virusCell) {
-		virusCell.classList.add("virus");
-	}
 
 	return gameBoard;
 }
