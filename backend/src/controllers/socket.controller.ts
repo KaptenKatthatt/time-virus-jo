@@ -133,7 +133,7 @@ export const handleConnection = (
 	});
 
 	/**
-	 * Listen for incoming score updates
+	 * WIP: Listen for incoming score updates
 	 */
 	socket.on("updateScore", async (payload: ScorePayload) => {
 		//Update score in db
@@ -153,6 +153,8 @@ export const handleConnection = (
 	/**
 	 * Summon teh viruzz
 	 */
+	// Summon on gamestart
+	// Summon after both player clicked
 	const virusPayload: VirusPayload = summonVirus();
 	const gameId = socket.data.gameId;
 	if (!gameId) return;
