@@ -1,6 +1,5 @@
-import type { PrismaScoreboard } from "@shared/types/Models.types";
-import type { User } from "../../../backend/generated/prisma/client";
+import type { PrismaPlayer, PrismaScoreboard } from "@shared/types/Models.types";
 
 export type ScoreboardOmitId = Omit<PrismaScoreboard, "id">;
 
-export type PlayerPickId = Pick<User, "id">;
+export type PlayerPickId = Pick<PrismaPlayer, "id">;

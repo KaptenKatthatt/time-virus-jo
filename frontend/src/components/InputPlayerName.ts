@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
-export function UsernameInput(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+export function InputPlayerName(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const render = () => {
 		const container = document.createElement("div");
 		container.className = "container d-flex justify-content-center align-items-center vh-100";

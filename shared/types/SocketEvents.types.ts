@@ -1,3 +1,4 @@
+import type { PrismaPlayer } from "./Models.types";
 import type {
   GameOverPayload,
   GamePayload,
@@ -16,8 +17,8 @@ export interface ServerToClientEvents {
   "game:over": (payload: GameOverPayload) => void;
   "game:start": (payload: GameStartPayload) => void;
   "game:virus": (payload: VirusPayload) => void;
-  "player:confirmed": (player: Player) => void;
-  "player:disconnected": (playerWhoLeft: Player) => void;
+  "player:confirmed": (player: PrismaPlayer) => void;
+  "player:disconnected": (playerWhoLeft: PrismaPlayer) => void;
 }
 
 // Events emitted by the client to the server
@@ -26,21 +27,21 @@ export interface ClientToServerEvents {
   sendTimestamp: (timestampPayload: TimestampPayload) => void;
   playerJoinLobbyRequest: (playerName: string) => void;
   playerJoinGameRequest: (playerName: string) => void;
+  "player:clicks": (payload: TimestampPayload) => void;
+  "player:joins": (payload: string) => void;
+  "player:start": (payload: string) => void;
 }
 
 export interface TimestampPayload {
   userId: string;
   timestamp: number;
-  "player:start": (payload: string) => void;
-  "player:joins": (payload: string) => void;
-  "player:clicks": (payload: TimestampPayload) => void;
   updateScore: (payload: ScorePayload) => void; // Remove Later
   sendTimestamp: (timestampPayload: TimestampPayload) => void; // Remove Later
 }
 
-export interface Player {
-  id: string;
-  name: string;
-  gameId: GameId | null;
-  scoreboardId: string | null;
-}
+// export interface Player {
+//   id: string;
+//   name: string;
+//   gameId: GameId | null;
+//   scoreboardId: string | null;
+// }
