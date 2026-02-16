@@ -1,85 +1,32 @@
 .game-board {
 	width: 80vmin;
 	aspect-ratio: 1 / 1;
-
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
 
 	border: 3px solid gray;
 }
-.x1 {
-	grid-row: 1/2;
-}
-.x2 {
-	grid-row: 2/3;
-}
-.x3 {
-	grid-row: 3/4;
-}
-.x4 {
-	grid-row: 4/5;
-}
-.x5 {
-	grid-row: 5/6;
-}
-.x6 {
-	grid-row: 6/7;
-}
-.x7 {
-	grid-row: 7/8;
-}
-.x8 {
-	grid-row: 8/9;
-}
-.x9 {
-	grid-row: 9/10;
-}
-.x10 {
-	grid-row: 10/11;
+
+@for $i from 1 through 10 {
+	.x#{$i} {
+		grid-column: #{$i};
+	}
 }
 
-.y1 {
-	grid-column: 1/2;
-}
-.y2 {
-	grid-column: 2/3;
-}
-.y3 {
-	grid-column: 3/4;
-}
-.y4 {
-	grid-column: 4/5;
-}
-.y5 {
-	grid-column: 5/6;
-}
-.y6 {
-	grid-column: 6/7;
-}
-.y7 {
-	grid-column: 7/8;
-}
-.y8 {
-	grid-column: 8/9;
-}
-.y9 {
-	grid-column: 9/10;
-}
-.y10 {
-	grid-column: 10/11;
-}
-
-.cell {
-	width: 100%;
-	height: 100%;
-	border: 1px solid gray;
-	display: grid;
-	place-content: center;
+@for $i from 1 through 10 {
+	.y#{$i} {
+		grid-row: #{$i};
+	}
 }
 
 .virus {
-	font-size: 40px;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 20px;
 	&::before {
 		content: "👾";
 	}
