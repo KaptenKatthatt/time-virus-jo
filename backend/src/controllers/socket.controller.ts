@@ -59,15 +59,6 @@ export const handleConnection = (
 	 * Join game, await matchmaking
 	 */
 	socket.on("playerJoinGameRequest", async (playerId: string) => {
-		// Look for a game where player_two_id is null;
-		// If found, add player to that gameId
-		// Else create game and add to player_one_id column
-
-		// 1. Findfirst. Found any games?
-		// 1.1 Check if player_two is empy
-		// 1.2 Join it
-		// 2.  Else Create game
-
 		// Look for available games and create or join
 		const availableGame = await findAvailableGame();
 
@@ -149,6 +140,8 @@ export const handleConnection = (
 	/**
 	 * Receive timestamp from client
 	 */
+	// WIP
+	socket.on("player:clicks", (timestampPayload) => {});
 
 	/**
 	 * Summon teh viruzz

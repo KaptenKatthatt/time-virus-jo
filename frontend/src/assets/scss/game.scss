@@ -4,8 +4,6 @@
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
-
-	border: 3px solid gray;
 }
 
 @for $i from 1 through 10 {
