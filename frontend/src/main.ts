@@ -13,9 +13,9 @@ import type { Player } from "../../backend/generated/prisma/client";
 import type { GameStartPayload } from "@shared/types/payloads.types";
 
 // Pages
-import { UsernameInput } from "./components/InputUsername";
 import Lobby from "./pages/lobby";
 import Game from "./pages/game";
+import { InputPlayerName } from "./components/InputPlayerName";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -27,7 +27,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
  * Page Component inits
  */
 const lobbyPage = Lobby(socket);
-const usernameInput = UsernameInput(socket);
+const playerName = InputPlayerName(socket);
 
 /**
  * DOM References
@@ -37,7 +37,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 /**
  * Add page to index.html
  */
-app.appendChild(usernameInput);
+app.appendChild(playerName);
 
 /**
  * Variables
@@ -64,7 +64,7 @@ socket.on("disconnect", () => {
 
 	// Reset UI and go back to login screen
 	app.innerHTML = "";
-	app.appendChild(usernameInput);
+	app.appendChild(playerName);
 });
 
 // Listen for when we're reconnected (either due to ours or the servers fault)

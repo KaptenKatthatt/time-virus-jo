@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
-import Scoreboard from "../components/scoreboard";
+import Scoreboard from "../components/Scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
 function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
