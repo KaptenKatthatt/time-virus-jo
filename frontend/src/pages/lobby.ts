@@ -4,7 +4,7 @@ import Scoreboard from "../components/Scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { WaitingModal } from "../components/LobbyModals";
 
-export const waitingModal = WaitingModal();
+export let waitingModal: HTMLElement | null = null;
 
 function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	// TODO Move logic from button to here
@@ -30,7 +30,7 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 				console.log("Sending join request");
 				socket.emit("playerJoinGameRequest", socket.id);
 			}
-
+			waitingModal = WaitingModal();
 			document.body.appendChild(waitingModal);
 	
 		});
