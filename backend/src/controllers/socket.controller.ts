@@ -121,27 +121,30 @@ export const handleConnection = (
 			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
 
-			// Create first virus
-			const startingVirus = summonVirus();
+			// Timer to wait for modal to clear before starting game, to avoid race condition
+			setTimeout(() => {
+				// Create first virus
+				const startingVirus = summonVirus();
 
-			// Create game object
-			activeGames[availableGame.id] = {
-				round: 1,
-				player_one_id: availableGame.player_one_id,
-				player_two_id: playerId,
-				player_one_name: availableGame.player_one_name!,
-				player_two_name: socket.data.name,
-				player_one_score: 0,
-				player_two_score: 0,
-				clickedPlayers: [],
-				currentSpawnTime: Date.now() + startingVirus.delay,
-				fastest_player_id: "",
-				fastest_Time: 9999,
-			};
+				// Create game object
+				activeGames[availableGame.id] = {
+					round: 1,
+					player_one_id: availableGame.player_one_id,
+					player_two_id: playerId,
+					player_one_name: availableGame.player_one_name!,
+					player_two_name: socket.data.name,
+					player_one_score: 0,
+					player_two_score: 0,
+					clickedPlayers: [],
+					currentSpawnTime: Date.now() + startingVirus.delay,
+					fastest_player_id: "",
+					fastest_Time: 9999,
+				};
 
-			console.log("Created game", activeGames[availableGame.id]);
-			// Emit virus to all players
-			io.to(availableGame.id).emit("game:virus", startingVirus);
+				console.log("Created game", activeGames[availableGame.id]);
+				// Emit virus to all players
+				io.to(availableGame.id).emit("game:virus", startingVirus);
+			}, 3000);
 		}
 	});
 

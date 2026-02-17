@@ -117,10 +117,10 @@ socket.on("game:start", (payload) => {
 
 	setTimeout(() => {
 		matchModal.remove();
+
 		console.log(payload.message);
 		showGameBoardAtGameStart(payload);
 	}, 3000);
-
 });
 
 socket.on("player:disconnected", (playerWhoLeft: Player) => {
