@@ -4,7 +4,7 @@ import type { ScoreboardOmitId } from "../types/scoreboard.types";
 import type { PrismaGame } from "@shared/types/Models.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
-export default function GameOver(_socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	//TODO: use the socket arg to get data from server
 	//TODO: get data from server with socket.on "gameover:data"
 	//get game data from server

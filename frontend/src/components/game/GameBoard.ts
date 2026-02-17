@@ -5,12 +5,27 @@ import { Virus } from "./Virus";
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	console.log("GameBoard rendering");
 	const gameBoard = document.createElement("div");
+	let nbrOfRounds = 0;
+
+	const checkNbrOfRounds = () => {
+		if (nbrOfRounds < 10) {
+			nbrOfRounds++;
+		} else {
+			// Add game to Scoreboard
+
+			// Goto gameover
+			socket.emit("");
+		}
+	};
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
 		//TODO Send player timestamp to server
-		//TODO Check if 10 turns
-		//TODO YES? Go to GameOver. NO? Start new round
+		sendTimeStamp();
+
+		//Check if 10 turns
+		//YES? Go to GameOver. NO? Start new round
+		checkNbrOfRounds();
 	};
 
 	const setupSocketListeners = () => {
@@ -25,8 +40,18 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 		});
 	};
 
+	const sendTimeStamp = () => {
+		const timestamp = Date.now();
+		if (!socket.id) return;
+		const payload = {
+			playerId: socket.id,
+			timestamp,
+		};
+		socket.emit("player:clicks", payload);
+	};
+
 	const render = () => {
-		gameBoard.className = "game-board";
+		gameBoard.className = "game-board m-auto border border-5 border-dark";
 		setupSocketListeners();
 		return gameBoard;
 	};
