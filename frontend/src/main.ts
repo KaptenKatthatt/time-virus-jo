@@ -16,6 +16,7 @@ import type { GameStartPayload } from "@shared/types/payloads.types";
 import Lobby from "./pages/lobby";
 import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
+import GameOver from "./pages/gameover";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -75,6 +76,7 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
+// TODO Refactor show/hide functions into one function
 const showLobbyAfterJoin = (player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
@@ -88,6 +90,11 @@ const showLobbyAfterJoin = (player?: Player) => {
 const showGameBoardAtGameStart = (payload: GameStartPayload) => {
 	app.innerHTML = "";
 	app.appendChild(Game(socket, payload.gameId));
+};
+
+const showGameOver = () => {
+	app.innerHTML = "";
+	app.appendChild(GameOver(socket));
 };
 
 /**
@@ -109,4 +116,8 @@ socket.on("game:start", (payload) => {
 socket.on("player:disconnected", (playerWhoLeft: Player) => {
 	alert(playerWhoLeft.name + " disconnected");
 	showLobbyAfterJoin(currentPlayer);
+});
+
+socket.on("game:over", () => {
+	showGameOver();
 });
