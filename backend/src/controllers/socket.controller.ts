@@ -36,7 +36,11 @@ debug("Socket Controller initialized");
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
-	rounds: number;
+	round: number;
+	playerOneId: string;
+	playerTwoId: string;
+	playerOneScore: number;
+	playerTwoScore: number;
 	clickedPlayers: {
 		playerId: string;
 		reactionTime: number;
@@ -118,7 +122,11 @@ export const handleConnection = (
 
 			// Create game object
 			activeGames[availableGame.id] = {
-				rounds: 1,
+				round: 1,
+				playerOneId: availableGame.player_one_id,
+				playerTwoId: playerId,
+				playerOneScore: 0,
+				playerTwoScore: 0,
 				clickedPlayers: [],
 				currentSpawnTime: Date.now() + startingVirus.delay,
 				fastestReactionTime: {
@@ -127,6 +135,7 @@ export const handleConnection = (
 				},
 			};
 
+			console.log("Created game", activeGames[availableGame.id]);
 			// Emit virus to all players
 			io.to(availableGame.id).emit("game:virus", startingVirus);
 		}
@@ -172,8 +181,6 @@ export const handleConnection = (
 	/**
 	 * Summon the virus
 	 */
-	// WIP
-
 	socket.on("player:clicks", (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
@@ -187,33 +194,27 @@ export const handleConnection = (
 			reactionTime,
 		});
 
-		console.log("Current game obj", currentGame);
-
 		if (currentGame.clickedPlayers.length === 2) {
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
-			const resultUpdatePayload = {
-
-
-
-				fastestOfRound: fastestInRound.playerId,
-				fastestInGame: {
-					player: currentGame.fastestReactionTime.playerId,
-					time: currentGame.fastestReactionTime.time,
-				},
+			if (fastestInRound.playerId === currentGame.playerOneId) {
+				currentGame.playerOneScore++;
+			} else {
+				currentGame.playerTwoScore++;
 			}
+			console.log("Current game obj", currentGame);
 
-				// io.to(gameId).emit("game:data", resultUpdatePayload);
-			};
+			// Emit result update (fastest player this round and fastest in game)
+			io.to(gameId).emit("game:data", currentGame);
 
 			//TODO Emit result update(If Fastest player time,  and score++ for fastest playerId of round.)
 
-			// If rounds less than ten, send new virus
-			if (currentGame.rounds < 3) {
+			// If round less than ten, send new virus
+			if (currentGame.round < 3) {
 				currentGame.clickedPlayers = [];
 
-				currentGame.rounds++;
+				currentGame.round++;
 
 				const nextVirus = summonVirus();
 				if (!nextVirus) return;

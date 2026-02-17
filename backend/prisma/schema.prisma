@@ -25,20 +25,17 @@ model Player {
 
 // Data for currently running game(room)
 model Game {
-  id               String  @id @default(auto()) @map("_id") @db.ObjectId
-  name             String?
-  player_one_name  String?
-  player_two_name  String?
-  player_one_score Int?
-  player_two_score Int?
-
-  // startTime     Int? //Kept in memory during game instead
-  // clickTime1    Int?
-  // clickTime2    Int?
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  name              String?
+  player_one_name   String?
+  player_two_name   String?
+  player_one_score  Int?
+  player_two_score  Int?
   player_one_id     String
   player_two_id     String?
+  round             Int?
   fastest_player_id String?
-  fastest_Time      String?
+  fastest_Time      Int?
   players           Player[]
 }
 
