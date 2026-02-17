@@ -17,6 +17,7 @@ import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
+import { MatchFoundModal } from "./components/LobbyModals";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -109,9 +110,17 @@ socket.on("game:created", (payload) => {
 });
 
 socket.on("game:start", (payload) => {
-	waitingModal?.remove()
-	console.log(payload.message);
-	showGameBoardAtGameStart(payload);
+	waitingModal?.remove();
+
+	const matchModal = MatchFoundModal();
+	document.body.appendChild(matchModal);
+
+	setTimeout(() => {
+		matchModal.remove();
+		console.log(payload.message);
+		showGameBoardAtGameStart(payload);
+	}, 3000);
+
 });
 
 socket.on("player:disconnected", (playerWhoLeft: Player) => {
