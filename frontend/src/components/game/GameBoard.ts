@@ -1,5 +1,6 @@
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { Socket } from "socket.io-client";
+import { Virus } from "./Virus";
 
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	console.log("GameBoard rendering");
@@ -17,7 +18,7 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 		}
 	};
 
-	const handleVirusClick = (virus: HTMLButtonElement) => {
+	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
 		//TODO Send player timestamp to server
 		sendTimeStamp();
@@ -29,10 +30,7 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 
 	const setupSocketListeners = () => {
 		socket.on("game:virus", (payload) => {
-			const virus = document.createElement("button");
-			virus.className = `virus x${payload.x + 1} y${payload.y + 1}`;
-
-			virus.addEventListener("click", () => {
+			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
 			});
 
