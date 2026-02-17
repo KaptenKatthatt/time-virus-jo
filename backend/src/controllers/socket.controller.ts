@@ -100,6 +100,10 @@ export const handleConnection = (
 
 			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
+
+			// Emit first virus to both players
+			const startingVirus = summonVirus();
+			io.to(availableGame.id).emit("game:virus", startingVirus);
 		}
 	});
 
@@ -152,7 +156,7 @@ export const handleConnection = (
 		currentGame.clickedPlayers.push(timestampPayload.playerId);
 
 		// Check who clicked fastest.Checks clickTime1 vs clickTime2. Set fastest time and player id in fastest_Time
-		checkWhoClickedFastest();
+		// checkWhoClickedFastest();
 
 		if (currentGame.clickedPlayers.length === 2) {
 			// Send clickedPlayers array to service to compare clicked times
