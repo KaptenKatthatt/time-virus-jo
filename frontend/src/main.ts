@@ -13,7 +13,7 @@ import type { Player } from "../../backend/generated/prisma/client";
 import type { GameStartPayload } from "@shared/types/payloads.types";
 
 // Pages
-import Lobby from "./pages/lobby";
+import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
@@ -109,6 +109,7 @@ socket.on("game:created", (payload) => {
 });
 
 socket.on("game:start", (payload) => {
+	waitingModal?.remove()
 	console.log(payload.message);
 	showGameBoardAtGameStart(payload);
 });
