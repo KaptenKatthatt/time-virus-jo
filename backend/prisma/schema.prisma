@@ -32,9 +32,9 @@ model Game {
   player_one_score Int?
   player_two_score Int?
 
-  startTime     Int?
-  clickTime1    Int?
-  clickTime2    Int?
+  // startTime     Int? //Kept in memory during game instead
+  // clickTime1    Int?
+  // clickTime2    Int?
   player_one_id String
   player_two_id String?
   fastest_Time  String?

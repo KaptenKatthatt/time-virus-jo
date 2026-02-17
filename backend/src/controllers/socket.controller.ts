@@ -32,7 +32,18 @@ debug("Socket Controller initialized");
 /**
  * Variables
  */
-const activeGames: Record<string, { rounds: number; clickedPlayers: string[] }> = {};
+const activeGames: Record<
+	string,
+	{
+		rounds: number;
+		clickedPlayers: {
+			playerId: string;
+			reactionTime: number;
+		}[];
+		currentSpawnTime: number;
+		fastestReactionTime: number;
+	}
+> = {};
 
 // Handle new socket connection
 export const handleConnection = (
@@ -93,16 +104,24 @@ export const handleConnection = (
 				message: "All players joined. Starting game",
 			};
 
-			activeGames[socket.data.gameId] = { rounds: 0, clickedPlayers: [] };
-
 			// Join player 2 into the game
 			socket.join(availableGame.id);
 
 			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
 
-			// Emit first virus to both players
+			// Create first virus
 			const startingVirus = summonVirus();
+
+			// Create game object
+			activeGames[availableGame.id] = {
+				rounds: 1,
+				clickedPlayers: [],
+				currentSpawnTime: Date.now() + startingVirus.delay,
+				fastestReactionTime: 0,
+			};
+
+			// Emit virus to all players
 			io.to(availableGame.id).emit("game:virus", startingVirus);
 		}
 	});
@@ -153,10 +172,11 @@ export const handleConnection = (
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
-		currentGame.clickedPlayers.push(timestampPayload.playerId);
-
-		// Check who clicked fastest.Checks clickTime1 vs clickTime2. Set fastest time and player id in fastest_Time
-		// checkWhoClickedFastest();
+		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
+		currentGame.clickedPlayers.push({
+			playerId: timestampPayload.playerId,
+			reactionTime,
+		});
 
 		if (currentGame.clickedPlayers.length === 2) {
 			// Send clickedPlayers array to service to compare clicked times
@@ -165,15 +185,15 @@ export const handleConnection = (
 			if (currentGame.rounds <= 10) {
 				currentGame.rounds++;
 
-				const virusPayload = summonVirus();
-				if (!virusPayload) return;
+				const nextVirus = summonVirus();
+				if (!nextVirus) return;
 
-				io.to(gameId).emit("game:virus", virusPayload);
+				// Update spawn time for next round
+				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
+
+				//Send next virus to players
+				io.to(gameId).emit("game:virus", nextVirus);
 			}
-			// Else If ten, goto gameover screen. Transfer game to ScoreBoard collection
 		}
-		// io.to(gameId).emit("game:over", winnerId);
-		// }
-		// Add payload to while loop until both players have clicked. Then add to db.
 	});
 };

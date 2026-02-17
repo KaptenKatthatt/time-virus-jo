@@ -6,6 +6,3 @@ export const summonVirus = () => {
 	const delay = Math.floor(Math.random() * 5000);
 	return { x: randX, y: randY, delay: delay };
 };
-
-// put into payload
-// send payload to all players in room
