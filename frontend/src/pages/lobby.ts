@@ -2,6 +2,9 @@ import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { WaitingModal } from "../components/LobbyModals";
+
+export let waitingModal: HTMLElement | null = null;
 
 function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	// TODO Move logic from button to here
@@ -27,8 +30,9 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 				console.log("Sending join request");
 				socket.emit("playerJoinGameRequest", socket.id);
 			}
-
-			// TODO:Open modal showing "Waiting for opponent..."
+			waitingModal = WaitingModal();
+			document.body.appendChild(waitingModal);
+	
 		});
 
 		button.classList.add("fs-2")

@@ -8,7 +8,7 @@ export default function Game(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
 	gameId: GameId = "",
 ) {
-	// TODO: subscribe to socket events to keep UI (scores, time, rounds) in sync
+	// TODO: subscribe to socket events to keep UI (scores, time, round) in sync
 
 	const render = () => {
 		const root = document.createElement("div");
@@ -22,13 +22,13 @@ export default function Game(
 		const playerOneEl = PlayerData("Player 1", 1, 8, 1.37);
 
 		const timeCol = document.createElement("div");
-		timeCol.className = "col-auto time-rounds d-flex flex-column align-items-center";
+		timeCol.className = "col-auto time-round d-flex flex-column align-items-center";
 		timeCol.innerHTML = `
 			<span class="time display-1">00:00</span>
-			<span class="rounds-heading">Round</span>
-			<span class="rounds display-3">3
+			<span class="round-heading">Round</span>
+			<span class="round display-3">3
 				<span class="round-slash fs-4">/</span>
-				<span class="rounds-total display-6">10</span>
+				<span class="round-total display-6">10</span>
 			</span>
 		`;
 

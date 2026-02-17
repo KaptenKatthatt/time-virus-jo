@@ -5,33 +5,21 @@ import { Virus } from "./Virus";
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	console.log("GameBoard rendering");
 	const gameBoard = document.createElement("div");
-	let nbrOfRounds = 0;
-
-	const checkNbrOfRounds = () => {
-		if (nbrOfRounds < 10) {
-			nbrOfRounds++;
-		} else {
-			// Add game to Scoreboard
-
-			// Goto gameover
-			socket.emit("");
-		}
-	};
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
-		//TODO Send player timestamp to server
+		//Send player timestamp to server
 		sendTimeStamp();
-
-		//Check if 10 turns
-		//YES? Go to GameOver. NO? Start new round
-		checkNbrOfRounds();
 	};
 
 	const setupSocketListeners = () => {
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
+				console.log("Virus clicked");
+				console.log("payload-x", payload.x);
+				console.log("payload-y", payload.y);
+				console.log("payload delay", payload.delay);
 			});
 
 			setTimeout(() => {
