@@ -27,3 +27,33 @@ export function WaitingModal() {
     return render();
 
 }
+
+export function MatchFoundModal() {
+    const render = () => {
+        const container = document.createElement("div");
+
+        const title = document.createElement("h2");
+        title.innerText = "Match starts in:";
+
+        const countdown = document.createElement("p");
+        countdown.className = "fw-bold mt-3";
+        countdown.innerText = "3";
+
+        container.appendChild(title);
+        container.appendChild(countdown);
+
+        let time = 3;
+        const interval = setInterval(() => {
+            time--;
+            countdown.innerText = String(time);
+            if (time === 0) {
+                clearInterval(interval);
+            }
+        }, 1000);
+
+        return Modal(container);
+    }
+    
+    return render();
+
+}
