@@ -191,10 +191,26 @@ export const handleConnection = (
 
 		if (currentGame.clickedPlayers.length === 2) {
 			// Check if current player is fastest player
-			checkIfFastestPlayer(currentGame);
+			const fastestInRound = checkIfFastestPlayer(currentGame);
+
+			const resultUpdatePayload = {
+
+
+
+				fastestOfRound: fastestInRound.playerId,
+				fastestInGame: {
+					player: currentGame.fastestReactionTime.playerId,
+					time: currentGame.fastestReactionTime.time,
+				},
+			}
+
+				// io.to(gameId).emit("game:data", resultUpdatePayload);
+			};
+
+			//TODO Emit result update(If Fastest player time,  and score++ for fastest playerId of round.)
 
 			// If rounds less than ten, send new virus
-			if (currentGame.rounds <= 3) {
+			if (currentGame.rounds < 3) {
 				currentGame.clickedPlayers = [];
 
 				currentGame.rounds++;

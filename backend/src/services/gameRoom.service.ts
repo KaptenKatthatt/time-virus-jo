@@ -66,12 +66,16 @@ export const getPlayerByPlayerId = async (playerId: string) => {
 export const checkIfFastestPlayer = (currentGame: ActiveGame) => {
 	const currentPlayerObjects = currentGame.clickedPlayers;
 
+	// Find fastest player in round
 	const fastestPlayer = currentPlayerObjects.reduce((lowest, player) => {
 		return player.reactionTime < lowest.reactionTime ? player : lowest;
 	}, currentPlayerObjects[0]);
 
+	// If player is faster than current fastest time, update game obj
 	if (fastestPlayer.reactionTime < currentGame.fastestReactionTime.time) {
 		currentGame.fastestReactionTime.time = fastestPlayer.reactionTime;
 		currentGame.fastestReactionTime.playerId = fastestPlayer.playerId;
 	}
+
+	return fastestPlayer;
 };
