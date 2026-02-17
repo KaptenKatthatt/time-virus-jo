@@ -23,11 +23,12 @@ export const findAvailableGame = async () => {
 	});
 };
 
-export const joinGame = async (playerId: string, gameId: string) => {
+export const joinGame = async (playerId: string, gameId: string, playerName: string) => {
 	return await prisma.game.update({
 		where: { id: gameId },
 		data: {
 			player_two_id: playerId,
+			player_two_name: playerName,
 		},
 	});
 };
@@ -73,9 +74,9 @@ export const checkIfFastestPlayer = (currentGame: ActiveGame) => {
 	}, currentPlayerObjects[0]);
 
 	// If player is faster than current fastest time, update game obj
-	if (fastestPlayer.reactionTime < currentGame.fastestReactionTime.time) {
-		currentGame.fastestReactionTime.time = fastestPlayer.reactionTime;
-		currentGame.fastestReactionTime.playerId = fastestPlayer.playerId;
+	if (fastestPlayer.reactionTime < currentGame.fastest_Time) {
+		currentGame.fastest_Time = fastestPlayer.reactionTime;
+		currentGame.fastest_player_id = fastestPlayer.playerId;
 	}
 
 	return fastestPlayer;

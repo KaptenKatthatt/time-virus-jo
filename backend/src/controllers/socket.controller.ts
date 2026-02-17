@@ -5,7 +5,11 @@ import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/Socket
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 
-import type { GameCreatedPayload, GameStartPayload } from "@shared/types/payloads.types.ts";
+import type {
+	GameCreatedPayload,
+	GameStartPayload,
+	GamePayload,
+} from "@shared/types/payloads.types.ts";
 
 import {
 	createGame,
@@ -32,21 +36,19 @@ export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
 	round: number;
-	playerOneId: string;
-	playerTwoId: string;
-	playerOneName: string;
-	playerTwoName: string;
-	playerOneScore: number;
-	playerTwoScore: number;
+	player_one_id: string;
+	player_two_id: string;
+	player_one_name: string;
+	player_two_name: string;
+	player_one_score: number;
+	player_two_score: number;
 	clickedPlayers: {
 		playerId: string;
 		reactionTime: number;
 	}[];
 	currentSpawnTime: number;
-	fastestReactionTime: {
-		playerId: string;
-		time: number;
-	};
+	fastest_player_id: string;
+	fastest_Time: number;
 }
 
 // Handle new socket connection
@@ -102,7 +104,7 @@ export const handleConnection = (
 			// Emit to Player 1 that game is created and is waiting for opponent
 			socket.emit("game:created", gameCreatedPayload);
 		} else {
-			await joinGame(playerId, availableGame.id);
+			await joinGame(playerId, availableGame.id, socket.data.name);
 
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = availableGame.id;
@@ -125,18 +127,16 @@ export const handleConnection = (
 			// Create game object
 			activeGames[availableGame.id] = {
 				round: 1,
-				playerOneId: availableGame.player_one_id,
-				playerTwoId: playerId,
-				playerOneName: availableGame.player_one_name!,
-				playerTwoName: socket.data.name,
-				playerOneScore: 0,
-				playerTwoScore: 0,
+				player_one_id: availableGame.player_one_id,
+				player_two_id: playerId,
+				player_one_name: availableGame.player_one_name!,
+				player_two_name: socket.data.name,
+				player_one_score: 0,
+				player_two_score: 0,
 				clickedPlayers: [],
 				currentSpawnTime: Date.now() + startingVirus.delay,
-				fastestReactionTime: {
-					playerId: "",
-					time: 9999,
-				},
+				fastest_player_id: "",
+				fastest_Time: 9999,
 			};
 
 			console.log("Created game", activeGames[availableGame.id]);
@@ -191,18 +191,30 @@ export const handleConnection = (
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
-			if (fastestInRound.playerId === currentGame.playerOneId) {
-				currentGame.playerOneScore++;
+			if (fastestInRound.playerId === currentGame.player_one_id) {
+				currentGame.player_one_score++;
 			} else {
-				currentGame.playerTwoScore++;
+				currentGame.player_two_score++;
 			}
 			console.log("Current game obj", currentGame);
 
-			// const scoreUpdate = {};s
 			// Emit result update (fastest player this round and fastest in game)
-			// io.to(gameId).emit("game:data", scoreUpdate);
+			const gameData: GamePayload = {
+				id: gameId,
+				name: null,
+				player_one_id: currentGame.player_one_id,
+				player_two_id: currentGame.player_two_id,
+				player_one_name: currentGame.player_one_name,
+				player_two_name: currentGame.player_two_name,
+				player_one_score: currentGame.player_one_score,
+				player_two_score: currentGame.player_two_score,
+				round: currentGame.round,
+				fastest_player_id: currentGame.fastest_player_id,
+				fastest_Time: currentGame.fastest_Time,
+				players: [],
+			};
 
-			//TODO Emit result update(If Fastest player time,  and score++ for fastest playerId of round.)
+			io.to(gameId).emit("game:data", gameData);
 
 			// If round less than ten, send new virus
 			if (currentGame.round < 3) {
