@@ -10,6 +10,7 @@ import type {
 	GameCreatedPayload,
 	GameStartPayload,
 	ScorePayload,
+	VirusPayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -23,6 +24,7 @@ import {
 } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
+import { summonVirus } from "../services/virus.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -68,11 +70,15 @@ export const handleConnection = (
 
 		// Look for available games and create or join
 		const availableGame = await findAvailableGame();
+
 		if (availableGame === null) {
 			const newGame: Game = await createGame(playerId);
 
 			// Join Player 1 into game
 			socket.join(newGame.id);
+
+			// Save game id on socket to be used everywhere
+			socket.data.gameId = newGame.id;
 
 			const gameCreatedPayload: GameCreatedPayload = {
 				gameId: newGame.id,
@@ -83,11 +89,15 @@ export const handleConnection = (
 		} else {
 			await joinGame(playerId, availableGame.id);
 
+			// Save game id on socket to be used everywhere
+			socket.data.gameId = availableGame.id;
+
 			// Send signal that games is full and to start game
 			const gameStartPayload: GameStartPayload = {
 				gameId: availableGame.id,
 				message: "All players joined. Starting game",
 			};
+
 			// Join player 2 into the game
 			socket.join(availableGame.id);
 
@@ -123,7 +133,7 @@ export const handleConnection = (
 	});
 
 	/**
-	 * Listen for incoming score updates
+	 * WIP: Listen for incoming score updates
 	 */
 	socket.on("updateScore", async (payload: ScorePayload) => {
 		//Update score in db
@@ -141,6 +151,12 @@ export const handleConnection = (
 	 */
 
 	/**
-	 *
+	 * Summon teh viruzz
 	 */
+	// Summon on gamestart
+	// Summon after both player clicked
+	const virusPayload: VirusPayload = summonVirus();
+	const gameId = socket.data.gameId;
+	if (!gameId) return;
+	io.to(gameId).emit("game:virus", virusPayload);
 };

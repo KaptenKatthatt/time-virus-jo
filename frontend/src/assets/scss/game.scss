@@ -1,7 +1,6 @@
 .game-board {
 	width: 80vmin;
 	aspect-ratio: 1 / 1;
-
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
@@ -9,16 +8,25 @@
 	border: 3px solid gray;
 }
 
-.cell {
-	width: 100%;
-	height: 100%;
-	border: 1px solid gray;
-	display: grid;
-	place-content: center;
+@for $i from 1 through 10 {
+	.x#{$i} {
+		grid-column: #{$i};
+	}
+}
+
+@for $i from 1 through 10 {
+	.y#{$i} {
+		grid-row: #{$i};
+	}
 }
 
 .virus {
-	font-size: 40px;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 20px;
 	&::before {
 		content: "👾";
 	}
