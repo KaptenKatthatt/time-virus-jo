@@ -35,10 +35,11 @@ model Game {
   // startTime     Int? //Kept in memory during game instead
   // clickTime1    Int?
   // clickTime2    Int?
-  player_one_id String
-  player_two_id String?
-  fastest_Time  String?
-  players       Player[]
+  player_one_id     String
+  player_two_id     String?
+  fastest_player_id String?
+  fastest_Time      String?
+  players           Player[]
 }
 
 // Data for archived games

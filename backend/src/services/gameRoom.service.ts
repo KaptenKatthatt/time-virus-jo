@@ -2,6 +2,7 @@
  * Logic related to creating a game room and adding players to it.
  */
 
+import type { ActiveGame } from "../controllers/socket.controller.ts";
 import { prisma } from "../lib/prisma.ts";
 
 export const createGame = async (playerOneId: string) => {
@@ -56,4 +57,21 @@ export const getPlayerByPlayerId = async (playerId: string) => {
 	return await prisma.player.findUnique({
 		where: { id: playerId },
 	});
+};
+
+/**
+ * Checks if the player is faster than current fastest player in game object.
+ * If so, update game object.
+ */
+export const checkIfFastestPlayer = (currentGame: ActiveGame) => {
+	const currentPlayerObjects = currentGame.clickedPlayers;
+
+	const fastestPlayer = currentPlayerObjects.reduce((lowest, player) => {
+		return player.reactionTime < lowest.reactionTime ? player : lowest;
+	}, currentPlayerObjects[0]);
+
+	if (fastestPlayer.reactionTime < currentGame.fastestReactionTime.time) {
+		currentGame.fastestReactionTime.time = fastestPlayer.reactionTime;
+		currentGame.fastestReactionTime.playerId = fastestPlayer.playerId;
+	}
 };

@@ -20,6 +20,7 @@ import {
 	getGameByPlayerId,
 	getPlayerByPlayerId,
 	deletePlayer,
+	checkIfFastestPlayer,
 } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
@@ -32,18 +33,20 @@ debug("Socket Controller initialized");
 /**
  * Variables
  */
-const activeGames: Record<
-	string,
-	{
-		rounds: number;
-		clickedPlayers: {
-			playerId: string;
-			reactionTime: number;
-		}[];
-		currentSpawnTime: number;
-		fastestReactionTime: number;
-	}
-> = {};
+export const activeGames: Record<string, ActiveGame> = {};
+
+export interface ActiveGame {
+	rounds: number;
+	clickedPlayers: {
+		playerId: string;
+		reactionTime: number;
+	}[];
+	currentSpawnTime: number;
+	fastestReactionTime: {
+		playerId: string;
+		time: number;
+	};
+}
 
 // Handle new socket connection
 export const handleConnection = (
@@ -64,7 +67,7 @@ export const handleConnection = (
 			});
 			socket.emit("player:confirmed", player);
 
-			debug("✅Created player: %o", player);
+			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
 			console.error("⚠️Error handling playerJoinLobbyRequest:", err);
 		}
@@ -118,7 +121,10 @@ export const handleConnection = (
 				rounds: 1,
 				clickedPlayers: [],
 				currentSpawnTime: Date.now() + startingVirus.delay,
-				fastestReactionTime: 0,
+				fastestReactionTime: {
+					playerId: "",
+					time: 9999,
+				},
 			};
 
 			// Emit virus to all players
@@ -172,17 +178,25 @@ export const handleConnection = (
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
+		// Calculate player reaction tim
 		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
+
+		// Save player if and reaction time to game object
 		currentGame.clickedPlayers.push({
 			playerId: timestampPayload.playerId,
 			reactionTime,
 		});
 
+		console.log("Current game obj", currentGame);
+
 		if (currentGame.clickedPlayers.length === 2) {
-			// Send clickedPlayers array to service to compare clicked times
+			// Check if current player is fastest player
+			checkIfFastestPlayer(currentGame);
 
 			// If rounds less than ten, send new virus
-			if (currentGame.rounds <= 10) {
+			if (currentGame.rounds <= 3) {
+				currentGame.clickedPlayers = [];
+
 				currentGame.rounds++;
 
 				const nextVirus = summonVirus();
@@ -193,6 +207,8 @@ export const handleConnection = (
 
 				//Send next virus to players
 				io.to(gameId).emit("game:virus", nextVirus);
+			} else {
+				console.log("Game over");
 			}
 		}
 	});
