@@ -6,3 +6,12 @@
 
 // Custom styles
 @import "layout";
+
+@import "login";
+
+
+body {
+	background-image: url("../background_grid.png");
+	background-size: 256px 256px;
+	background-position: center;
+}
