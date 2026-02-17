@@ -11,7 +11,7 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 		const div = document.createElement("div");
 
 		div.className =
-			"container d-flex flex-column justify-content-center align-items-center vh-100";
+			"container d-flex flex-column justify-content-center align-items-center vh-100 gap-4";
 
 		div.innerHTML = `
 			<div>
@@ -30,6 +30,8 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 
 			// TODO:Open modal showing "Waiting for opponent..."
 		});
+
+		button.classList.add("fs-2")
 
 		div.appendChild(scoreboardEl);
 		div.appendChild(button);
