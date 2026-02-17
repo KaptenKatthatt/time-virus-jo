@@ -4,13 +4,8 @@
 import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types.ts";
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
-import { updateScoreBoard } from "../services/score.service.ts";
 
-import type {
-	GameCreatedPayload,
-	GameStartPayload,
-	ScorePayload,
-} from "@shared/types/payloads.types.ts";
+import type { GameCreatedPayload, GameStartPayload } from "@shared/types/payloads.types.ts";
 
 import {
 	createGame,
@@ -39,6 +34,8 @@ export interface ActiveGame {
 	round: number;
 	playerOneId: string;
 	playerTwoId: string;
+	playerOneName: string;
+	playerTwoName: string;
 	playerOneScore: number;
 	playerTwoScore: number;
 	clickedPlayers: {
@@ -69,6 +66,11 @@ export const handleConnection = (
 				id: socket.id,
 				name: playerName,
 			});
+
+			// Save player name on socket for global use
+			socket.data.name = playerName;
+
+			// Emit player creation confirmation for game start
 			socket.emit("player:confirmed", player);
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
@@ -85,7 +87,7 @@ export const handleConnection = (
 		const availableGame = await findAvailableGame();
 
 		if (availableGame === null) {
-			const newGame: Game = await createGame(playerId);
+			const newGame: Game = await createGame(playerId, socket.data.name);
 
 			// Join Player 1 into game
 			socket.join(newGame.id);
@@ -125,6 +127,8 @@ export const handleConnection = (
 				round: 1,
 				playerOneId: availableGame.player_one_id,
 				playerTwoId: playerId,
+				playerOneName: availableGame.player_one_name!,
+				playerTwoName: socket.data.name,
 				playerOneScore: 0,
 				playerTwoScore: 0,
 				clickedPlayers: [],
@@ -168,17 +172,6 @@ export const handleConnection = (
 	});
 
 	/**
-	 * WIP: Listen for incoming score updates
-	 */
-	socket.on("updateScore", async (payload: ScorePayload) => {
-		//Update score in db
-		await updateScoreBoard(payload);
-
-		// Update score on client
-		socket.to(payload.id).emit("score", payload);
-	});
-
-	/**
 	 * Summon the virus
 	 */
 	socket.on("player:clicks", (timestampPayload) => {
@@ -205,8 +198,9 @@ export const handleConnection = (
 			}
 			console.log("Current game obj", currentGame);
 
+			// const scoreUpdate = {};s
 			// Emit result update (fastest player this round and fastest in game)
-			io.to(gameId).emit("game:data", currentGame);
+			// io.to(gameId).emit("game:data", scoreUpdate);
 
 			//TODO Emit result update(If Fastest player time,  and score++ for fastest playerId of round.)
 

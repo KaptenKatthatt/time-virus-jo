@@ -5,10 +5,11 @@
 import type { ActiveGame } from "../controllers/socket.controller.ts";
 import { prisma } from "../lib/prisma.ts";
 
-export const createGame = async (playerOneId: string) => {
+export const createGame = async (playerOneId: string, playerOneName: string) => {
 	return await prisma.game.create({
 		data: {
 			player_one_id: playerOneId,
+			player_one_name: playerOneName,
 			player_two_id: null,
 		},
 	});
