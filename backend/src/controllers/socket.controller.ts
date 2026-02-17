@@ -211,7 +211,6 @@ export const handleConnection = (
 				round: currentGame.round,
 				fastest_player_id: currentGame.fastest_player_id,
 				fastest_Time: currentGame.fastest_Time,
-				players: [],
 			};
 
 			io.to(gameId).emit("game:data", gameData);
