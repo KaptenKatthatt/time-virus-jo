@@ -5,7 +5,7 @@ export function WaitingModal() {
         const container = document.createElement("div");
 
         const spinner = document.createElement("div");
-        spinner.className = "spinner-border text-primary mb-3";
+        spinner.className = "spinner-border text-primary mb-3 mt-3";
         spinner.role = "status";
 
         const text = document.createElement("p");
@@ -31,12 +31,13 @@ export function WaitingModal() {
 export function MatchFoundModal() {
     const render = () => {
         const container = document.createElement("div");
+        container.className = "match-modal";
 
         const title = document.createElement("h2");
         title.innerText = "Match starts in:";
 
         const countdown = document.createElement("p");
-        countdown.className = "fw-bold mt-3";
+        countdown.className = "fw-bold display-4 mt-3";
         countdown.innerText = "3";
 
         container.appendChild(title);
