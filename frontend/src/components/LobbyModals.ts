@@ -5,7 +5,7 @@ export function WaitingModal() {
         const container = document.createElement("div");
 
         const spinner = document.createElement("div");
-        spinner.className = "spinner-border text-primary mb-3";
+        spinner.className = "spinner-border text-primary mb-3 mt-3";
         spinner.role = "status";
 
         const text = document.createElement("p");
