@@ -1,10 +1,11 @@
-import type { Socket } from "socket.io-client";
+// import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import type { ScoreboardOmitId } from "../types/scoreboard.types";
 import type { PrismaGame } from "@shared/types/Models.types";
-import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+// import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
-export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+// export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+export default function GameOver() {
 	//TODO: use the socket arg to get data from server
 	//TODO: get data from server with socket.on "gameover:data"
 	//get game data from server
@@ -17,6 +18,11 @@ export default function GameOver(socket: Socket<ServerToClientEvents, ClientToSe
 		player_two_id: "id2",
 		player_two_name: "Emil",
 		player_two_score: 1,
+		player_one_id: "aaaa",
+		player_two_id: "aaaaaaa",
+		round: 1,
+		fastest_player_id: "öongöordm",
+		fastest_Time: 123213,
 	};
 
 	const render = () => {

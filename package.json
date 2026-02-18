@@ -2,11 +2,14 @@
   "name": "fed25-api-realtime-boilerplate",
   "version": "1.0.0",
   "scripts": {
-    "install": "cd frontend && npm install --include=dev && cd ../backend && npm install --include=dev",
-    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "install": "cd backend && npm install --include=dev && cd ../frontend && npm install --include=dev",
+    "build": "env-cmd --silent bash build.sh",
     "start": "cd backend && npx prisma db seed && npm start"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "env-cmd": "^11.0.0"
+  }
 }
