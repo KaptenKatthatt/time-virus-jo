@@ -3,16 +3,13 @@ import type { Socket } from "socket.io-client";
 import { Virus } from "./Virus";
 
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	console.log("GameBoard rendering");
-	const gameBoard = document.createElement("div");
-
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
 		//Send player timestamp to server
 		sendTimeStamp();
 	};
 
-	const setupSocketListeners = () => {
+	const setupSocketListeners = (element: HTMLDivElement) => {
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
@@ -23,7 +20,7 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 			});
 
 			setTimeout(() => {
-				gameBoard.appendChild(virus);
+				element.appendChild(virus);
 			}, payload.delay);
 		});
 	};
@@ -39,9 +36,14 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 	};
 
 	const render = () => {
-		gameBoard.className = "game-board m-auto border border-5 border-dark";
-		setupSocketListeners();
+		const gameBoard = document.createElement("div");
+
+		gameBoard.className = "game-board m-auto border-img-dark";
+
+		setupSocketListeners(gameBoard);
+
 		return gameBoard;
 	};
 	return render();
 }
+

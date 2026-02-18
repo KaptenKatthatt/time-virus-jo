@@ -3,6 +3,29 @@
 
 // Import Bootstrap's SCSS
 @import "bootstrap/scss/bootstrap";
+@import "bootstrap/scss/mixins";
 
 // Custom styles
 @import "layout";
+
+@import "login";
+
+@import "lobby";
+
+@import "game";
+
+@import "gameover";
+
+@import "borderStyles";
+
+body {
+	background-image: url("../background_grid.png");
+	background-size: 256px 256px;
+	background-position: center;
+}
+
+.lacquer-regular {
+	font-family: "Lacquer", system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
