@@ -10,7 +10,6 @@ import "./assets/scss/game.scss";
 
 // Types
 import type { Player } from "../../backend/generated/prisma/client";
-import type { GameStartPayload } from "@shared/types/payloads.types";
 
 // Pages
 import Lobby, { waitingModal } from "./pages/lobby";
@@ -88,14 +87,14 @@ const showLobbyAfterJoin = (player?: Player) => {
 	app.appendChild(lobbyPage);
 };
 
-const showGameBoardAtGameStart = (payload: GameStartPayload) => {
+const showGameBoardAtGameStart = () => {
 	app.innerHTML = "";
-	app.appendChild(Game(socket, payload.gameId));
+	app.appendChild(Game(socket));
 };
 
 const showGameOver = () => {
 	app.innerHTML = "";
-	app.appendChild(GameOver(socket));
+	app.appendChild(GameOver());
 };
 
 /**
@@ -119,7 +118,7 @@ socket.on("game:start", (payload) => {
 		matchModal.remove();
 
 		console.log(payload.message);
-		showGameBoardAtGameStart(payload);
+		showGameBoardAtGameStart();
 	}, 3000);
 });
 

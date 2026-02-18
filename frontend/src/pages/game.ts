@@ -1,13 +1,9 @@
 import type { Socket } from "socket.io-client";
 import PlayerData from "../components/game/PlayerData";
 import GameBoard from "../components/game/GameBoard";
-import type { GameId } from "@shared/types/payloads.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 
-export default function Game(
-	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
-	gameId: GameId = "",
-) {
+export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	// TODO: subscribe to socket events to keep UI (scores, time, round) in sync
 
 	const render = () => {
@@ -40,7 +36,7 @@ export default function Game(
 
 		root.appendChild(row);
 
-		const board = GameBoard(socket, gameId);
+		const board = GameBoard(socket);
 		root.appendChild(board);
 
 		return root;
