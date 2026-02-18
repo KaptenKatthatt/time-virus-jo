@@ -2,17 +2,20 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { Socket } from "socket.io-client";
 import { Virus } from "./Virus";
 
-export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	console.log("GameBoard rendering");
-	const gameBoard = document.createElement("div");
+interface PlayerPayload {
+	id: string;
+	name: string;
+	score: number;
+}
 
+export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
 		//Send player timestamp to server
 		sendTimeStamp();
 	};
 
-	const setupSocketListeners = () => {
+	const setupSocketListeners = (element: HTMLDivElement) => {
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
@@ -23,7 +26,7 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 			});
 
 			setTimeout(() => {
-				gameBoard.appendChild(virus);
+				element.appendChild(virus);
 			}, payload.delay);
 		});
 	};
@@ -38,10 +41,66 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 		socket.emit("player:clicks", payload);
 	};
 
+	//TODO: get gameData player and score
+
+	const data = {
+		player_one: {
+			id: "id2",
+			name: "Jonas",
+			score: 0,
+		},
+		player_two: {
+			id: "id1",
+			name: "Sandra",
+			score: 0,
+		},
+	};
+
 	const render = () => {
-		gameBoard.className = "game-board m-auto border border-5 border-dark";
-		setupSocketListeners();
-		return gameBoard;
+		const gameBoard = document.createElement("div");
+		const div = document.createElement("div");
+
+		div.className = "h-100 gameboard-grid ";
+
+		if (!socket.id) {
+			return div;
+		}
+
+		const score1 = Score(data.player_one, socket.id);
+		const score2 = Score(data.player_two, socket.id);
+
+		gameBoard.className = "game-board m-auto scoreboard-border-img";
+
+		setupSocketListeners(gameBoard);
+
+		div.appendChild(score1);
+		div.appendChild(gameBoard);
+		div.appendChild(score2);
+
+		return div;
+	};
+	return render();
+}
+
+function Score(player: PlayerPayload, socketId: string) {
+	const playerId = player.id;
+	const name = player.name;
+	const score = player.score;
+
+	const render = () => {
+		const div = document.createElement("div");
+		const isMe = socketId === playerId ? "text-primary" : "";
+
+		div.className = "d-flex justify-content-center align-items-center";
+
+		div.innerHTML = `
+			<div class="w-50 scoreboard-border-img d-flex fs-1-xl p-4 flex-column justify-content-center align-items-center gap-2">
+				<span class=${isMe}>${name}</span>
+				<span>${score}</span>
+			</div>
+		`;
+
+		return div;
 	};
 	return render();
 }

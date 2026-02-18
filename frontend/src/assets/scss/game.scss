@@ -6,6 +6,12 @@
 	grid-template-rows: repeat(10, 1fr);
 }
 
+.gameboard-grid {
+	display: grid;
+	grid-template-columns: repeat(1, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+}
+
 @for $i from 1 through 10 {
 	.x#{$i} {
 		grid-column: #{$i};
@@ -27,5 +33,22 @@
 	font-size: 20px;
 	&::before {
 		content: "👾";
+	}
+}
+
+/* Tablet layout (min 600px) */
+@media (min-width: 600px) {
+}
+
+/* Desktop layout (min 900px) */
+@media (min-width: 900px) {
+}
+
+/* XL Desktop layout (min 1200px) */
+@media (min-width: 1200px) {
+	.gameboard-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(1, 1fr);
 	}
 }
