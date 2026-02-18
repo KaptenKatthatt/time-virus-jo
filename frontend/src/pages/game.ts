@@ -19,26 +19,41 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	const container = document.createElement("div");
 	const row = document.createElement("div");
 
+	// Time and round container
+	const timeCol = document.createElement("div");
+	timeCol.className = "col-auto  d-flex flex-row align-items-center";
+	const roundHeadingEl = document.createElement("span");
+	roundHeadingEl.className = "display-4";
+	roundHeadingEl.innerText = "Round";
+	const roundValueEl = document.createElement("span");
+	roundValueEl.className = "display-4";
+	const roundSlashEl = document.createElement("span");
+	roundSlashEl.innerText = "/";
+	const totalRoundsEl = document.createElement("span");
+	totalRoundsEl.innerText = "3";
+	totalRoundsEl.className = "display-6";
+
 	// Dynamic containers
 	const p1 = PlayerData("P1", 0);
 	const p2 = PlayerData("P2", 0);
 
+	// Aside
 	const aside = document.createElement("aside");
+	aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
+
 	const game = document.createElement("div");
-	// let playerOneEl = PlayerData("P1", 0);
-	// let playerTwoEl = PlayerData("P2", 0);
-	const timeCol = document.createElement("div");
+
 	const title = document.createElement("div");
 
-	const p1Name = document.createElement("span");
-	const p1Score = document.createElement("span");
-	const p2Name = document.createElement("span");
-	const p2Score = document.createElement("span");
-
-	// TODO: subscribe to socket events to keep UI (scores, time, round) in sync
+	// TODO: Update UI at gamestart, not after first round
 
 	//TODO Refactor GamePayload into GameUpdate that contains only score update and round nbr
 	// Gamepayload can be complete game info
+
+	//TODO Add total rounds to payload.
+
+	//TODO Put best player time where timecol is, roundnbr and time in Title
+
 	socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 		if (!Array.isArray(payload)) {
 			const {
@@ -55,10 +70,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 			p1.update(player_one_name, player_one_score);
 			p2.update(player_two_name, player_two_score);
-			// p1Name.innerText = player_one_name ?? "";
-			// p1Score.innerText = player_one_score?.toString() ?? "";
-			// p2Name.innerText = player_two_name ?? "";
-			// p2Score.innerText = player_two_score?.toString() ?? "";
+			roundValueEl.innerText = String(round);
 		}
 	});
 
@@ -72,15 +84,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		game.className =
 			"game-container container d-flex flex-column justify-content-around vh-100";
 
-		// Countup timer
-		timeCol.className = "col-auto time-round d-flex flex-column align-items-center";
-		timeCol.innerHTML = `
-			<span class="time display-1">00:00</span>
-			<span class="round-heading">Round</span>
-			<span class="round display-3">1`;
-
-		// Aside
-		aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
+		timeCol.append(roundHeadingEl, roundValueEl, roundSlashEl, totalRoundsEl);
 
 		title.className =
 			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
