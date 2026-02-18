@@ -13,10 +13,10 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
-				console.log("Virus clicked");
-				console.log("payload-x", payload.x);
-				console.log("payload-y", payload.y);
-				console.log("payload delay", payload.delay);
+				// console.log("Virus clicked");
+				// console.log("payload-x", payload.x);
+				// console.log("payload-y", payload.y);
+				// console.log("payload delay", payload.delay);
 			});
 
 			setTimeout(() => {
