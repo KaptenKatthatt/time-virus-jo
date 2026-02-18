@@ -19,7 +19,7 @@ export function Modal(content: HTMLElement) {
         dialog.className = "modal-dialog modal-dialog-centered";
 
         const textbox = document.createElement("div");
-        textbox.className = "modal-content p-2 text-center modal-border-img";
+        textbox.className = "modal-content p-2 text-center border-img-dark";
 
 
         textbox.appendChild(content);

@@ -28,7 +28,7 @@ export default function Scoreboard() {
 
 	const render = () => {
 		const div = document.createElement("div");
-		div.className = "scoreboard-border-img p-5 text-center";
+		div.className = "border-img-dark p-5 text-center";
 
 		const title = document.createElement("h1")
 		title.innerText = "Scoreboard"
@@ -58,7 +58,7 @@ function GameResult(data: ScoreboardOmitId[]) {
 			sep.innerHTML = `
 				<span>VS</span>
 			`
-			div.className = "d-flex justify-content-around align-items-center border-img-small p-1 fs-5"
+			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-5"
 
 			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "")
 			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "")

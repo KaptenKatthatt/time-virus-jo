@@ -8,7 +8,7 @@ export function InputPlayerName(socket: Socket<ServerToClientEvents, ClientToSer
 
 		const form = document.createElement("form");
 		form.className =
-			"text-center border-img-green d-flex flex-column justify-content-center align-items-center gap-4 py-5";
+			"text-center border-img-dark d-flex flex-column justify-content-center align-items-center gap-4 py-5";
 
 		const title = document.createElement("div");
 		title.className = "img";
@@ -17,11 +17,11 @@ export function InputPlayerName(socket: Socket<ServerToClientEvents, ClientToSer
 		input.type = "text";
 		input.placeholder = "Enter a username";
 		input.autofocus = true;
-		input.className = "fs-3 p-3 border-img-small input-f text-input";
+		input.className = "fs-3 p-3 border-img-dark-small input-f text-input";
 
 		const button = document.createElement("button");
 		button.type = "submit";
-		button.className = "btn fs-3 px-5 border-btn-img btn-hover";
+		button.className = "btn fs-3 px-5 border-img-green-solid btn-hover";
 		button.innerText = "JOIN";
 
 		const err = document.createElement("span");
