@@ -27,14 +27,22 @@ body {
 	color: #fff;
 	box-shadow: 0px 10px 20px 5px rgba($color: #000000, $alpha: 0.5);
 	&:hover {
-
 		border-image-source: url("../border256x256darksolid.png");
-
 	}
 }
 
 .lacquer-regular {
-  font-family: "Lacquer", system-ui;
-  font-weight: 400;
-  font-style: normal;
+	font-family: "Lacquer", system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.modal-border-img {
+	border-image-source: url("../border256x256dark.png");
+	border-image-slice: 96 96 96 96;
+	border-image-width: 32px 32px 32px 32px;
+	border-image-repeat: repeat repeat;
+	background-color: #202020;
+	border-radius: 20px;
+	box-shadow: inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
 }
