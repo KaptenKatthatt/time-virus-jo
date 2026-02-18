@@ -6,10 +6,15 @@
 	grid-template-rows: repeat(10, 1fr);
 }
 
-.gameboard-grid {
+.game-grid {
 	display: grid;
-	grid-template-columns: repeat(1, 1fr);
-	grid-template-rows: repeat(3, 1fr);
+	grid-template-rows: 1fr 0.5fr;
+}
+
+.aside-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 0.1fr;
 }
 
 @for $i from 1 through 10 {
@@ -36,19 +41,30 @@
 	// }
 }
 
-/* Tablet layout (min 600px) */
-@media (min-width: 600px) {
-}
-
-/* Desktop layout (min 900px) */
-@media (min-width: 900px) {
-}
-
-/* XL Desktop layout (min 1200px) */
-@media (min-width: 1200px) {
-	.gameboard-grid {
+@media (min-width: 992px) {
+	.game-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		grid-template-rows: repeat(1, 1fr);
+		grid-template-columns: 1fr 0.5fr;
+		grid-template-rows: 1fr;
+	}
+
+	.aside-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 0.1fr 1fr 0.1fr;
 	}
 }
+
+// @media (min-width: 1200px) {
+// 	.game-grid {
+// 		display: grid;
+// 		grid-template-columns: 1fr 0.5fr;
+// 		grid-template-rows: 1fr;
+// 	}
+//
+// 	.aside-grid {
+// 		display: grid;
+// 		grid-template-columns: 1fr 1fr;
+// 		grid-template-rows: 0.1fr 1fr 0.1fr;
+// 	}
+// }
