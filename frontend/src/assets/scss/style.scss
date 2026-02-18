@@ -13,6 +13,8 @@
 
 @import "game";
 
+@import "gameover";
+
 body {
 	background-image: url("../background_grid.png");
 	background-size: 256px 256px;
@@ -45,4 +47,28 @@ body {
 	background-color: #202020;
 	border-radius: 20px;
 	box-shadow: inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
+}
+
+.border-img-dark {
+	border-image-source: url("../border256x256dark.png");
+	border-image-slice: 96 96 96 96;
+	border-image-width: 32px 32px 32px 32px;
+	border-image-repeat: repeat repeat;
+	background-color: #202020;
+	border-radius: 20px;
+	box-shadow:
+		0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5),
+		inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
+}
+
+.border-img-dark-small {
+	border-image-source: url("../border256x256dark.png");
+	border-image-slice: 96 96 96 96;
+	border-image-width: 16px 16px 16px 16px;
+	border-image-repeat: repeat repeat;
+	background-color: #202020;
+	border-radius: 20px;
+	box-shadow:
+		0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5),
+		inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
 }
