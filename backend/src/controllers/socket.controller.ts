@@ -142,6 +142,22 @@ export const handleConnection = (
 				};
 
 				console.log("Created game", activeGames[availableGame.id]);
+
+				const gameData: GamePayload = {
+					id: availableGame.id,
+					name: null,
+					player_one_id: activeGames[availableGame.id].player_one_id,
+					player_two_id: activeGames[availableGame.id].player_two_id,
+					player_one_name: activeGames[availableGame.id].player_one_name,
+					player_two_name: activeGames[availableGame.id].player_two_name,
+					player_one_score: activeGames[availableGame.id].player_one_score,
+					player_two_score: activeGames[availableGame.id].player_two_score,
+					round: activeGames[availableGame.id].round,
+					fastest_player_id: activeGames[availableGame.id].fastest_player_id,
+					fastest_Time: activeGames[availableGame.id].fastest_Time,
+				};
+				io.to(availableGame.id).emit("game:data", gameData);
+
 				// Emit virus to all players
 				io.to(availableGame.id).emit("game:virus", startingVirus);
 			}, 3000);
