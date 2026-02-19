@@ -49,6 +49,9 @@ socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
 
+	/**
+	 * Add page to index.html
+	 */
 	app.appendChild(playerName);
 });
 
