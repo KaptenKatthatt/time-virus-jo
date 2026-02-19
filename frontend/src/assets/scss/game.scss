@@ -6,6 +6,17 @@
 	grid-template-rows: repeat(10, 1fr);
 }
 
+.game-grid {
+	display: grid;
+	grid-template-rows: 1fr 0.5fr;
+}
+
+.aside-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 0.1fr;
+}
+
 @for $i from 1 through 10 {
 	.x#{$i} {
 		grid-column: #{$i};
@@ -29,3 +40,31 @@
 	// 	content: "👾";
 	// }
 }
+
+@media (min-width: 992px) {
+	.game-grid {
+		display: grid;
+		grid-template-columns: 1fr 0.5fr;
+		grid-template-rows: 1fr;
+	}
+
+	.aside-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 0.1fr 1fr 0.1fr;
+	}
+}
+
+// @media (min-width: 1200px) {
+// 	.game-grid {
+// 		display: grid;
+// 		grid-template-columns: 1fr 0.5fr;
+// 		grid-template-rows: 1fr;
+// 	}
+//
+// 	.aside-grid {
+// 		display: grid;
+// 		grid-template-columns: 1fr 1fr;
+// 		grid-template-rows: 0.1fr 1fr 0.1fr;
+// 	}
+// }

@@ -27,72 +27,76 @@ export default function Scoreboard() {
 	];
 
 	const render = () => {
-		const table = document.createElement("table");
+		const div = document.createElement("div");
+		div.className = "border-img-dark p-5 text-center";
 
-		table.className = "table border";
+		const title = document.createElement("h1")
+		title.innerText = "Scoreboard"
+		title.className = "mb-5 lacquer-regular text-primary"
 
-		const thead = TableHead();
-		const tbody = TableBody(data);
+		const gameResult = GameResult(data);
 
-		table.appendChild(thead);
-		table.appendChild(tbody);
+		div.appendChild(title);
+		div.appendChild(gameResult);
 
-		return table;
+		return div;
 	};
 	return render();
 }
 
-function TableHead() {
+function GameResult(data: ScoreboardOmitId[]) {
 	const render = () => {
-		const thead = document.createElement("thead");
+		const div = document.createElement("div");
 
-		thead.className = "text-center";
-
-		thead.innerHTML = `
-		<tr>
-			<th class="col">Player one</th>
-			<th class="col">Score</th>
-			<th class="col">Score</th>
-			<th class="col">Player Two</th>
-		</tr>
-		`;
-		return thead;
-	};
-	return render();
-}
-
-function TableBody(data: ScoreboardOmitId[]) {
-	const render = () => {
-		const tbody = document.createElement("tbody");
-
-		tbody.className = "text-center";
+		div.className = "text-center d-flex flex-column gap-4";
 
 		const elementList = data.map((item: ScoreboardOmitId) => {
-			const tr = document.createElement("tr");
+			const div = document.createElement("div")
+			const sep = document.createElement("span")
+			sep.className = "text-muted"
 
-			tr.innerHTML = `
-				<td>
-					${item.player_one_name}
-				</td>
-				<td>
-					${item.player_one_score}
-				</td>
-				<td >
-					${item.player_two_score}
-				</td>
-				<td>
-					${item.player_two_name}
-				</td>
-			`;
+			sep.innerHTML = `
+				<span>VS</span>
+			`
+			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-5"
 
-			return tr;
+			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "")
+			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "")
+
+			div.appendChild(result1)
+			div.appendChild(sep)
+			div.appendChild(result2)
+
+			return div;
 		});
 
-		elementList.forEach((item: HTMLTableRowElement) => {
-			tbody.appendChild(item);
+		elementList.forEach((item: HTMLDivElement) => {
+			div.appendChild(item);
 		});
 
-		return tbody;
+		return div;
+	};
+	return render();
+}
+
+function GameResultItem(name: string, score: number, winner: string) {
+	const render = () => {
+		const div = document.createElement("div");
+
+		div.className =
+			"d-flex p-4 flex-column justify-content-center align-items-center gap-2";
+
+		if (winner === name) {
+			div.classList.add("text-success");
+			div.classList.add("fw-bold");
+		}
+
+		div.innerHTML = `
+			<span>${name}</span>
+			<span>${score}</span>
+		`;
+
+		return div;
 	};
 	return render();
 }

@@ -1,0 +1,31 @@
+.text-input {
+	background-color: rgba($color: $primary, $alpha: 0.1);
+	color: #fff;
+}
+
+.input-f:focus {
+	outline: none;
+	border-image-source: url("../border256x256.png");
+}
+
+.img {
+	background-image: url("../viruslogo-dark.png");
+	width: 512px;
+	height: 256px;
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	animation: rot 2s infinite alternate linear;
+}
+
+@keyframes rot {
+	0% {
+		transform: rotate(-10deg);
+	}
+	50% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(10deg);
+	}
+}
