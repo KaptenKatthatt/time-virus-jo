@@ -3,8 +3,17 @@ import type { Socket } from "socket.io-client";
 import { Virus } from "./Virus";
 
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+	let startTime = 0; //timer for gameboard
+	let inactivityTimer: number | null = null;
+
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
+		//Stop timeout
+		if (inactivityTimer) {
+			clearTimeout(inactivityTimer)
+			inactivityTimer = null;
+			console.log("Cleared inactivity");
+		}
 		//Send player timestamp to server
 		sendTimeStamp();
 	};
@@ -20,7 +29,14 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 			});
 
 			setTimeout(() => {
+				startTime = Date.now();
 				element.appendChild(virus);
+				console.log("virus spawned inactivity timer started");
+
+				inactivityTimer = window.setTimeout(() => {
+					console.log("Player inactive - returning to login");
+					window.location.reload();
+				}, 30000);
 			}, payload.delay);
 		});
 	};

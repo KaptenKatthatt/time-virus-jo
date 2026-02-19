@@ -60,26 +60,9 @@ export const handleConnection = (
 	debug("🙋 A user connected with id: %s", socket.id);
 
 	/**
-	 * Idle timout to disconnect inactive users
-	 */
-
-	let inactivityTimer: NodeJS.Timeout;
-
-	const resetInactivityTimer = () => {
-		clearTimeout(inactivityTimer);
-
-		inactivityTimer = setTimeout(() => {
-			socket.disconnect(true);
-		}, 20000);
-	}
-
-	resetInactivityTimer();
-
-	/**
 	 * Login user and save name to DB
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
-		resetInactivityTimer();
 		try {
 			const player = await createPlayer({
 				id: socket.id,
@@ -102,7 +85,6 @@ export const handleConnection = (
 	 * Join game, await matchmaking
 	 */
 	socket.on("playerJoinGameRequest", async (playerId: string) => {
-		resetInactivityTimer();
 		// Look for available games and create or join
 		const availableGame = await findAvailableGame();
 
@@ -212,7 +194,6 @@ export const handleConnection = (
 	 * Summon the virus
 	 */
 	socket.on("player:clicks", (timestampPayload) => {
-		resetInactivityTimer();
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
