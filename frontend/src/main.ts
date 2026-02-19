@@ -36,11 +36,6 @@ const playerName = InputPlayerName(socket);
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 /**
- * Add page to index.html
- */
-app.appendChild(playerName);
-
-/**
  * Variables
  */
 let currentPlayer: Player | undefined = undefined;
@@ -53,6 +48,8 @@ let currentPlayer: Player | undefined = undefined;
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
+
+	app.appendChild(playerName);
 });
 
 // Listen for when the server gets tired of us
@@ -129,7 +126,6 @@ socket.on("player:disconnected", (playerWhoLeft: Player) => {
 	});
 
 	document.body.appendChild(modal);
-	
 });
 
 socket.on("game:over", () => {
