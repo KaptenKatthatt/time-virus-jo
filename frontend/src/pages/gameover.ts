@@ -18,8 +18,6 @@ export default function GameOver() {
 		player_two_id: "id2",
 		player_two_name: "Emil",
 		player_two_score: 1,
-		player_one_id: "aaaa",
-		player_two_id: "aaaaaaa",
 		round: 1,
 		fastest_player_id: "öongöordm",
 		fastest_Time: 123213,
