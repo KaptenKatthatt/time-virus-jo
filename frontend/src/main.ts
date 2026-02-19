@@ -16,7 +16,7 @@ import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
-import { MatchFoundModal } from "./components/LobbyModals";
+import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -123,8 +123,13 @@ socket.on("game:start", (payload) => {
 });
 
 socket.on("player:disconnected", (playerWhoLeft: Player) => {
-	alert(playerWhoLeft.name + " disconnected");
-	showLobbyAfterJoin(currentPlayer);
+	const modal = DisconnectedUser(playerWhoLeft.name, () => {
+		modal.remove();
+		showLobbyAfterJoin(currentPlayer);
+	});
+
+	document.body.appendChild(modal);
+	
 });
 
 socket.on("game:over", () => {
