@@ -32,6 +32,8 @@ debug("Socket Controller initialized");
 /**
  * Variables
  */
+
+//TODO Change Record to something understandable
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
