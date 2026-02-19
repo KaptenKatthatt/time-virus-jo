@@ -10,17 +10,11 @@ export function WaitingModal() {
         spinner.role = "status";
 
         const text = document.createElement("p");
-        text.className = "text-center";
+        text.className = "text-center waiting-txt";
         text.innerText = "Waiting for opponent";
 
         container.appendChild(spinner);
         container.appendChild(text);
-
-        let dots = 0;
-        setInterval(() => {
-            dots = (dots + 1) % 4;
-            text.innerText = "Waiting for opponent" + ".".repeat(dots);
-        }, 500);
 
         return Modal(container);
     }
@@ -70,7 +64,7 @@ export function DisconnectedUser(playerName: string, onReturn?: () => void) {
         title.innerText = "Player disconnected";
 
         const text = document.createElement("p");
-        text.className = "mt-3";
+        text.className = "my-4";
         text.innerText = `${playerName} has left the game`;
         
         const button = Button("Return to lobby", () => {
