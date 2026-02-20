@@ -3,7 +3,6 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
-import { setInterval } from "timers";
 
 interface PlayerPayload {
 	name: string;
@@ -77,7 +76,7 @@ export default function Game(
 		sendReactionTime();
 	};
 
-	const setupVirusListeners = (element: HTMLDivElement) => {
+	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
@@ -95,11 +94,40 @@ export default function Game(
 			}, payload.delay);
 		});
 
-		startGameTimer();
+		restartGameTimer(gameTimerEl);
 	};
 
-	const startGameTimer = () => {
-		const gameTime = setInterval(() => {}, 10);
+	let gameTime = 0;
+	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
+		const startTime = performance.now();
+		const updateInterval = 100;
+
+		const padZero = (num: number) => {
+			return num.toString().padStart(2, "0");
+		};
+
+		if (startOrStop === "start") {
+			let elapsed = 0;
+			let seconds = 0;
+			let hundredths = 0;
+			gameTime = setInterval(() => {
+				elapsed = performance.now() - startTime;
+				seconds = Math.floor(elapsed / 1000);
+				hundredths = Math.floor((elapsed % 1000) / 10);
+				if (gameTimerEl instanceof HTMLSpanElement) {
+					gameTimerEl.textContent = `${padZero(seconds)}:${padZero(hundredths)}`;
+				}
+			}, updateInterval);
+		} else if (startOrStop === "stop") {
+			console.log("Restarted");
+			gameTime = 0;
+			clearInterval(gameTime);
+		}
+	};
+
+	const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
+		gameTimer("stop");
+		gameTimer("start", gameTimerEl);
 	};
 
 	const sendReactionTime = () => {
@@ -111,9 +139,12 @@ export default function Game(
 			timestamp: reactionTime,
 		};
 		socket.emit("player:clicked", payload);
+
+		//Display reaction time
 	};
 
 	const render = () => {
+		const gameTime = "00:00";
 		const div = document.createElement("div");
 		div.className = "game-grid justify-content-center gap-4 align-items-between h-100";
 
@@ -123,22 +154,26 @@ export default function Game(
 		const title = document.createElement("div");
 		title.className =
 			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
+
 		title.innerHTML = `
-			<span class="time display-2">00:00</span>
+			<span class="gametimeDisplay display-2 font-monospace">${gameTime}</span>
 			<span class="round display-5">3
 				<span class="round-slash fs-4">/</span>
 				<span class="round-total display-6">10</span>
 			</span>
 		`;
 
+		const gameTimerEl: HTMLSpanElement = title.querySelector(".gametimeDisplay")!;
+
 		const board = GameBoard();
+
 		const score = Score(player1, player2, socket.id!);
 		const playerOne = PlayerScore(player1, socket.id!);
 		const playerTwo = PlayerScore(player2, socket.id!);
-		const gameTimerEl = 0;
+		// const gameTimerEl = 0;
 
 		setupGameDataListeners(score, playerOne, playerTwo);
-		setupVirusListeners(board);
+		setupVirusListeners(board, gameTimerEl);
 
 		aside.appendChild(title);
 		aside.appendChild(score);
