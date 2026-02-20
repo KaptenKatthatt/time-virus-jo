@@ -17,6 +17,7 @@ import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
+import type { GameOverPayload } from "@shared/types/payloads.types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -92,9 +93,9 @@ const showGameBoardAtGameStart = () => {
 	app.appendChild(Game(socket));
 };
 
-const showGameOver = () => {
+const showGameOver = (payload: GameOverPayload) => {
 	app.innerHTML = "";
-	app.appendChild(GameOver());
+	app.appendChild(GameOver(socket, payload));
 };
 
 /**
@@ -131,6 +132,6 @@ socket.on("player:disconnected", (playerWhoLeft: Player) => {
 	document.body.appendChild(modal);
 });
 
-socket.on("game:over", () => {
-	showGameOver();
+socket.on("game:over", (winnerData) => {
+	showGameOver(winnerData);
 });

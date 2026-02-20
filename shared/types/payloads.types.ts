@@ -10,7 +10,7 @@ type GameScore = Pick<
 >;
 
 export interface GameOverPayload extends GameScore {
-  winner: PlayerId;
+  winner: string | null;
 }
 
 export interface GameCreatedPayload {

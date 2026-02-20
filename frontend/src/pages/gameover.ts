@@ -1,27 +1,15 @@
-// import type { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
-import type { ScoreboardOmitId } from "../types/scoreboard.types";
-import type { PrismaGame } from "@shared/types/Models.types";
-// import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+// import type { ScoreboardOmitId } from "../types/scoreboard.types";
+//import type { PrismaGame } from "@shared/types/Models.types";
+import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import type { GameOverPayload } from "@shared/types/payloads.types";
 
-// export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-export default function GameOver() {
-	//TODO: use the socket arg to get data from server
-	//TODO: get data from server with socket.on "gameover:data"
-	//get game data from server
-	const data: PrismaGame = {
-		id: "te",
-		name: "name",
-		player_one_id: "id1",
-		player_one_name: "Jonas",
-		player_one_score: 9,
-		player_two_id: "id2",
-		player_two_name: "Emil",
-		player_two_score: 1,
-		round: 1,
-		fastest_player_id: "öongöordm",
-		fastest_Time: 123213,
-	};
+export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>, payload: GameOverPayload) {
+
+	const onQuit = () => {
+		console.log("click");
+	}
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -37,11 +25,10 @@ export default function GameOver() {
 		const buttonWrapper = document.createElement("div");
 		buttonWrapper.className = "d-flex justify-content-center align-items-center";
 
-		const score = Result(data);
+		const score = Result(payload, socket.id);
 
-		const button = Button("To lobby", () => {
-			console.log("click");
-		});
+		const button = Button("To lobby", onQuit);
+		
 		button.classList.add("fs-2");
 
 		buttonWrapper.appendChild(button);
@@ -55,8 +42,8 @@ export default function GameOver() {
 	return render();
 }
 
-function Result(data: ScoreboardOmitId) {
-	const winner = data.player_one_name;
+function Result(data: GameOverPayload, socketId: string | undefined) {
+	const winner = data.winner;
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -67,8 +54,8 @@ function Result(data: ScoreboardOmitId) {
 		div.className =
 			"d-flex p-5 gap-4 justify-content-evenly align-items-center border-img-dark";
 
-		const scoreEl1 = ResultItem(data.player_one_name, data.player_one_score, winner);
-		const scoreEl2 = ResultItem(data.player_two_name, data.player_two_score, winner);
+		const scoreEl1 = ResultItem(data.player_one_name, data.player_one_score, winner, socketId);
+		const scoreEl2 = ResultItem(data.player_two_name, data.player_two_score, winner, socketId);
 
 		div.appendChild(scoreEl1);
 		div.appendChild(span);
@@ -79,17 +66,14 @@ function Result(data: ScoreboardOmitId) {
 	return render();
 }
 
-function ResultItem(name: string, score: number, winner: string) {
+function ResultItem(name: string | null, score: number | null, winner: string | null, socketId: string | undefined)  {
 	const render = () => {
 		const div = document.createElement("div");
-		const isMe = winner === name ? "text-primary fw-bold" : "";
+		const isMe = winner === socketId ? "text-primary fw-bold" : "";
+
 
 		div.className =
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
-
-		if (winner === name) {
-			// div.classList.add("gameover-border-img-small");
-		}
 
 		div.innerHTML = `
 			${isMe ? "<span>👑</span>" : "<span>😭</span>"}
