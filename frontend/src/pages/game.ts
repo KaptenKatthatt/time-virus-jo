@@ -77,7 +77,9 @@ export default function Game(
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
+		console.log("setupVirusListeners called");
 		socket.on("game:virus", (payload) => {
+			console.log("game:virus event received");
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
 			});
@@ -85,28 +87,45 @@ export default function Game(
 			setTimeout(() => {
 				spawnTime = Date.now();
 				element.appendChild(virus);
-				console.log("virus spawned inactivity timer started");
+				console.log("virus spawned, inactivity timer started");
 
 				inactivityTimer = window.setTimeout(() => {
 					console.log("Player inactive - returning to login");
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);
-		});
 
-		restartGameTimer(gameTimerEl);
+			console.log("Calling restartGameTimer from setupVirusListeners");
+			restartGameTimer(gameTimerEl);
+		});
 	};
 
 	let gameTime = 0;
 	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
+		console.log(`gameTimer called with startOrStop: ${startOrStop}, gameTime: ${gameTime}`);
+
 		const startTime = performance.now();
 		const updateInterval = 100;
 
 		const padZero = (num: number) => {
 			return num.toString().padStart(2, "0");
 		};
+		if (startOrStop === "stop") {
+			console.log("Stopping timer, gameTime:", gameTime);
+			if (gameTime) {
+				clearInterval(gameTime);
+				console.log("Timer stopped successfully.");
+			} else {
+				console.log("No active timer to stop.");
+			}
+		}
 
 		if (startOrStop === "start") {
+			if (gameTime) {
+				console.log("Clearing existing timer before starting a new one.");
+				clearInterval(gameTime);
+			}
+			console.log("Starting timer");
 			let elapsed = 0;
 			let seconds = 0;
 			let hundredths = 0;
@@ -120,12 +139,17 @@ export default function Game(
 			}, updateInterval);
 		} else if (startOrStop === "stop") {
 			console.log("Restarted");
-			gameTime = 0;
-			clearInterval(gameTime);
+			// gameTime = 0;
+			if (gameTime !== 0) {
+				clearInterval(gameTime);
+			} else {
+				console.log("GameTime is 0");
+			}
 		}
 	};
 
 	const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
+		console.log("restartGameTimer called, gameTimerEl:", gameTimerEl);
 		gameTimer("stop");
 		gameTimer("start", gameTimerEl);
 	};
