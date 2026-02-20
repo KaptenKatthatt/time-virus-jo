@@ -38,6 +38,8 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);
+
+			// Start timer
 		});
 	};
 
@@ -48,6 +50,9 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 			playerId: socket.id,
 			timestamp,
 		};
+
+		// Stop timer
+
 		socket.emit("player:clicks", payload);
 	};
 
@@ -62,4 +67,3 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 	};
 	return render();
 }
-
