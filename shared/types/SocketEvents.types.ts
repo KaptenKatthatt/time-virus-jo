@@ -6,6 +6,7 @@ import type {
   ScorePayload,
   GameCreatedPayload,
   GameStartPayload,
+  ScoreBoardPayload
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -18,6 +19,7 @@ export interface ServerToClientEvents {
   "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (player: PrismaPlayer) => void;
   "player:disconnected": (playerWhoLeft: PrismaPlayer) => void;
+  "scoreboard:data": (payload: ScoreBoardPayload) => void;
 }
 
 // Events emitted by the client to the server

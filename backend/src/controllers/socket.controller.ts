@@ -10,6 +10,7 @@ import type {
 	GameStartPayload,
 	GamePayload,
 	GameOverPayload,
+	ScoreBoardPayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -253,6 +254,16 @@ export const handleConnection = (
 				io.to(gameId).emit("game:virus", nextVirus);
 			} else {
 				console.log("Game over");
+
+				const scoreboardData: ScoreBoardPayload = {
+					player_one_name: currentGame.player_one_name,
+					player_two_name: currentGame.player_two_name,
+					player_one_score: currentGame.player_one_score,
+					player_two_score: currentGame.player_two_score,
+					name: ""
+				}
+
+				io.to(gameId).emit("scoreboard:data", scoreboardData);
 				
 				let winnerId: string | null = null;
 
