@@ -95,36 +95,20 @@ export default function Game(
 				}, 30000);
 			}, payload.delay);
 
-			console.log("Calling restartGameTimer from setupVirusListeners");
 			restartGameTimer(gameTimerEl);
 		});
 	};
 
 	let gameTime = 0;
 	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
-		console.log(`gameTimer called with startOrStop: ${startOrStop}, gameTime: ${gameTime}`);
-
 		const startTime = performance.now();
 		const updateInterval = 100;
 
 		const padZero = (num: number) => {
 			return num.toString().padStart(2, "0");
 		};
-		if (startOrStop === "stop") {
-			console.log("Stopping timer, gameTime:", gameTime);
-			if (gameTime) {
-				clearInterval(gameTime);
-				console.log("Timer stopped successfully.");
-			} else {
-				console.log("No active timer to stop.");
-			}
-		}
 
 		if (startOrStop === "start") {
-			if (gameTime) {
-				console.log("Clearing existing timer before starting a new one.");
-				clearInterval(gameTime);
-			}
 			console.log("Starting timer");
 			let elapsed = 0;
 			let seconds = 0;
@@ -138,18 +122,11 @@ export default function Game(
 				}
 			}, updateInterval);
 		} else if (startOrStop === "stop") {
-			console.log("Restarted");
-			// gameTime = 0;
-			if (gameTime !== 0) {
-				clearInterval(gameTime);
-			} else {
-				console.log("GameTime is 0");
-			}
+			clearInterval(gameTime);
 		}
 	};
 
 	const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
-		console.log("restartGameTimer called, gameTimerEl:", gameTimerEl);
 		gameTimer("stop");
 		gameTimer("start", gameTimerEl);
 	};
@@ -194,7 +171,6 @@ export default function Game(
 		const score = Score(player1, player2, socket.id!);
 		const playerOne = PlayerScore(player1, socket.id!);
 		const playerTwo = PlayerScore(player2, socket.id!);
-		// const gameTimerEl = 0;
 
 		setupGameDataListeners(score, playerOne, playerTwo);
 		setupVirusListeners(board, gameTimerEl);
@@ -246,7 +222,7 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 
 		div.innerHTML = `
 			<span class="${isMe} display-lg-5 display-6">${name}</span>
-			<span class="fs-2">00:00</span>
+			<span class="player-reaction-time fs-2">00:00</span>
 		`;
 
 		return div;
