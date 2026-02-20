@@ -16,12 +16,12 @@ export default function Game(
 	const player1 = {
 		name: "Player 1",
 		id: "id1",
-		score: 3,
+		score: 0,
 	};
 	const player2 = {
 		name: "Player 2",
 		id: "id2",
-		score: 4,
+		score: 0,
 	};
 
 	// TODO: subscribe to socket events to keep UI (scores, time, round) in sync
