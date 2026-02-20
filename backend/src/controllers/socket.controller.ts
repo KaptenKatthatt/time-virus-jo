@@ -162,6 +162,8 @@ export const handleConnection = (
 
 				// Emit virus to all players
 				io.to(availableGame.id).emit("game:virus", startingVirus);
+
+				//Set spawn time for virus
 			}, 3000);
 		}
 	});
@@ -195,14 +197,16 @@ export const handleConnection = (
 	/**
 	 * Summon the virus
 	 */
-	socket.on("player:clicks", (timestampPayload) => {
+	socket.on("player:clicked", (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
-		// Calculate player reaction tim
+		// Calculate player reaction time
 		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
 
-		// Save player if and reaction time to game object
+		// Compare reaction time of both
+
+		// Save player and reaction time to game object
 		currentGame.clickedPlayers.push({
 			playerId: timestampPayload.playerId,
 			reactionTime,
@@ -214,8 +218,10 @@ export const handleConnection = (
 
 			if (fastestInRound.playerId === currentGame.player_one_id) {
 				currentGame.player_one_score++;
+				console.log(`Fastest player this round ${currentGame.player_one_name}`);
 			} else {
 				currentGame.player_two_score++;
+				console.log(`Fastest player this round ${currentGame.player_two_name}`);
 			}
 			console.log("Current game obj", currentGame);
 
@@ -239,17 +245,20 @@ export const handleConnection = (
 			// If round less than ten, send new virus
 			if (currentGame.round < 3) {
 				currentGame.clickedPlayers = [];
-
 				currentGame.round++;
 
+				//Create next virus
 				const nextVirus = summonVirus();
 				if (!nextVirus) return;
+				//Send next virus to players
+				io.to(gameId).emit("game:virus", nextVirus);
 
 				// Update spawn time for next round
 				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
 
-				//Send next virus to players
-				io.to(gameId).emit("game:virus", nextVirus);
+				//Set spawn time for virus
+				const spawnTime = Date.now();
+				console.log("Setting spawn time to", spawnTime);
 			} else {
 				console.log("Game over");
 			}

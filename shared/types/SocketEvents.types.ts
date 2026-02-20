@@ -25,7 +25,7 @@ export interface ClientToServerEvents {
   updateScore: (payload: ScorePayload) => void;
   playerJoinLobbyRequest: (playerName: string) => void;
   playerJoinGameRequest: (playerName: string) => void;
-  "player:clicks": (payload: TimestampPayload) => void;
+  "player:clicked": (payload: TimestampPayload) => void;
   "player:joins": (payload: string) => void;
   "player:start": (payload: string) => void;
 }

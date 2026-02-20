@@ -2,20 +2,24 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { Socket } from "socket.io-client";
 import { Virus } from "./Virus";
 
+// TODO Present player click time in aside on both players
+// TODO Present Round start time in that div. Start when game start. Stops and resets when both players clicked.
+
 export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	let startTime = 0; //timer for gameboard
+	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		virus.remove();
-		//Stop timeout
+
+		//Stop inactivity timer
 		if (inactivityTimer) {
-			clearTimeout(inactivityTimer)
+			clearTimeout(inactivityTimer);
 			inactivityTimer = null;
 			console.log("Cleared inactivity");
 		}
-		//Send player timestamp to server
-		sendTimeStamp();
+
+		sendReactionTime();
 	};
 
 	const setupSocketListeners = (element: HTMLDivElement) => {
@@ -29,7 +33,7 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 			});
 
 			setTimeout(() => {
-				startTime = Date.now();
+				spawnTime = Date.now();
 				element.appendChild(virus);
 				console.log("virus spawned inactivity timer started");
 
@@ -38,22 +42,18 @@ export default function GameBoard(socket: Socket<ServerToClientEvents, ClientToS
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);
-
-			// Start timer
 		});
 	};
 
-	const sendTimeStamp = () => {
-		const timestamp = Date.now();
+	const sendReactionTime = () => {
+		const clickTime = Date.now();
+		const reactionTime = clickTime - spawnTime;
 		if (!socket.id) return;
 		const payload = {
 			playerId: socket.id,
-			timestamp,
+			timestamp: reactionTime,
 		};
-
-		// Stop timer
-
-		socket.emit("player:clicks", payload);
+		socket.emit("player:clicked", payload);
 	};
 
 	const render = () => {
