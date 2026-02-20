@@ -3,6 +3,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
+import { setInterval } from "timers";
 
 interface PlayerPayload {
 	name: string;
@@ -48,11 +49,7 @@ export default function Game(
 					},
 				};
 
-				const updatedScore = Score(
-					players.player1.score,
-					players.player2.score,
-					socket.id!,
-				);
+				const updatedScore = Score(players.player1, players.player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
 				const updatedPlayerOne = PlayerScore(players.player1, socket.id!);
@@ -84,10 +81,6 @@ export default function Game(
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
-				// console.log("Virus clicked");
-				// console.log("payload-x", payload.x);
-				// console.log("payload-y", payload.y);
-				// console.log("payload delay", payload.delay);
 			});
 
 			setTimeout(() => {
@@ -101,6 +94,12 @@ export default function Game(
 				}, 30000);
 			}, payload.delay);
 		});
+
+		startGameTimer();
+	};
+
+	const startGameTimer = () => {
+		const gameTime = setInterval(() => {}, 10);
 	};
 
 	const sendReactionTime = () => {
@@ -133,9 +132,10 @@ export default function Game(
 		`;
 
 		const board = GameBoard();
-		const score = Score(player1.score, player2.score, socket.id!);
+		const score = Score(player1, player2, socket.id!);
 		const playerOne = PlayerScore(player1, socket.id!);
 		const playerTwo = PlayerScore(player2, socket.id!);
+		const gameTimerEl = 0;
 
 		setupGameDataListeners(score, playerOne, playerTwo);
 		setupVirusListeners(board);
@@ -154,19 +154,19 @@ export default function Game(
 	return render();
 }
 
-function Score(scoreOne: number, scoreTwo: number, socketId: string) {
+function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: string) {
 	const render = () => {
 		const div = document.createElement("div");
-		const playerId = socketId;
-		const isMe = socketId === playerId ? "text-primary" : "";
+		const isMe = socketId === playerOne.id ? "text-primary" : "";
+		const isPlayerTwo = socketId === playerTwo.id ? "text-primary" : "";
 
 		div.className =
 			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
 
 		div.innerHTML = `
-			<span class="${isMe}">${scoreOne}</span>
+			<span class="${isMe}">${playerOne.score}</span>
 			<span>-</span>
-			<span>${scoreTwo}</span>
+			<span class="${isPlayerTwo}">${playerTwo.score}</span>
 		`;
 
 		return div;
