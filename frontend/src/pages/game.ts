@@ -109,14 +109,14 @@ export default function Game(
 		});
 	};
 
+	const padZero = (num: number) => {
+		return num.toString().padStart(2, "0");
+	};
+
 	let gameTime = 0;
 	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
 		const startTime = performance.now();
 		const updateInterval = 100;
-
-		const padZero = (num: number) => {
-			return num.toString().padStart(2, "0");
-		};
 
 		if (startOrStop === "start") {
 			console.log("Starting timer");
@@ -125,8 +125,10 @@ export default function Game(
 			let hundredths = 0;
 			gameTime = setInterval(() => {
 				elapsed = performance.now() - startTime;
+
 				seconds = Math.floor(elapsed / 1000);
 				hundredths = Math.floor((elapsed % 1000) / 10);
+
 				if (gameTimerEl instanceof HTMLSpanElement) {
 					gameTimerEl.textContent = `${padZero(seconds)}:${padZero(hundredths)}`;
 				}
@@ -247,11 +249,14 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 
 		const playerNameEl = div.querySelector<HTMLDivElement>(".name")!;
 
-		// return div;
 		return {
 			element: div,
 			updateReactionTime: (reactionTime: number) => {
-				reactionTimeEl.textContent = String(reactionTime);
+				const seconds = Math.floor(reactionTime / 1000);
+				const hundredths = Math.floor((reactionTime % 1000) / 10);
+				const reactionTimeFormatted = `${seconds}:${hundredths}`;
+
+				reactionTimeEl.textContent = reactionTimeFormatted;
 			},
 			updateName: (name: string) => {
 				playerNameEl.textContent = name;
