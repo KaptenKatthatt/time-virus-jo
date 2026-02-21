@@ -211,7 +211,7 @@ export const handleConnection = (
 			reactionTime,
 		};
 		// Emit reaction time to opponent(s)
-		io.to(gameId).emit("player: reactionTime", reactionDataPayLoad);
+		io.to(gameId).emit("player:reactionTime", reactionDataPayLoad);
 
 		// Save player and reaction time to game object
 		currentGame.clickedPlayers.push({

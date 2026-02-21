@@ -3,27 +3,12 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
-
-interface PlayerPayload {
-	name: string;
-	id: string;
-	score: number;
-}
-
-interface PlayerScoreReturn {
-	element: HTMLDivElement;
-	updateReactionTime: (reactionTime: number) => void;
-	updateName: (name: string) => void;
-}
-
-const padZero = (num: number) => {
-	return num.toString().padStart(2, "0");
-};
-const timeFormatter = (time: number) => {
-	const seconds = Math.floor(time / 1000);
-	const hundredths = Math.floor((time % 1000) / 10);
-	return `${padZero(seconds)}:${padZero(hundredths)}`;
-};
+import { PlayerCard } from "../components/game/PlayerCard";
+import { Score } from "../components/game/Score";
+import type { PlayerCardReturn } from "../types/playerCard.types";
+import type { PlayerPayload } from "../types/game.types";
+import { gameTimer, restartGameTimer } from "../components/game/GameTimer";
+import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
@@ -37,8 +22,11 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		score: 0,
 	};
 
-	let playerOne: PlayerScoreReturn;
-	let playerTwo: PlayerScoreReturn;
+	//Inits
+	let playerOne: PlayerCardReturn;
+	let playerTwo: PlayerCardReturn;
+	let spawnTime = 0;
+	let inactivityTimer: number | null = null;
 
 	const setupGameDataListeners = (score: HTMLDivElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
@@ -76,9 +64,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		});
 	};
 
-	let spawnTime = 0;
-	let inactivityTimer: number | null = null;
-
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		console.log("Virus clicked");
 		virus.remove();
@@ -93,9 +78,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
-		console.log("setupVirusListeners called");
 		socket.on("game:virus", (payload) => {
-			console.log("game:virus event received");
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
 			});
@@ -113,30 +96,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			}, payload.delay);
 			gameTimer("stop", gameTimerEl);
 		});
-	};
-
-	let gameTime = 0;
-	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
-		const startTime = performance.now();
-		const updateInterval = 100;
-
-		if (startOrStop === "start") {
-			let elapsed = 0;
-
-			gameTime = setInterval(() => {
-				elapsed = performance.now() - startTime;
-				if (gameTimerEl instanceof HTMLSpanElement) {
-					gameTimerEl.textContent = timeFormatter(elapsed);
-				}
-			}, updateInterval);
-		} else if (startOrStop === "stop") {
-			clearInterval(gameTime);
-		}
-	};
-
-	const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
-		gameTimer("stop");
-		gameTimer("start", gameTimerEl);
 	};
 
 	const sendReactionTime = () => {
@@ -167,30 +126,19 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		const aside = document.createElement("aside");
 		aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
 
-		const title = document.createElement("div");
-		title.className =
-			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
-
-		title.innerHTML = `
-			<span class="gametimeDisplay display-2 font-monospace">00:00</span>
-			<span class="round display-5">3
-				<span class="round-slash fs-4">/</span>
-				<span class="round-total display-6">10</span>
-			</span>
-		`;
-
-		const gameTimerEl: HTMLSpanElement = title.querySelector(".gametimeDisplay")!;
+		const gameStatus = GameStatus();
+		const gameTimerEl = gameStatus.timerElement;
 
 		const board = GameBoard();
 
 		const score = Score(player1, player2, socket.id!);
-		playerOne = PlayerScore(player1, socket.id!);
-		playerTwo = PlayerScore(player2, socket.id!);
+		playerOne = PlayerCard(player1, socket.id!);
+		playerTwo = PlayerCard(player2, socket.id!);
 
 		setupGameDataListeners(score);
 		setupVirusListeners(board, gameTimerEl);
 
-		aside.appendChild(title);
+		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
 		aside.appendChild(playerOne.element);
 		aside.appendChild(playerTwo.element);
@@ -201,57 +149,5 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		return div;
 	};
 
-	return render();
-}
-
-function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: string) {
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerOne.id ? "text-primary" : "";
-		const isPlayerTwo = socketId === playerTwo.id ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
-
-		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
-			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
-		`;
-
-		return div;
-	};
-	return render();
-}
-
-function PlayerScore(player: PlayerPayload, socketId: string) {
-	const playerId = player.id;
-	const name = player.name;
-
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerId ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-evenly flex-column bg-dark align-items-center p-4 border-img-dark";
-
-		div.innerHTML = `
-			<span class="name ${isMe} display-lg-5 display-6">${name}</span>
-			<span class="player-reaction-time fs-2">00:00</span>
-		`;
-		const reactionTimeEl = div.querySelector<HTMLSpanElement>(".player-reaction-time")!;
-
-		const playerNameEl = div.querySelector<HTMLDivElement>(".name")!;
-
-		return {
-			element: div,
-			updateReactionTime: (reactionTime: number) => {
-				reactionTimeEl.textContent = timeFormatter(reactionTime);
-			},
-			updateName: (name: string) => {
-				playerNameEl.textContent = name;
-			},
-		};
-	};
 	return render();
 }
