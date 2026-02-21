@@ -6,17 +6,12 @@ import GameBoard from "../components/game/GameBoard";
 import { timeFormatter } from "../utils/timeFormatter";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
+import type { PlayerCardReturn } from "../types/playerCard.types";
 
 export interface PlayerPayload {
 	name: string;
 	id: string;
 	score: number;
-}
-
-interface PlayerCardReturn {
-	element: HTMLDivElement;
-	updateReactionTime: (reactionTime: number) => void;
-	updateName: (name: string) => void;
 }
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
