@@ -3,11 +3,13 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
-import { timeFormatter } from "../utils/timeFormatter";
+// import { timeFormatter } from "../utils/timeFormatter";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import type { PlayerPayload } from "../types/game.types";
+import { gameTimer, restartGameTimer } from "../components/game/GameTimer";
+import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
@@ -26,7 +28,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	let playerTwo: PlayerCardReturn;
 	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
-	let gameTime = 0;
 
 	const setupGameDataListeners = (score: HTMLDivElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
@@ -78,9 +79,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
-		console.log("setupVirusListeners called");
 		socket.on("game:virus", (payload) => {
-			console.log("game:virus event received");
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
 			});
@@ -98,29 +97,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			}, payload.delay);
 			gameTimer("stop", gameTimerEl);
 		});
-	};
-
-	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
-		const startTime = performance.now();
-		const updateInterval = 100;
-
-		if (startOrStop === "start") {
-			let elapsed = 0;
-
-			gameTime = setInterval(() => {
-				elapsed = performance.now() - startTime;
-				if (gameTimerEl instanceof HTMLSpanElement) {
-					gameTimerEl.textContent = timeFormatter(elapsed);
-				}
-			}, updateInterval);
-		} else if (startOrStop === "stop") {
-			clearInterval(gameTime);
-		}
-	};
-
-	const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
-		gameTimer("stop");
-		gameTimer("start", gameTimerEl);
 	};
 
 	const sendReactionTime = () => {
@@ -151,19 +127,8 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		const aside = document.createElement("aside");
 		aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
 
-		const title = document.createElement("div");
-		title.className =
-			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
-
-		title.innerHTML = `
-			<span class="gametimeDisplay display-2 font-monospace">00:00</span>
-			<span class="round display-5">3
-				<span class="round-slash fs-4">/</span>
-				<span class="round-total display-6">10</span>
-			</span>
-		`;
-
-		const gameTimerEl: HTMLSpanElement = title.querySelector(".gametimeDisplay")!;
+		const gameStatus = GameStatus();
+		const gameTimerEl = gameStatus.timerElement;
 
 		const board = GameBoard();
 
@@ -174,7 +139,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		setupGameDataListeners(score);
 		setupVirusListeners(board, gameTimerEl);
 
-		aside.appendChild(title);
+		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
 		aside.appendChild(playerOne.element);
 		aside.appendChild(playerTwo.element);
