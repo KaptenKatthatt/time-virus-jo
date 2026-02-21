@@ -4,8 +4,10 @@ import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { timeFormatter } from "../utils/timeFormatter";
+import { PlayerCard } from "../components/game/PlayerCard";
+import { Score } from "../components/game/Score";
 
-interface PlayerPayload {
+export interface PlayerPayload {
 	name: string;
 	id: string;
 	score: number;
@@ -193,57 +195,5 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		return div;
 	};
 
-	return render();
-}
-
-function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: string) {
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerOne.id ? "text-primary" : "";
-		const isPlayerTwo = socketId === playerTwo.id ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
-
-		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
-			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
-		`;
-
-		return div;
-	};
-	return render();
-}
-
-function PlayerCard(player: PlayerPayload, socketId: string) {
-	const playerId = player.id;
-	const name = player.name;
-
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerId ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-evenly flex-column bg-dark align-items-center p-4 border-img-dark";
-
-		div.innerHTML = `
-			<span class="name ${isMe} display-lg-5 display-6">${name}</span>
-			<span class="player-reaction-time fs-2">00:00</span>
-		`;
-		const reactionTimeEl = div.querySelector<HTMLSpanElement>(".player-reaction-time")!;
-
-		const playerNameEl = div.querySelector<HTMLDivElement>(".name")!;
-
-		return {
-			element: div,
-			updateReactionTime: (reactionTime: number) => {
-				reactionTimeEl.textContent = timeFormatter(reactionTime);
-			},
-			updateName: (name: string) => {
-				playerNameEl.textContent = name;
-			},
-		};
-	};
 	return render();
 }
