@@ -1,4 +1,4 @@
-import type { PlayerPayload } from "../../pages/game";
+import type { PlayerPayload } from "../../types/game.types";
 import { timeFormatter } from "../../utils/timeFormatter";
 
 export function PlayerCard(player: PlayerPayload, socketId: string) {

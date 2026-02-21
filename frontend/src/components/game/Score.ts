@@ -1,4 +1,4 @@
-import type { PlayerPayload } from "../../pages/game";
+import type { PlayerPayload } from "../../types/game.types";
 
 export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: string) {
 	const render = () => {

@@ -7,12 +7,7 @@ import { timeFormatter } from "../utils/timeFormatter";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
-
-export interface PlayerPayload {
-	name: string;
-	id: string;
-	score: number;
-}
+import type { PlayerPayload } from "../types/game.types";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
@@ -26,8 +21,12 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		score: 0,
 	};
 
+	//Inits
 	let playerOne: PlayerCardReturn;
 	let playerTwo: PlayerCardReturn;
+	let spawnTime = 0;
+	let inactivityTimer: number | null = null;
+	let gameTime = 0;
 
 	const setupGameDataListeners = (score: HTMLDivElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
@@ -65,9 +64,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		});
 	};
 
-	let spawnTime = 0;
-	let inactivityTimer: number | null = null;
-
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		console.log("Virus clicked");
 		virus.remove();
@@ -104,7 +100,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		});
 	};
 
-	let gameTime = 0;
 	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
 		const startTime = performance.now();
 		const updateInterval = 100;
