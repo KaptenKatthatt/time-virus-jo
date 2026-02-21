@@ -161,7 +161,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const render = () => {
-		// const gameTime = "00:00";
+		const gameTime = "00:00";
 
 		const div = document.createElement("div");
 		div.className = "game-grid justify-content-center gap-4 align-items-between h-100";
@@ -248,10 +248,6 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 		return {
 			element: div,
 			updateReactionTime: (reactionTime: number) => {
-				// const seconds = Math.floor(reactionTime / 1000);
-				// const hundredths = Math.floor((reactionTime % 1000) / 10);
-				// const reactionTimeFormatted = `${padZero(seconds)}:${padZero(hundredths)}`;
-
 				reactionTimeEl.textContent = timeFormatter(reactionTime);
 			},
 			updateName: (name: string) => {

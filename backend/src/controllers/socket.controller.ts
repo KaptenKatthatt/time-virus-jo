@@ -203,8 +203,8 @@ export const handleConnection = (
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
-		// Calculate player reaction time
-		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
+		//Player reaction time
+		const reactionTime = timestampPayload.timestamp;
 
 		const reactionDataPayLoad: ReactionData = {
 			playerId: timestampPayload.playerId,
