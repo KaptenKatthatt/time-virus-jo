@@ -3,7 +3,6 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
-// import { timeFormatter } from "../utils/timeFormatter";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
