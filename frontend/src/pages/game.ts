@@ -3,6 +3,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/S
 import type { GamePayload } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
+import { timeFormatter } from "../utils/timeFormatter";
 
 interface PlayerPayload {
 	name: string;
@@ -15,15 +16,6 @@ interface PlayerScoreReturn {
 	updateReactionTime: (reactionTime: number) => void;
 	updateName: (name: string) => void;
 }
-
-const padZero = (num: number) => {
-	return num.toString().padStart(2, "0");
-};
-const timeFormatter = (time: number) => {
-	const seconds = Math.floor(time / 1000);
-	const hundredths = Math.floor((time % 1000) / 10);
-	return `${padZero(seconds)}:${padZero(hundredths)}`;
-};
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {

@@ -19,7 +19,7 @@ export interface ServerToClientEvents {
   "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (player: PrismaPlayer) => void;
   "player:disconnected": (playerWhoLeft: PrismaPlayer) => void;
-  "player: reactionTime": (reactionDataPayLoad: ReactionData) => void;
+  "player:reactionTime": (reactionDataPayLoad: ReactionData) => void;
 }
 
 // Events emitted by the client to the server
