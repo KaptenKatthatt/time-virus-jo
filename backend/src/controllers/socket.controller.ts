@@ -10,6 +10,7 @@ import type {
 	GameStartPayload,
 	GamePayload,
 	GameOverPayload,
+	ReactionData,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -205,7 +206,12 @@ export const handleConnection = (
 		// Calculate player reaction time
 		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
 
-		// Compare reaction time of both
+		const reactionDataPayLoad: ReactionData = {
+			playerId: timestampPayload.playerId,
+			reactionTime,
+		};
+		// Emit reaction time to opponent(s)
+		io.to(gameId).emit("player: reactionTime", reactionDataPayLoad);
 
 		// Save player and reaction time to game object
 		currentGame.clickedPlayers.push({
@@ -217,6 +223,7 @@ export const handleConnection = (
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
+			// Compare reaction time of both
 			if (fastestInRound.playerId === currentGame.player_one_id) {
 				currentGame.player_one_score++;
 				console.log(`Fastest player this round ${currentGame.player_one_name}`);
@@ -256,13 +263,9 @@ export const handleConnection = (
 
 				// Update spawn time for next round
 				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
-
-				//Set spawn time for virus
-				const spawnTime = Date.now();
-				console.log("Setting spawn time to", spawnTime);
 			} else {
 				console.log("Game over");
-				
+
 				let winnerId: string | null = null;
 
 				if (currentGame.player_one_score > currentGame.player_two_score) {
@@ -270,7 +273,7 @@ export const handleConnection = (
 				} else if (currentGame.player_two_score > currentGame.player_one_score) {
 					winnerId = currentGame.player_two_id;
 				} else {
-					winnerId = null; 
+					winnerId = null;
 				}
 
 				const winnerData: GameOverPayload = {
@@ -279,7 +282,7 @@ export const handleConnection = (
 					player_one_score: currentGame.player_one_score,
 					player_two_score: currentGame.player_two_score,
 					winner: winnerId,
-				}
+				};
 
 				io.to(gameId).emit("game:over", winnerData);
 			}

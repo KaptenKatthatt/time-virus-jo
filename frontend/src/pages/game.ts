@@ -16,10 +16,7 @@ interface PlayerScoreReturn {
 	updateName: (name: string) => void;
 }
 
-export default function Game(
-	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
-	// gameId: GameId = "",
-) {
+export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
 		name: "Player 1",
 		id: "id1",
@@ -97,6 +94,7 @@ export default function Game(
 			setTimeout(() => {
 				spawnTime = Date.now();
 				element.appendChild(virus);
+				restartGameTimer(gameTimerEl);
 				console.log("virus spawned, inactivity timer started");
 
 				inactivityTimer = window.setTimeout(() => {
@@ -104,8 +102,7 @@ export default function Game(
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);
-
-			restartGameTimer(gameTimerEl);
+			gameTimer("stop", gameTimerEl);
 		});
 	};
 
@@ -125,7 +122,6 @@ export default function Game(
 			let hundredths = 0;
 			gameTime = setInterval(() => {
 				elapsed = performance.now() - startTime;
-
 				seconds = Math.floor(elapsed / 1000);
 				hundredths = Math.floor((elapsed % 1000) / 10);
 
