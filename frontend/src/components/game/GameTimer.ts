@@ -2,7 +2,7 @@ import { timeFormatter } from "../../utils/timeFormatter";
 
 let gameTime = 0;
 
-export const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
+export const GameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
 	const startTime = performance.now();
 
 	if (startOrStop === "start") {
@@ -20,6 +20,6 @@ export const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) =>
 };
 
 export const restartGameTimer = (gameTimerEl: HTMLSpanElement) => {
-	gameTimer("stop");
-	gameTimer("start", gameTimerEl);
+	GameTimer("stop");
+	GameTimer("start", gameTimerEl);
 };

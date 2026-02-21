@@ -7,7 +7,7 @@ import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import type { PlayerPayload } from "../types/game.types";
-import { gameTimer, restartGameTimer } from "../components/game/GameTimer";
+import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
@@ -94,7 +94,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);
-			gameTimer("stop", gameTimerEl);
+			GameTimer("stop", gameTimerEl);
 		});
 	};
 
