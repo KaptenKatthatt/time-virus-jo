@@ -10,6 +10,12 @@ interface PlayerPayload {
 	score: number;
 }
 
+interface PlayerScoreReturn {
+	element: HTMLDivElement;
+	updateReactionTime: (reactionTime: number) => void;
+	updateName: (name: string) => void;
+}
+
 export default function Game(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
 	// gameId: GameId = "",
@@ -25,10 +31,13 @@ export default function Game(
 		score: 0,
 	};
 
+	let playerOne: PlayerScoreReturn;
+	let playerTwo: PlayerScoreReturn;
+
 	const setupGameDataListeners = (
 		score: HTMLDivElement,
-		playerOne: HTMLDivElement,
-		playerTwo: HTMLDivElement,
+		// playerOne: HTMLDivElement,
+		// playerTwo: HTMLDivElement,
 	) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
@@ -48,14 +57,24 @@ export default function Game(
 					},
 				};
 
+				player1.id = players.player1.id;
+				player1.name = players.player1.name;
+				player1.score = players.player1.score;
+
+				player2.id = players.player2.id;
+				player2.name = players.player2.name;
+				player2.score = players.player2.score;
+
 				const updatedScore = Score(players.player1, players.player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
-				const updatedPlayerOne = PlayerScore(players.player1, socket.id!);
-				playerOne.innerHTML = updatedPlayerOne.innerHTML;
+				// const updatedPlayerOne = PlayerScore(players.player1, socket.id!);
+				// playerOne.innerHTML = updatedPlayerOne.element.innerHTML;
+				playerOne.updateName(player1.name);
+				playerTwo.updateName(player2.name);
 
-				const updatedPlayerTwo = PlayerScore(players.player2, socket.id!);
-				playerTwo.innerHTML = updatedPlayerTwo.innerHTML;
+				// const updatedPlayerTwo = PlayerScore(players.player2, socket.id!);
+				// playerTwo.innerHTML = updatedPlayerTwo.element.innerHTML;
 			}
 		});
 	};
@@ -64,13 +83,13 @@ export default function Game(
 	let inactivityTimer: number | null = null;
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
+		console.log("Virus clicked");
 		virus.remove();
 
-		//Stop inactivity timer
 		if (inactivityTimer) {
 			clearTimeout(inactivityTimer);
 			inactivityTimer = null;
-			console.log("Cleared inactivity");
+			console.log("Cleared inactivity timer");
 		}
 
 		sendReactionTime();
@@ -133,6 +152,10 @@ export default function Game(
 
 	const sendReactionTime = () => {
 		const clickTime = Date.now();
+		if (spawnTime === 0) {
+			console.error("spawnTime is not set.");
+			return;
+		}
 		const reactionTime = clickTime - spawnTime;
 		if (!socket.id) return;
 		const payload = {
@@ -141,11 +164,27 @@ export default function Game(
 		};
 		socket.emit("player:clicked", payload);
 
-		//Display reaction time
+		if (socket.id === player1.id) {
+			playerOne.updateReactionTime(reactionTime);
+			console.log("P1 reac time", reactionTime);
+			console.log("P1 id", player1.id);
+			console.log("Socket id", socket.id);
+		} else if (socket.id === player2.id) {
+			playerTwo.updateReactionTime(reactionTime);
+			console.log("P2 reac time", reactionTime);
+			console.log("Socket id", socket.id);
+			console.log("P2 id", player1.id);
+		} else {
+			console.log("Found no id");
+			console.log("Socket id", socket.id);
+			console.log("P1 id", player1.id);
+			console.log("P2 id", player2.id);
+		}
 	};
 
 	const render = () => {
 		const gameTime = "00:00";
+
 		const div = document.createElement("div");
 		div.className = "game-grid justify-content-center gap-4 align-items-between h-100";
 
@@ -169,16 +208,18 @@ export default function Game(
 		const board = GameBoard();
 
 		const score = Score(player1, player2, socket.id!);
-		const playerOne = PlayerScore(player1, socket.id!);
-		const playerTwo = PlayerScore(player2, socket.id!);
+		playerOne = PlayerScore(player1, socket.id!);
+		playerTwo = PlayerScore(player2, socket.id!);
+		// const playerOne = PlayerScore(player1, socket.id!);
+		// const playerTwo = PlayerScore(player2, socket.id!);
 
-		setupGameDataListeners(score, playerOne, playerTwo);
+		setupGameDataListeners(score);
 		setupVirusListeners(board, gameTimerEl);
 
 		aside.appendChild(title);
 		aside.appendChild(score);
-		aside.appendChild(playerOne);
-		aside.appendChild(playerTwo);
+		aside.appendChild(playerOne.element);
+		aside.appendChild(playerTwo.element);
 
 		div.appendChild(board);
 		div.appendChild(aside);
@@ -221,11 +262,25 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 			"d-flex justify-content-evenly flex-column bg-dark align-items-center p-4 border-img-dark";
 
 		div.innerHTML = `
-			<span class="${isMe} display-lg-5 display-6">${name}</span>
+			<span class="name ${isMe} display-lg-5 display-6">${name}</span>
 			<span class="player-reaction-time fs-2">00:00</span>
 		`;
+		const reactionTimeEl = div.querySelector<HTMLSpanElement>(".player-reaction-time")!;
 
-		return div;
+		const playerNameEl = div.querySelector<HTMLDivElement>(".name")!;
+
+		// return div;
+		return {
+			element: div,
+			updateReactionTime: (reactionTime: number) => {
+				console.log("Inside updateReactionTime, element:", reactionTimeEl);
+				console.log("Element still in DOM?", document.contains(reactionTimeEl));
+				reactionTimeEl.innerText = String(reactionTime);
+			},
+			updateName: (name: string) => {
+				playerNameEl.textContent = name;
+			},
+		};
 	};
 	return render();
 }
