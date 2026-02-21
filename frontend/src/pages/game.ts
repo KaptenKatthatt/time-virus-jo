@@ -176,8 +176,8 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		const board = GameBoard();
 
 		const score = Score(player1, player2, socket.id!);
-		playerOne = PlayerScore(player1, socket.id!);
-		playerTwo = PlayerScore(player2, socket.id!);
+		playerOne = PlayerCard(player1, socket.id!);
+		playerTwo = PlayerCard(player2, socket.id!);
 
 		setupGameDataListeners(score);
 		setupVirusListeners(board, gameTimerEl);
@@ -216,7 +216,7 @@ function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: str
 	return render();
 }
 
-function PlayerScore(player: PlayerPayload, socketId: string) {
+function PlayerCard(player: PlayerPayload, socketId: string) {
 	const playerId = player.id;
 	const name = player.name;
 
