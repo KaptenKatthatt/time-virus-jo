@@ -161,8 +161,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const render = () => {
-		const gameTime = "00:00";
-
 		const div = document.createElement("div");
 		div.className = "game-grid justify-content-center gap-4 align-items-between h-100";
 
@@ -174,7 +172,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
 
 		title.innerHTML = `
-			<span class="gametimeDisplay display-2 font-monospace">${gameTime}</span>
+			<span class="gametimeDisplay display-2 font-monospace">00:00</span>
 			<span class="round display-5">3
 				<span class="round-slash fs-4">/</span>
 				<span class="round-total display-6">10</span>
