@@ -16,6 +16,15 @@ interface PlayerScoreReturn {
 	updateName: (name: string) => void;
 }
 
+const padZero = (num: number) => {
+	return num.toString().padStart(2, "0");
+};
+const timeFormatter = (time: number) => {
+	const seconds = Math.floor(time / 1000);
+	const hundredths = Math.floor((time % 1000) / 10);
+	return `${padZero(seconds)}:${padZero(hundredths)}`;
+};
+
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
 		name: "Player 1",
@@ -106,27 +115,18 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		});
 	};
 
-	const padZero = (num: number) => {
-		return num.toString().padStart(2, "0");
-	};
-
 	let gameTime = 0;
 	const gameTimer = (startOrStop: string, gameTimerEl?: HTMLSpanElement) => {
 		const startTime = performance.now();
 		const updateInterval = 100;
 
 		if (startOrStop === "start") {
-			console.log("Starting timer");
 			let elapsed = 0;
-			let seconds = 0;
-			let hundredths = 0;
+
 			gameTime = setInterval(() => {
 				elapsed = performance.now() - startTime;
-				seconds = Math.floor(elapsed / 1000);
-				hundredths = Math.floor((elapsed % 1000) / 10);
-
 				if (gameTimerEl instanceof HTMLSpanElement) {
-					gameTimerEl.textContent = `${padZero(seconds)}:${padZero(hundredths)}`;
+					gameTimerEl.textContent = timeFormatter(elapsed);
 				}
 			}, updateInterval);
 		} else if (startOrStop === "stop") {
@@ -248,11 +248,11 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 		return {
 			element: div,
 			updateReactionTime: (reactionTime: number) => {
-				const seconds = Math.floor(reactionTime / 1000);
-				const hundredths = Math.floor((reactionTime % 1000) / 10);
-				const reactionTimeFormatted = `${seconds}:${hundredths}`;
+				// const seconds = Math.floor(reactionTime / 1000);
+				// const hundredths = Math.floor((reactionTime % 1000) / 10);
+				// const reactionTimeFormatted = `${padZero(seconds)}:${padZero(hundredths)}`;
 
-				reactionTimeEl.textContent = reactionTimeFormatted;
+				reactionTimeEl.textContent = timeFormatter(reactionTime);
 			},
 			updateName: (name: string) => {
 				playerNameEl.textContent = name;
