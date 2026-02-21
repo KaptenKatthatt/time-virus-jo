@@ -13,7 +13,7 @@ export interface PlayerPayload {
 	score: number;
 }
 
-interface PlayerScoreReturn {
+interface PlayerCardReturn {
 	element: HTMLDivElement;
 	updateReactionTime: (reactionTime: number) => void;
 	updateName: (name: string) => void;
@@ -31,8 +31,8 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		score: 0,
 	};
 
-	let playerOne: PlayerScoreReturn;
-	let playerTwo: PlayerScoreReturn;
+	let playerOne: PlayerCardReturn;
+	let playerTwo: PlayerCardReturn;
 
 	const setupGameDataListeners = (score: HTMLDivElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
