@@ -34,11 +34,7 @@ export default function Game(
 	let playerOne: PlayerScoreReturn;
 	let playerTwo: PlayerScoreReturn;
 
-	const setupGameDataListeners = (
-		score: HTMLDivElement,
-		// playerOne: HTMLDivElement,
-		// playerTwo: HTMLDivElement,
-	) => {
+	const setupGameDataListeners = (score: HTMLDivElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
 				const players: {
@@ -68,13 +64,8 @@ export default function Game(
 				const updatedScore = Score(players.player1, players.player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
-				// const updatedPlayerOne = PlayerScore(players.player1, socket.id!);
-				// playerOne.innerHTML = updatedPlayerOne.element.innerHTML;
 				playerOne.updateName(player1.name);
 				playerTwo.updateName(player2.name);
-
-				// const updatedPlayerTwo = PlayerScore(players.player2, socket.id!);
-				// playerTwo.innerHTML = updatedPlayerTwo.element.innerHTML;
 			}
 		});
 	};
@@ -166,19 +157,8 @@ export default function Game(
 
 		if (socket.id === player1.id) {
 			playerOne.updateReactionTime(reactionTime);
-			console.log("P1 reac time", reactionTime);
-			console.log("P1 id", player1.id);
-			console.log("Socket id", socket.id);
 		} else if (socket.id === player2.id) {
 			playerTwo.updateReactionTime(reactionTime);
-			console.log("P2 reac time", reactionTime);
-			console.log("Socket id", socket.id);
-			console.log("P2 id", player1.id);
-		} else {
-			console.log("Found no id");
-			console.log("Socket id", socket.id);
-			console.log("P1 id", player1.id);
-			console.log("P2 id", player2.id);
 		}
 	};
 
@@ -210,8 +190,6 @@ export default function Game(
 		const score = Score(player1, player2, socket.id!);
 		playerOne = PlayerScore(player1, socket.id!);
 		playerTwo = PlayerScore(player2, socket.id!);
-		// const playerOne = PlayerScore(player1, socket.id!);
-		// const playerTwo = PlayerScore(player2, socket.id!);
 
 		setupGameDataListeners(score);
 		setupVirusListeners(board, gameTimerEl);
@@ -273,9 +251,7 @@ function PlayerScore(player: PlayerPayload, socketId: string) {
 		return {
 			element: div,
 			updateReactionTime: (reactionTime: number) => {
-				console.log("Inside updateReactionTime, element:", reactionTimeEl);
-				console.log("Element still in DOM?", document.contains(reactionTimeEl));
-				reactionTimeEl.innerText = String(reactionTime);
+				reactionTimeEl.textContent = String(reactionTime);
 			},
 			updateName: (name: string) => {
 				playerNameEl.textContent = name;
