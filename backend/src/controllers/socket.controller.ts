@@ -219,7 +219,7 @@ export const handleConnection = (
 			reactionTime,
 		});
 
-		if (currentGame.clickedPlayers.length === 2) {
+		if (currentGame.clickedPlayers.length === 3) {
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
