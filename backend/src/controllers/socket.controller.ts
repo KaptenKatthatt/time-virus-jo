@@ -219,7 +219,7 @@ export const handleConnection = (
 			reactionTime,
 		});
 
-		if (currentGame.clickedPlayers.length === 3) {
+		if (currentGame.clickedPlayers.length === 2) {
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
@@ -252,7 +252,7 @@ export const handleConnection = (
 			io.to(gameId).emit("game:data", gameData);
 
 			// If round less than ten, send new virus
-			if (currentGame.round < 3) {
+			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
 
 				//Create next virus
