@@ -58,9 +58,14 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				const updatedScore = Score(players.player1, players.player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
+				//Update player info
 				playerOne.updateName(player1.name);
 				playerTwo.updateName(player2.name);
 
+				playerOne.updatePlayerId(player1.id);
+				playerTwo.updatePlayerId(player2.id);
+
+				// Update round nbr
 				if (payload.round) {
 					updateRounbNbr(roundNbrEl, payload.round);
 				} else {
@@ -143,11 +148,12 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		const board = GameBoard();
 
 		const score = Score(player1, player2, socket.id!);
-		playerOne = PlayerCard(player1, socket.id!);
-		playerTwo = PlayerCard(player2, socket.id!);
 
 		setupGameDataListeners(score, roundNbrEl);
 		setupVirusListeners(board, gameTimerEl);
+
+		playerOne = PlayerCard(player1, socket.id!);
+		playerTwo = PlayerCard(player2, socket.id!);
 
 		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
