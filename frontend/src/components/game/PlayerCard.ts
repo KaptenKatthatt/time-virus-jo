@@ -2,10 +2,15 @@ import type { PlayerPayload } from "../../types/game.types";
 import { timeFormatter } from "../../utils/timeFormatter";
 
 export function PlayerCard(player: PlayerPayload, socketId: string) {
-	const playerId = player.id;
+	let playerId = player.id;
 	const name = player.name;
 
 	const render = () => {
+		console.log("");
+		console.log("playerIdddd", playerId);
+		console.log("socketiddcd", socketId);
+		console.log("");
+
 		const div = document.createElement("div");
 		const isMe = socketId === playerId ? "text-primary" : "";
 
@@ -27,6 +32,12 @@ export function PlayerCard(player: PlayerPayload, socketId: string) {
 			},
 			updateName: (name: string) => {
 				playerNameEl.textContent = name;
+			},
+			updatePlayerId: (newPlayerId: string) => {
+				playerId = newPlayerId;
+				if (newPlayerId === socketId) {
+					playerNameEl.classList.add("text-primary");
+				}
 			},
 		};
 	};

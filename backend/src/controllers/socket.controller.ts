@@ -233,6 +233,7 @@ export const handleConnection = (
 			}
 			console.log("Current game obj", currentGame);
 
+			currentGame.round++;
 			// Emit result update (fastest player this round and fastest in game)
 			const gameData: GamePayload = {
 				id: gameId,
@@ -251,9 +252,8 @@ export const handleConnection = (
 			io.to(gameId).emit("game:data", gameData);
 
 			// If round less than ten, send new virus
-			if (currentGame.round < 3) {
+			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
-				currentGame.round++;
 
 				//Create next virus
 				const nextVirus = summonVirus();
@@ -263,6 +263,7 @@ export const handleConnection = (
 
 				// Update spawn time for next round
 				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
+				io.to(gameId).emit("game:data", gameData);
 			} else {
 				console.log("Game over");
 
