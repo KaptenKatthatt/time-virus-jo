@@ -28,7 +28,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
 
-	const setupGameDataListeners = (score: HTMLDivElement) => {
+	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
 				const players: {
@@ -60,6 +60,12 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 				playerOne.updateName(player1.name);
 				playerTwo.updateName(player2.name);
+
+				if (payload.round) {
+					updateRounbNbr(roundNbrEl, payload.round);
+				} else {
+					console.log("roundnbr empty", payload.round);
+				}
 			}
 		});
 	};
@@ -87,8 +93,8 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				spawnTime = Date.now();
 				element.appendChild(virus);
 				restartGameTimer(gameTimerEl);
-				console.log("virus spawned, inactivity timer started");
 
+				console.log("virus spawned, inactivity timer started");
 				inactivityTimer = window.setTimeout(() => {
 					console.log("Player inactive - returning to login");
 					window.location.reload();
@@ -96,6 +102,10 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			}, payload.delay);
 			GameTimer("stop", gameTimerEl);
 		});
+	};
+
+	const updateRounbNbr = (element: HTMLSpanElement, roundNbr: number) => {
+		element.textContent = String(roundNbr);
 	};
 
 	const sendReactionTime = () => {
@@ -128,6 +138,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 		const gameStatus = GameStatus();
 		const gameTimerEl = gameStatus.timerElement;
+		const roundNbrEl = gameStatus.roundNbrElement;
 
 		const board = GameBoard();
 
@@ -135,7 +146,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 		playerOne = PlayerCard(player1, socket.id!);
 		playerTwo = PlayerCard(player2, socket.id!);
 
-		setupGameDataListeners(score);
+		setupGameDataListeners(score, roundNbrEl);
 		setupVirusListeners(board, gameTimerEl);
 
 		aside.appendChild(gameStatus.element);

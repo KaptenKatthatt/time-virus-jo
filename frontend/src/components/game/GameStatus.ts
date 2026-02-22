@@ -5,16 +5,19 @@ export const GameStatus = () => {
 
 	div.innerHTML = `
 				<span class="gametimeDisplay display-2 font-monospace">00:00</span>
-				<span class="round display-5">3
+				<div class="d-flex align-items-center gap-3">
+					<span class="roundNbr display-4">1</span>
 					<span class="round-slash fs-4">/</span>
 					<span class="round-total display-6">10</span>
-				</span>
+				</div>
 			`;
 
 	const gameTimerEl: HTMLSpanElement = div.querySelector(".gametimeDisplay")!;
+	const roundNbrEl: HTMLSpanElement = div.querySelector(".roundNbr")!;
 
 	return {
 		element: div,
 		timerElement: gameTimerEl,
+		roundNbrElement: roundNbrEl,
 	};
 };
