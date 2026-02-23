@@ -179,7 +179,10 @@ export const handleConnection = (
 
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
-			socket.to(gameToDelete.id).emit("player:disconnected", playerWhoLeft);
+			socket.to(gameToDelete.id).emit("player:disconnected", {
+				player: playerWhoLeft,
+				data: [],
+			});
 
 			// Delete game on disconnect
 			await deleteGame(socket.id);
