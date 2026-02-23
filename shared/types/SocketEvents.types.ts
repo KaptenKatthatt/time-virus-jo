@@ -7,7 +7,7 @@ import type {
   GameStartPayload,
   ScoreBoardPayload,
   PlayerConfirmedPayload,
-  ReactionData
+  ReactionData,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -38,3 +38,11 @@ export interface TimestampPayload {
   playerId: string;
   timestamp: number;
 }
+
+export interface SocketData {
+  name: string;
+  gameId: string;
+}
+
+//Filler for position three in socket controller typing. Needs SocketData to be in place 4.
+export interface InterServerEvents {}

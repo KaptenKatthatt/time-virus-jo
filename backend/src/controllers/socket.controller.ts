@@ -1,7 +1,12 @@
 /**
  * Socket Controller
  */
-import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types.ts";
+import {
+	ClientToServerEvents,
+	ServerToClientEvents,
+	type InterServerEvents,
+	type SocketData,
+} from "@shared/types/SocketEvents.types.ts";
 import Debug from "debug";
 import { Server, Socket } from "socket.io";
 
@@ -59,8 +64,8 @@ export interface ActiveGame {
 
 // Handle new socket connection
 export const handleConnection = (
-	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
-	io: Server<ClientToServerEvents, ServerToClientEvents>,
+	socket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+	io: Server<ClientToServerEvents, ServerToClientEvents, SocketData>,
 ) => {
 	// Yay someone connected to me
 	debug("🙋 A user connected with id: %s", socket.id);
