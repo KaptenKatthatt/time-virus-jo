@@ -18,7 +18,7 @@ import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
 import type { GameOverPayload, ScoreBoardPayload } from "@shared/types/payloads.types";
-import Scoreboard from "./components/Scoreboard";
+// import Scoreboard from "./components/Scoreboard";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -30,7 +30,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
  * Page Component inits
  */
 
-const playerName = InputPlayerName(socket);
+// const playerName = InputPlayerName(socket);
 
 /**
  * DOM References
@@ -45,6 +45,9 @@ let currentPlayer: Player | undefined = undefined;
 /**
  * Socket Event Listeners
  */
+
+// const lobbyPage = Lobby(socket);
+const playerName = InputPlayerName(socket);
 
 // Listen for when a connection is established
 socket.on("connect", () => {
@@ -84,15 +87,10 @@ const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) =>
 		console.log("Player %s joined", player.name);
 		currentPlayer = player;
 	}
-	
+
 	const lobbyPage = Lobby(socket, data);
 	app.innerHTML = "";
 	app.appendChild(lobbyPage);
-};
-
-const showGameBoardAtGameStart = () => {
-	app.innerHTML = "";
-	app.appendChild(Game(socket));
 };
 
 const showGameOver = (payload: GameOverPayload) => {
@@ -113,23 +111,26 @@ socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
 
-socket.on("game:start", (payload) => {
+socket.on("game:start", () => {
 	waitingModal?.remove();
 
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);
 
+	// Preload game to be available before appending.
+	const gameEl = Game(socket);
+
+	// Wait for Matching countdown modal
 	setTimeout(() => {
 		matchModal.remove();
-
-		console.log(payload.message);
-		showGameBoardAtGameStart();
+		app.innerHTML = "";
+		app.appendChild(gameEl);
 	}, 3000);
 });
 
 socket.on("player:disconnected", (payload) => {
-	const data = payload.data
-	const playerWhoLeft = payload.player
+	const data = payload.data;
+	const playerWhoLeft = payload.player;
 	const modal = DisconnectedUser(playerWhoLeft.name, () => {
 		modal.remove();
 		showLobbyAfterJoin(data, currentPlayer);

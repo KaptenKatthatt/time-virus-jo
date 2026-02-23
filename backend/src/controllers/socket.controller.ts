@@ -202,48 +202,44 @@ export const handleConnection = (
 			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
 
-			// Timer to wait for modal to clear before starting game, to avoid race condition
-			setTimeout(() => {
-				// Create first virus
-				const startingVirus = summonVirus();
+			// Create first virus
+			const startingVirus = summonVirus();
 
-				// Create game object
-				activeGames[availableGame.id] = {
-					round: 1,
-					player_one_id: availableGame.player_one_id,
-					player_two_id: playerId,
-					player_one_name: availableGame.player_one_name!,
-					player_two_name: socket.data.name,
-					player_one_score: 0,
-					player_two_score: 0,
-					clickedPlayers: [],
-					currentSpawnTime: Date.now() + startingVirus.delay,
-					fastest_player_id: "",
-					fastest_Time: 9999,
-				};
+			// Create game object
+			activeGames[availableGame.id] = {
+				round: 1,
+				player_one_id: availableGame.player_one_id,
+				player_two_id: playerId,
+				player_one_name: availableGame.player_one_name!,
+				player_two_name: socket.data.name,
+				player_one_score: 0,
+				player_two_score: 0,
+				clickedPlayers: [],
+				currentSpawnTime: Date.now() + startingVirus.delay,
+				fastest_player_id: "",
+				fastest_Time: 9999,
+			};
 
-				console.log("Created game", activeGames[availableGame.id]);
+			console.log("Created game", activeGames[availableGame.id]);
 
-				const gameData: GamePayload = {
-					id: availableGame.id,
-					name: null,
-					player_one_id: activeGames[availableGame.id].player_one_id,
-					player_two_id: activeGames[availableGame.id].player_two_id,
-					player_one_name: activeGames[availableGame.id].player_one_name,
-					player_two_name: activeGames[availableGame.id].player_two_name,
-					player_one_score: activeGames[availableGame.id].player_one_score,
-					player_two_score: activeGames[availableGame.id].player_two_score,
-					round: activeGames[availableGame.id].round,
-					fastest_player_id: activeGames[availableGame.id].fastest_player_id,
-					fastest_Time: activeGames[availableGame.id].fastest_Time,
-				};
-				io.to(availableGame.id).emit("game:data", gameData);
+			const gameData: GamePayload = {
+				id: availableGame.id,
+				name: null,
+				player_one_id: activeGames[availableGame.id].player_one_id,
+				player_two_id: activeGames[availableGame.id].player_two_id,
+				player_one_name: activeGames[availableGame.id].player_one_name,
+				player_two_name: activeGames[availableGame.id].player_two_name,
+				player_one_score: activeGames[availableGame.id].player_one_score,
+				player_two_score: activeGames[availableGame.id].player_two_score,
+				round: activeGames[availableGame.id].round,
+				fastest_player_id: activeGames[availableGame.id].fastest_player_id,
+				fastest_Time: activeGames[availableGame.id].fastest_Time,
+			};
 
-				// Emit virus to all players
-				io.to(availableGame.id).emit("game:virus", startingVirus);
+			io.to(availableGame.id).emit("game:data", gameData);
 
-				//Set spawn time for virus
-			}, 3000);
+			// Emit virus to all players
+			io.to(availableGame.id).emit("game:virus", startingVirus);
 		}
 	});
 
@@ -279,7 +275,7 @@ export const handleConnection = (
 	/**
 	 * Summon the virus
 	 */
-	socket.on("player:clicked", (timestampPayload) => {
+	socket.on("player:clicked", async (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
@@ -355,7 +351,7 @@ export const handleConnection = (
 					name: "",
 				};
 
-				createScoreboard(scoreboardData);
+				await createScoreboard(scoreboardData);
 
 				let winnerId: string | null = null;
 
