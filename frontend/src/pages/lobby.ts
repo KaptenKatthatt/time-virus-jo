@@ -3,12 +3,14 @@ import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { WaitingModal } from "../components/LobbyModals";
+import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 
 export let waitingModal: HTMLElement | null = null;
 
-function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>, payload: ScoreBoardPayload[]) {
 	// TODO Move logic from button to here
-
+	socket.on("scoreboard:data", async (payload) => {
+	});
 	//send start matchmaking to server
 	const render = () => {
 		const div = document.createElement("div");
@@ -21,7 +23,7 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 			</div>
 		`;
 
-		const scoreboardEl = Scoreboard();
+		const scoreboardEl = Scoreboard(payload);
 
 		const button = Button("Start game", () => {
 			console.log("start game");

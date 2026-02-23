@@ -13,6 +13,19 @@ export interface GameOverPayload extends GameScore {
   winner: string | null;
 }
 
+export interface ScoreBoardPayload {
+  name: string | null;
+  player_one_name: string;
+  player_two_name: string;
+  player_one_score: number;
+  player_two_score: number;
+}
+
+export interface PlayerConfirmedPayload {
+  player: PrismaPlayer;
+  data: ScoreBoardPayload[];
+}
+
 export interface GameCreatedPayload {
   gameId: GameId;
   message: string;
