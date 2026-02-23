@@ -108,7 +108,6 @@ socket.on("player:confirmed", showLobbyAfterJoin);
 socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
-const gameEl = Game(socket);
 
 socket.on("game:start", (payload) => {
 	waitingModal?.remove();
@@ -116,6 +115,9 @@ socket.on("game:start", (payload) => {
 
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);
+
+	// Preload game to be available before apending.
+	const gameEl = Game(socket);
 
 	setTimeout(() => {
 		matchModal.remove();
