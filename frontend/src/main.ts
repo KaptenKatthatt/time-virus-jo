@@ -117,7 +117,7 @@ socket.on("game:start", () => {
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);
 
-	// Preload game to be available before apending.
+	// Preload game to be available before appending.
 	const gameEl = Game(socket);
 
 	// Wait for Matching countdown modal
