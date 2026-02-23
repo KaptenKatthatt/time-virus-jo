@@ -8,7 +8,7 @@ export let waitingModal: HTMLElement | null = null;
 
 function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 	// TODO Move logic from button to here
-	socket.on("scoreboard:data", async () => {});
+
 	//send start matchmaking to server
 	const render = () => {
 		const div = document.createElement("div");
