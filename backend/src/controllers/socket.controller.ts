@@ -26,6 +26,7 @@ import {
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 import { summonVirus } from "../services/virus.service.ts";
+import { createScoreboard, getScoreboard } from "../services/updateScoreBoard.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -75,9 +76,9 @@ export const handleConnection = (
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;
-
+			const data = await getScoreboard();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", player);
+			socket.emit("player:confirmed", {player, data});
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -263,7 +264,8 @@ export const handleConnection = (
 					name: ""
 				}
 
-				io.to(gameId).emit("scoreboard:data", scoreboardData);
+				createScoreboard(scoreboardData);
+
 				
 				let winnerId: string | null = null;
 

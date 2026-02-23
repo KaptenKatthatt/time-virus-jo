@@ -1,4 +1,4 @@
-import type { PrismaGame, PrismaPlayer } from "./Models.types.ts";
+import type { PrismaGame, PrismaPlayer, PrismaScoreboard } from "./Models.types.ts";
 
 export type GamePayload = PrismaGame;
 export type GameId = GamePayload["id"];
@@ -13,8 +13,17 @@ export interface GameOverPayload extends GameScore {
   winner: string | null;
 }
 
-export interface ScoreBoardPayload extends GameScore {
-  name: string;
+export interface ScoreBoardPayload {
+  name: string | null;
+  player_one_name: string;
+  player_two_name: string;
+  player_one_score: number;
+  player_two_score: number;
+}
+
+export interface PlayerConfirmedPayload {
+  player: PrismaPlayer;
+  data: ScoreBoardPayload[];
 }
 
 export interface GameCreatedPayload {
