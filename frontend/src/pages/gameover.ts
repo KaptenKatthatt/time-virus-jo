@@ -4,12 +4,39 @@ import Button from "../components/Button";
 //import type { PrismaGame } from "@shared/types/Models.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
+import Lobby from "./lobby";
+import { RematchModal } from "../components/LobbyModals";
+import Game from "./game";
 
-export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>, payload: GameOverPayload) {
+const app = document.querySelector<HTMLDivElement>("#app")!;
 
-	const onQuit = () => {
-		console.log("click");
-	}
+export default function GameOver(
+	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
+	payload: GameOverPayload,
+) {
+	const onQuit = (currentDiv: HTMLDivElement) => {
+		const lobbyPage = Lobby(socket, []);
+		currentDiv.remove();
+
+		app.appendChild(lobbyPage);
+	};
+
+	const onRematch = () => {
+		socket.emit("player:rematch", { playerId: socket.id! });
+	};
+
+	socket.on("player:rematch", (payload) => {
+		const rematchModal = RematchModal(payload.name, () => {
+			socket.emit("player:rematch", { playerId: socket.id! });
+			rematchModal.remove();
+		});
+		document.body.appendChild(rematchModal);
+	});
+
+	socket.on("game:start", () => {
+		app.innerHTML = "";
+		app.appendChild(Game(socket));
+	});
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -27,11 +54,16 @@ export default function GameOver(socket: Socket<ServerToClientEvents, ClientToSe
 
 		const score = Result(payload, socket.id);
 
-		const button = Button("To lobby", onQuit);
-		
-		button.classList.add("fs-2");
+		const quitButton = Button("To lobby", () => {
+			onQuit(div);
+		});
+		const rematchButton = Button("Rematch ", onRematch);
 
-		buttonWrapper.appendChild(button);
+		quitButton.classList.add("fs-2");
+		rematchButton.classList.add("fs-2");
+
+		buttonWrapper.appendChild(quitButton);
+		buttonWrapper.appendChild(rematchButton);
 
 		div.appendChild(title);
 		div.appendChild(score);
@@ -43,7 +75,7 @@ export default function GameOver(socket: Socket<ServerToClientEvents, ClientToSe
 }
 
 function Result(data: GameOverPayload, socketId: string | undefined) {
-	const winner = data.winner;
+	const winner = data.winner === socketId ? true : false;
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -54,8 +86,11 @@ function Result(data: GameOverPayload, socketId: string | undefined) {
 		div.className =
 			"d-flex p-5 gap-4 justify-content-evenly align-items-center border-img-dark";
 
-		const scoreEl1 = ResultItem(data.player_one_name, data.player_one_score, winner, socketId);
-		const scoreEl2 = ResultItem(data.player_two_name, data.player_two_score, winner, socketId);
+		console.log("Winner 👑", winner);
+		console.log("socket 🚀", socketId);
+
+		const scoreEl1 = ResultItem(data.player_one_name, data.player_one_score, winner);
+		const scoreEl2 = ResultItem(data.player_two_name, data.player_two_score, winner);
 
 		div.appendChild(scoreEl1);
 		div.appendChild(span);
@@ -66,14 +101,17 @@ function Result(data: GameOverPayload, socketId: string | undefined) {
 	return render();
 }
 
-function ResultItem(name: string | null, score: number | null, winner: string | null, socketId: string | undefined)  {
+function ResultItem(name: string | null, score: number | null, winnerId: boolean) {
+	const isMe = winnerId ? "text-primary fw-bold" : "";
+
 	const render = () => {
 		const div = document.createElement("div");
-		const isMe = winner === socketId ? "text-primary fw-bold" : "";
-
 
 		div.className =
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
+
+		const test = document.createElement("span");
+		test.innerHTML = `<span></span>`;
 
 		div.innerHTML = `
 			${isMe ? "<span>👑</span>" : "<span>😭</span>"}
