@@ -154,9 +154,7 @@ export const handleConnection = (
 
 			io.to(game.id).emit("game:data", gameData);
 
-			setTimeout(() => {
-				io.to(game.id).emit("game:virus", startingVirus);
-			}, 3000);
+			io.to(game.id).emit("game:virus", startingVirus);
 		} else {
 			socket.to(game.id).emit("player:rematch", {
 				playerId: payload.playerId,
