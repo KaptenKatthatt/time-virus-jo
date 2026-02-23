@@ -8,47 +8,48 @@ import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
+import type { PlayerPayload } from "../types/game.types";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	let player1 = {
+	let player1Data: PlayerPayload = {
 		name: "Player 1",
 		id: "id1",
 		score: 0,
 	};
-	let player2 = {
+	let player2Data: PlayerPayload = {
 		name: "Player 2",
 		id: "id2",
 		score: 0,
 	};
 
 	//Inits
-	let playerOne: PlayerCardReturn;
-	let playerTwo: PlayerCardReturn;
+	let player1Card: PlayerCardReturn;
+	let player2Card: PlayerCardReturn;
 	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
 
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
-				player1 = {
+				player1Data = {
 					name: payload.player_one_name ?? "Player 1",
 					id: payload.player_one_id ?? "",
 					score: payload.player_one_score ?? 0,
 				};
-				player2 = {
+				player2Data = {
 					name: payload.player_two_name ?? "Player 2",
 					id: payload.player_two_id ?? "",
 					score: payload.player_two_score ?? 0,
 				};
 
 				//Update player info
-				playerOne.updateName(player1.name);
-				playerTwo.updateName(player2.name);
+				player1Card.updateName(player1Data.name);
+				player2Card.updateName(player2Data.name);
 
-				playerOne.updatePlayerId(player1.id);
-				playerTwo.updatePlayerId(player2.id);
+				player1Card.updatePlayerId(player1Data.id);
+				player2Card.updatePlayerId(player2Data.id);
 
-				const updatedScore = Score(player1, player2, socket.id!);
+				const updatedScore = Score(player1Data, player2Data, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
 				// Update round nbr
@@ -115,10 +116,10 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	socket.on("player:reactionTime", (payload: ReactionData) => {
-		if (payload.playerId === player1.id) {
-			playerOne.updateReactionTime(payload.reactionTime);
-		} else if (payload.playerId === player2.id) {
-			playerTwo.updateReactionTime(payload.reactionTime);
+		if (payload.playerId === player1Data.id) {
+			player1Card.updateReactionTime(payload.reactionTime);
+		} else if (payload.playerId === player2Data.id) {
+			player2Card.updateReactionTime(payload.reactionTime);
 		}
 	});
 
@@ -135,18 +136,18 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 		const board = GameBoard();
 
-		const score = Score(player1, player2, socket.id!);
+		const score = Score(player1Data, player2Data, socket.id!);
 
-		playerOne = PlayerCard(player1, socket.id!);
-		playerTwo = PlayerCard(player2, socket.id!);
+		player1Card = PlayerCard(player1Data, socket.id!);
+		player2Card = PlayerCard(player2Data, socket.id!);
 
 		setupVirusListeners(board, gameTimerEl);
 		setupGameDataListeners(score, roundNbrEl);
 
 		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
-		aside.appendChild(playerOne.element);
-		aside.appendChild(playerTwo.element);
+		aside.appendChild(player1Card.element);
+		aside.appendChild(player2Card.element);
 
 		div.appendChild(board);
 		div.appendChild(aside);
