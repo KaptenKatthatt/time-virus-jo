@@ -9,8 +9,8 @@
 
     /* Convenience (makes it feel like Vite/React) */
     "allowImportingTsExtensions": true, // Allows .ts in imports if desired
-    "noEmit": true,                     // Let tsx or Node handle execution
-    "isolatedModules": true,            // Required for fast transpilers like esbuild/tsx
+    "noEmit": true, // Let tsx or Node handle execution
+    "isolatedModules": true, // Required for fast transpilers like esbuild/tsx
     "allowJs": true,
     "checkJs": false,
 
@@ -24,8 +24,8 @@
 
     /* Import aliases */
     "paths": {
-      "@shared/*": ["../shared/*"],
-    },
+      "@shared/*": ["../shared/*"]
+    }
   },
   "include": ["src/**/*", "prisma.config.ts", "prisma/seed.ts"],
   "exclude": ["node_modules", "**/_*.*", "**/_*/**"]

@@ -38,11 +38,3 @@ export interface TimestampPayload {
   playerId: string;
   timestamp: number;
 }
-
-export interface SocketData {
-  name: string;
-  gameId: string;
-}
-
-//Filler for position three in socket controller typing. Needs SocketData to be in place 4.
-export interface InterServerEvents {}

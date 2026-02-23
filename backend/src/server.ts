@@ -3,13 +3,8 @@ import app from "./app.ts";
 import Debug from "debug";
 import http from "http";
 import { Server } from "socket.io";
-import {
-	ClientToServerEvents,
-	ServerToClientEvents,
-	type InterServerEvents,
-	type SocketData,
-} from "@shared/types/SocketEvents.types.ts";
 import { handleConnection } from "./controllers/socket.controller.ts";
+import type { AppServer } from "./types/socket.types.ts";
 
 // Read port to start server on from `.env`, otherwise default to port 3000
 const PORT = process.env.PORT || 3000;
@@ -21,15 +16,12 @@ const debug = Debug("backend:server");
  * Create HTTP and Socket.IO server.
  */
 const httpServer = http.createServer(app);
-const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(
-	httpServer,
-	{
-		cors: {
-			credentials: true,
-			origin: "*",
-		},
+const io: AppServer = new Server(httpServer, {
+	cors: {
+		credentials: true,
+		origin: "*",
 	},
-);
+});
 
 /**
  * Handle incoming Socket.IO connection

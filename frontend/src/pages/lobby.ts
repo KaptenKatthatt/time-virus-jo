@@ -1,16 +1,14 @@
-import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
-import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import { WaitingModal } from "../components/LobbyModals";
 import type { ScoreBoardPayload } from "@shared/types/payloads.types";
+import type { AppClientSocket } from "../types/socket.types";
 
 export let waitingModal: HTMLElement | null = null;
 
-function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>, payload: ScoreBoardPayload[]) {
+function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 	// TODO Move logic from button to here
-	socket.on("scoreboard:data", async (payload) => {
-	});
+	socket.on("scoreboard:data", async () => {});
 	//send start matchmaking to server
 	const render = () => {
 		const div = document.createElement("div");
@@ -34,10 +32,9 @@ function Lobby(socket: Socket<ServerToClientEvents, ClientToServerEvents>, paylo
 			}
 			waitingModal = WaitingModal();
 			document.body.appendChild(waitingModal);
-	
 		});
 
-		button.classList.add("fs-2")
+		button.classList.add("fs-2");
 
 		div.appendChild(scoreboardEl);
 		div.appendChild(button);
