@@ -1,4 +1,3 @@
-import type { PrismaPlayer } from "./Models.types";
 import type {
   GameOverPayload,
   GamePayload,
@@ -6,7 +5,9 @@ import type {
   ScorePayload,
   GameCreatedPayload,
   GameStartPayload,
-  ReactionData,
+  ScoreBoardPayload,
+  PlayerConfirmedPayload,
+  ReactionData
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -17,9 +18,10 @@ export interface ServerToClientEvents {
   "game:over": (payload: GameOverPayload) => void;
   "game:start": (payload: GameStartPayload) => void;
   "game:virus": (payload: VirusPayload) => void;
-  "player:confirmed": (player: PrismaPlayer) => void;
-  "player:disconnected": (playerWhoLeft: PrismaPlayer) => void;
-  "player:reactionTime": (reactionDataPayLoad: ReactionData) => void;
+  "player:confirmed": (payload: PlayerConfirmedPayload) => void;
+  "player:disconnected": (playerWhoLeft: PlayerConfirmedPayload) => void;
+  "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
+  "scoreboard:data": (payload: ScoreBoardPayload) => void;
 }
 
 // Events emitted by the client to the server

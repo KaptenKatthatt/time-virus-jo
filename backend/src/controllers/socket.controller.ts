@@ -10,6 +10,7 @@ import type {
 	GameStartPayload,
 	GamePayload,
 	GameOverPayload,
+	ScoreBoardPayload,
 	ReactionData,
 } from "@shared/types/payloads.types.ts";
 
@@ -26,6 +27,7 @@ import {
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 import { summonVirus } from "../services/virus.service.ts";
+import { createScoreboard, getScoreboard } from "../services/updateScoreBoard.service.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -75,9 +77,9 @@ export const handleConnection = (
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;
-
+			const data = await getScoreboard();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", player);
+			socket.emit("player:confirmed", {player, data});
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -177,7 +179,10 @@ export const handleConnection = (
 
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
-			socket.to(gameToDelete.id).emit("player:disconnected", playerWhoLeft);
+			socket.to(gameToDelete.id).emit("player:disconnected", {
+				player: playerWhoLeft,
+				data: [],
+			});
 
 			// Delete game on disconnect
 			await deleteGame(socket.id);
@@ -267,6 +272,17 @@ export const handleConnection = (
 			} else {
 				console.log("Game over");
 
+				const scoreboardData: ScoreBoardPayload = {
+					player_one_name: currentGame.player_one_name,
+					player_two_name: currentGame.player_two_name,
+					player_one_score: currentGame.player_one_score,
+					player_two_score: currentGame.player_two_score,
+					name: ""
+				}
+
+				createScoreboard(scoreboardData);
+
+				
 				let winnerId: string | null = null;
 
 				if (currentGame.player_one_score > currentGame.player_two_score) {

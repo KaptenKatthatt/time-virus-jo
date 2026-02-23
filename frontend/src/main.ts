@@ -17,7 +17,8 @@ import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
-import type { GameOverPayload } from "@shared/types/payloads.types";
+import type { GameOverPayload, ScoreBoardPayload } from "@shared/types/payloads.types";
+import Scoreboard from "./components/Scoreboard";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -28,7 +29,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOS
 /**
  * Page Component inits
  */
-const lobbyPage = Lobby(socket);
+
 const playerName = InputPlayerName(socket);
 
 /**
@@ -78,12 +79,13 @@ socket.io.on("reconnect", () => {
  * Functions
  */
 // TODO Refactor show/hide functions into one function
-const showLobbyAfterJoin = (player?: Player) => {
+const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
 		currentPlayer = player;
 	}
-
+	
+	const lobbyPage = Lobby(socket, data);
 	app.innerHTML = "";
 	app.appendChild(lobbyPage);
 };
@@ -103,7 +105,9 @@ const showGameOver = (payload: GameOverPayload) => {
  */
 
 // Gamestate listeners
-socket.on("player:confirmed", showLobbyAfterJoin);
+socket.on("player:confirmed", (payload) => {
+	showLobbyAfterJoin(payload.data, payload.player);
+});
 
 socket.on("game:created", (payload) => {
 	console.log(payload.message);
@@ -123,10 +127,12 @@ socket.on("game:start", (payload) => {
 	}, 3000);
 });
 
-socket.on("player:disconnected", (playerWhoLeft: Player) => {
+socket.on("player:disconnected", (payload) => {
+	const data = payload.data
+	const playerWhoLeft = payload.player
 	const modal = DisconnectedUser(playerWhoLeft.name, () => {
 		modal.remove();
-		showLobbyAfterJoin(currentPlayer);
+		showLobbyAfterJoin(data, currentPlayer);
 	});
 
 	document.body.appendChild(modal);
