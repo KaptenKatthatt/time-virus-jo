@@ -6,7 +6,6 @@ import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
-import type { PlayerPayload } from "../types/game.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 
