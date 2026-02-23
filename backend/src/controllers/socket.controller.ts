@@ -79,7 +79,7 @@ export const handleConnection = (
 			socket.data.name = playerName;
 			const data = await getScoreboard();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", {player, data});
+			socket.emit("player:confirmed", { player, data });
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -200,7 +200,7 @@ export const handleConnection = (
 	/**
 	 * Summon the virus
 	 */
-	socket.on("player:clicked", (timestampPayload) => {
+	socket.on("player:clicked", async (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
@@ -273,12 +273,11 @@ export const handleConnection = (
 					player_two_name: currentGame.player_two_name,
 					player_one_score: currentGame.player_one_score,
 					player_two_score: currentGame.player_two_score,
-					name: ""
-				}
+					name: "",
+				};
 
-				createScoreboard(scoreboardData);
+				await createScoreboard(scoreboardData);
 
-				
 				let winnerId: string | null = null;
 
 				if (currentGame.player_one_score > currentGame.player_two_score) {
