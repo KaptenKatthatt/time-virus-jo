@@ -6,7 +6,8 @@ import type {
   GameCreatedPayload,
   GameStartPayload,
   ScoreBoardPayload,
-  PlayerConfirmedPayload
+  PlayerConfirmedPayload,
+  ReactionData
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -19,6 +20,7 @@ export interface ServerToClientEvents {
   "game:virus": (payload: VirusPayload) => void;
   "player:confirmed": (payload: PlayerConfirmedPayload) => void;
   "player:disconnected": (playerWhoLeft: PlayerConfirmedPayload) => void;
+  "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
 }
 
