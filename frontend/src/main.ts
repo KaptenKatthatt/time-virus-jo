@@ -93,11 +93,6 @@ const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) =>
 	app.appendChild(lobbyPage);
 };
 
-const showGameBoardAtGameStart = () => {
-	app.innerHTML = "";
-	app.appendChild(Game(socket));
-};
-
 const showGameOver = (payload: GameOverPayload) => {
 	app.innerHTML = "";
 	app.appendChild(GameOver(socket, payload));
@@ -116,17 +111,20 @@ socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
 
-socket.on("game:start", (payload) => {
+socket.on("game:start", () => {
 	waitingModal?.remove();
 
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);
 
+	// Preload game to be available before appending.
+	const gameEl = Game(socket);
+
+	// Wait for Matching countdown modal
 	setTimeout(() => {
 		matchModal.remove();
-
-		console.log(payload.message);
-		showGameBoardAtGameStart();
+		app.innerHTML = "";
+		app.appendChild(gameEl);
 	}, 3000);
 });
 

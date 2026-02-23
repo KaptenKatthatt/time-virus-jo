@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
-import type { GamePayload } from "@shared/types/payloads.types";
+import type { GamePayload, ReactionData } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
@@ -55,9 +55,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				player2.name = players.player2.name;
 				player2.score = players.player2.score;
 
-				const updatedScore = Score(players.player1, players.player2, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
-
 				//Update player info
 				playerOne.updateName(player1.name);
 				playerTwo.updateName(player2.name);
@@ -65,17 +62,21 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				playerOne.updatePlayerId(player1.id);
 				playerTwo.updatePlayerId(player2.id);
 
+				const updatedScore = Score(players.player1, players.player2, socket.id!);
+				score.innerHTML = updatedScore.innerHTML;
+
 				// Update round nbr
 				if (payload.round) {
 					updateRounbNbr(roundNbrEl, payload.round);
 				} else {
-					console.log("roundnbr empty", payload.round);
+					console.error("roundnbr empty", payload.round);
 				}
 			}
 		});
 	};
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
+		sendReactionTime();
 		console.log("Virus clicked");
 		virus.remove();
 
@@ -84,8 +85,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			inactivityTimer = null;
 			console.log("Cleared inactivity timer");
 		}
-
-		sendReactionTime();
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
@@ -125,14 +124,17 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			playerId: socket.id,
 			timestamp: reactionTime,
 		};
-		socket.emit("player:clicked", payload);
 
-		if (socket.id === player1.id) {
-			playerOne.updateReactionTime(reactionTime);
-		} else if (socket.id === player2.id) {
-			playerTwo.updateReactionTime(reactionTime);
-		}
+		socket.emit("player:clicked", payload);
 	};
+
+	socket.on("player:reactionTime", (payload: ReactionData) => {
+		if (payload.playerId === player1.id) {
+			playerOne.updateReactionTime(payload.reactionTime);
+		} else if (payload.playerId === player2.id) {
+			playerTwo.updateReactionTime(payload.reactionTime);
+		}
+	});
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -149,11 +151,11 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 		const score = Score(player1, player2, socket.id!);
 
-		setupGameDataListeners(score, roundNbrEl);
-		setupVirusListeners(board, gameTimerEl);
-
 		playerOne = PlayerCard(player1, socket.id!);
 		playerTwo = PlayerCard(player2, socket.id!);
+
+		setupVirusListeners(board, gameTimerEl);
+		setupGameDataListeners(score, roundNbrEl);
 
 		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
