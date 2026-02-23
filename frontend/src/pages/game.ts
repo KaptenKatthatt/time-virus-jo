@@ -11,12 +11,12 @@ import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	const player1 = {
+	let player1 = {
 		name: "Player 1",
 		id: "id1",
 		score: 0,
 	};
-	const player2 = {
+	let player2 = {
 		name: "Player 2",
 		id: "id2",
 		score: 0,
@@ -31,29 +31,16 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
-				const players: {
-					player1: PlayerPayload;
-					player2: PlayerPayload;
-				} = {
-					player1: {
-						name: payload.player_one_name ?? "Player 1",
-						id: payload.player_one_id ?? "",
-						score: payload.player_one_score ?? 0,
-					},
-					player2: {
-						name: payload.player_two_name ?? "Player 2",
-						id: payload.player_two_id ?? "",
-						score: payload.player_two_score ?? 0,
-					},
+				player1 = {
+					name: payload.player_one_name ?? "Player 1",
+					id: payload.player_one_id ?? "",
+					score: payload.player_one_score ?? 0,
 				};
-
-				player1.id = players.player1.id;
-				player1.name = players.player1.name;
-				player1.score = players.player1.score;
-
-				player2.id = players.player2.id;
-				player2.name = players.player2.name;
-				player2.score = players.player2.score;
+				player2 = {
+					name: payload.player_two_name ?? "Player 2",
+					id: payload.player_two_id ?? "",
+					score: payload.player_two_score ?? 0,
+				};
 
 				//Update player info
 				playerOne.updateName(player1.name);
@@ -62,7 +49,7 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				playerOne.updatePlayerId(player1.id);
 				playerTwo.updatePlayerId(player2.id);
 
-				const updatedScore = Score(players.player1, players.player2, socket.id!);
+				const updatedScore = Score(player1, player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
 				// Update round nbr
