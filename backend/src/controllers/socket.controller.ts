@@ -114,6 +114,9 @@ export const handleConnection = (
 			const startingVirus = summonVirus();
 			await resetGame(game.id);
 
+			delete rematchArr[rematchArr.indexOf(game.player_one_id)];
+			delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
+
 			const gameStartPayload: GameStartPayload = {
 				gameId: game.id,
 				message: "All players joined. Starting game",
