@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
-import type { GamePayload } from "@shared/types/payloads.types";
+import type { GamePayload, ReactionData } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
@@ -133,14 +133,23 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			playerId: socket.id,
 			timestamp: reactionTime,
 		};
-		if (socket.id === player1.id) {
-			playerOne.updateReactionTime(reactionTime);
-		} else if (socket.id === player2.id) {
-			playerTwo.updateReactionTime(reactionTime);
-		}
-		console.log("Reaction time", reactionTime);
+
+		// if (socket.id === player1.id) {
+		// 	playerOne.updateReactionTime(reactionTime);
+		// } else if (socket.id === player2.id) {
+		// 	playerTwo.updateReactionTime(reactionTime);
+		// }
+		// console.log("Reaction time", reactionTime);
 		socket.emit("player:clicked", payload);
 	};
+
+	socket.on("player:reactionTime", (payload: ReactionData) => {
+		if (payload.playerId === player1.id) {
+			playerOne.updateReactionTime(payload.reactionTime);
+		} else if (payload.playerId === player2.id) {
+			playerTwo.updateReactionTime(payload.reactionTime);
+		}
+	});
 
 	const render = () => {
 		const div = document.createElement("div");
