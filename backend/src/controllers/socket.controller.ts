@@ -11,6 +11,7 @@ import type {
 	GamePayload,
 	GameOverPayload,
 	ScoreBoardPayload,
+	ReactionData,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -165,6 +166,8 @@ export const handleConnection = (
 
 				// Emit virus to all players
 				io.to(availableGame.id).emit("game:virus", startingVirus);
+
+				//Set spawn time for virus
 			}, 3000);
 		}
 	});
@@ -198,14 +201,21 @@ export const handleConnection = (
 	/**
 	 * Summon the virus
 	 */
-	socket.on("player:clicks", (timestampPayload) => {
+	socket.on("player:clicked", (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 
-		// Calculate player reaction tim
-		const reactionTime = timestampPayload.timestamp - currentGame.currentSpawnTime;
+		//Player reaction time
+		const reactionTime = timestampPayload.timestamp;
 
-		// Save player if and reaction time to game object
+		const reactionDataPayLoad: ReactionData = {
+			playerId: timestampPayload.playerId,
+			reactionTime,
+		};
+		// Emit reaction time to opponent(s)
+		io.to(gameId).emit("player:reactionTime", reactionDataPayLoad);
+
+		// Save player and reaction time to game object
 		currentGame.clickedPlayers.push({
 			playerId: timestampPayload.playerId,
 			reactionTime,
@@ -215,13 +225,17 @@ export const handleConnection = (
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
 
+			// Compare reaction time of both
 			if (fastestInRound.playerId === currentGame.player_one_id) {
 				currentGame.player_one_score++;
+				console.log(`Fastest player this round ${currentGame.player_one_name}`);
 			} else {
 				currentGame.player_two_score++;
+				console.log(`Fastest player this round ${currentGame.player_two_name}`);
 			}
 			console.log("Current game obj", currentGame);
 
+			currentGame.round++;
 			// Emit result update (fastest player this round and fastest in game)
 			const gameData: GamePayload = {
 				id: gameId,
@@ -240,19 +254,18 @@ export const handleConnection = (
 			io.to(gameId).emit("game:data", gameData);
 
 			// If round less than ten, send new virus
-			if (currentGame.round < 3) {
+			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
 
-				currentGame.round++;
-
+				//Create next virus
 				const nextVirus = summonVirus();
 				if (!nextVirus) return;
+				//Send next virus to players
+				io.to(gameId).emit("game:virus", nextVirus);
 
 				// Update spawn time for next round
 				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
-
-				//Send next virus to players
-				io.to(gameId).emit("game:virus", nextVirus);
+				io.to(gameId).emit("game:data", gameData);
 			} else {
 				console.log("Game over");
 
@@ -274,7 +287,7 @@ export const handleConnection = (
 				} else if (currentGame.player_two_score > currentGame.player_one_score) {
 					winnerId = currentGame.player_two_id;
 				} else {
-					winnerId = null; 
+					winnerId = null;
 				}
 
 				const winnerData: GameOverPayload = {
@@ -283,7 +296,7 @@ export const handleConnection = (
 					player_one_score: currentGame.player_one_score,
 					player_two_score: currentGame.player_two_score,
 					winner: winnerId,
-				}
+				};
 
 				io.to(gameId).emit("game:over", winnerData);
 			}

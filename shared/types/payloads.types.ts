@@ -52,3 +52,8 @@ export interface VirusPayload {
   y: number;
   delay: number;
 }
+
+export interface ReactionData {
+  playerId: string;
+  reactionTime: number;
+}

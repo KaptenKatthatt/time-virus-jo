@@ -1,18 +1,16 @@
 import type { Socket } from "socket.io-client";
-import GameBoard from "../components/game/GameBoard";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GamePayload } from "@shared/types/payloads.types";
+import { Virus } from "../components/game/Virus";
+import GameBoard from "../components/game/GameBoard";
+import { PlayerCard } from "../components/game/PlayerCard";
+import { Score } from "../components/game/Score";
+import type { PlayerCardReturn } from "../types/playerCard.types";
+import type { PlayerPayload } from "../types/game.types";
+import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
+import { GameStatus } from "../components/game/GameStatus";
 
-interface PlayerPayload {
-	name: string;
-	id: string;
-	score: number;
-}
-
-export default function Game(
-	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
-	// gameId: GameId = "",
-) {
+export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
 	const player1 = {
 		name: "Player 1",
 		id: "id1",
@@ -24,13 +22,13 @@ export default function Game(
 		score: 0,
 	};
 
-	// TODO: subscribe to socket events to keep UI (scores, time, round) in sync
+	//Inits
+	let playerOne: PlayerCardReturn;
+	let playerTwo: PlayerCardReturn;
+	let spawnTime = 0;
+	let inactivityTimer: number | null = null;
 
-	const setupSocketListeners = (
-		score: HTMLDivElement,
-		playerOne: HTMLDivElement,
-		playerTwo: HTMLDivElement,
-	) => {
+	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
 				const players: {
@@ -49,20 +47,91 @@ export default function Game(
 					},
 				};
 
-				const updatedScore = Score(
-					players.player1.score,
-					players.player2.score,
-					socket.id!,
-				);
+				player1.id = players.player1.id;
+				player1.name = players.player1.name;
+				player1.score = players.player1.score;
+
+				player2.id = players.player2.id;
+				player2.name = players.player2.name;
+				player2.score = players.player2.score;
+
+				const updatedScore = Score(players.player1, players.player2, socket.id!);
 				score.innerHTML = updatedScore.innerHTML;
 
-				const updatedPlayerOne = PlayerScore(players.player1, socket.id!);
-				playerOne.innerHTML = updatedPlayerOne.innerHTML;
+				//Update player info
+				playerOne.updateName(player1.name);
+				playerTwo.updateName(player2.name);
 
-				const updatedPlayerTwo = PlayerScore(players.player2, socket.id!);
-				playerTwo.innerHTML = updatedPlayerTwo.innerHTML;
+				playerOne.updatePlayerId(player1.id);
+				playerTwo.updatePlayerId(player2.id);
+
+				// Update round nbr
+				if (payload.round) {
+					updateRounbNbr(roundNbrEl, payload.round);
+				} else {
+					console.log("roundnbr empty", payload.round);
+				}
 			}
 		});
+	};
+
+	const handleVirusClick = (virus: HTMLImageElement) => {
+		console.log("Virus clicked");
+		virus.remove();
+
+		if (inactivityTimer) {
+			clearTimeout(inactivityTimer);
+			inactivityTimer = null;
+			console.log("Cleared inactivity timer");
+		}
+
+		sendReactionTime();
+	};
+
+	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
+		socket.on("game:virus", (payload) => {
+			const virus = Virus(payload.x + 1, payload.y + 1, () => {
+				handleVirusClick(virus);
+			});
+
+			setTimeout(() => {
+				spawnTime = Date.now();
+				element.appendChild(virus);
+				restartGameTimer(gameTimerEl);
+
+				console.log("virus spawned, inactivity timer started");
+				inactivityTimer = window.setTimeout(() => {
+					console.log("Player inactive - returning to login");
+					window.location.reload();
+				}, 30000);
+			}, payload.delay);
+			GameTimer("stop", gameTimerEl);
+		});
+	};
+
+	const updateRounbNbr = (element: HTMLSpanElement, roundNbr: number) => {
+		element.textContent = String(roundNbr);
+	};
+
+	const sendReactionTime = () => {
+		const clickTime = Date.now();
+		if (spawnTime === 0) {
+			console.error("spawnTime is not set.");
+			return;
+		}
+		const reactionTime = clickTime - spawnTime;
+		if (!socket.id) return;
+		const payload = {
+			playerId: socket.id,
+			timestamp: reactionTime,
+		};
+		socket.emit("player:clicked", payload);
+
+		if (socket.id === player1.id) {
+			playerOne.updateReactionTime(reactionTime);
+		} else if (socket.id === player2.id) {
+			playerTwo.updateReactionTime(reactionTime);
+		}
 	};
 
 	const render = () => {
@@ -72,33 +141,24 @@ export default function Game(
 		const aside = document.createElement("aside");
 		aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
 
-		const title = document.createElement("div");
-		title.className =
-			"title-span p-4 d-flex bg-dark flex-column justify-content-center align-items-center border-img-dark";
-		title.innerHTML = `
-			<span class="time display-2">00:00</span>
-			<span class="round display-5">3
-				<span class="round-slash fs-4">/</span>
-				<span class="round-total display-6">10</span>
-			</span>
-		`;
+		const gameStatus = GameStatus();
+		const gameTimerEl = gameStatus.timerElement;
+		const roundNbrEl = gameStatus.roundNbrElement;
 
-		const board = GameBoard(socket);
+		const board = GameBoard();
 
-		// Score / header row
-		const row = document.createElement("div");
-		row.className = "gameboard-grid";
+		const score = Score(player1, player2, socket.id!);
 
-		const score = Score(player1.score, player2.score, socket.id!);
-		const playerOne = PlayerScore(player1, socket.id!);
-		const playerTwo = PlayerScore(player2, socket.id!);
+		setupGameDataListeners(score, roundNbrEl);
+		setupVirusListeners(board, gameTimerEl);
 
-		setupSocketListeners(score, playerOne, playerTwo);
+		playerOne = PlayerCard(player1, socket.id!);
+		playerTwo = PlayerCard(player2, socket.id!);
 
-		aside.appendChild(title);
+		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
-		aside.appendChild(playerOne);
-		aside.appendChild(playerTwo);
+		aside.appendChild(playerOne.element);
+		aside.appendChild(playerTwo.element);
 
 		div.appendChild(board);
 		div.appendChild(aside);
@@ -106,46 +166,5 @@ export default function Game(
 		return div;
 	};
 
-	return render();
-}
-
-function Score(scoreOne: number, scoreTwo: number, socketId: string) {
-	const render = () => {
-		const div = document.createElement("div");
-		const playerId = socketId;
-		const isMe = socketId === playerId ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
-
-		div.innerHTML = `
-			<span class="${isMe}">${scoreOne}</span>
-			<span>-</span>
-			<span>${scoreTwo}</span>
-		`;
-
-		return div;
-	};
-	return render();
-}
-
-function PlayerScore(player: PlayerPayload, socketId: string) {
-	const playerId = player.id;
-	const name = player.name;
-
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerId ? "text-primary" : "";
-
-		div.className =
-			"d-flex justify-content-evenly flex-column bg-dark align-items-center p-4 border-img-dark";
-
-		div.innerHTML = `
-			<span class="${isMe} display-lg-5 display-6">${name}</span>
-			<span class="fs-2">00:00</span>
-		`;
-
-		return div;
-	};
 	return render();
 }
