@@ -33,11 +33,6 @@ export default function GameOver(
 		document.body.appendChild(rematchModal);
 	});
 
-	socket.on("game:start", () => {
-		app.innerHTML = "";
-		app.appendChild(Game(socket));
-	});
-
 	const render = () => {
 		const div = document.createElement("div");
 		div.className = "container flex-column gap-5 h-100 gameover-grid";
