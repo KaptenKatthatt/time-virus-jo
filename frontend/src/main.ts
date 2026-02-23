@@ -87,12 +87,6 @@ const showLobbyAfterJoin = (player?: Player) => {
 	app.appendChild(lobbyPage);
 };
 
-// const showGameBoardAtGameStart = () => {
-// 	app.innerHTML = "";
-// 	// app.appendChild(Game(socket));
-// 	app.appendChild(gameEl);
-// };
-
 const showGameOver = (payload: GameOverPayload) => {
 	app.innerHTML = "";
 	app.appendChild(GameOver(socket, payload));
@@ -109,9 +103,8 @@ socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
 
-socket.on("game:start", (payload) => {
+socket.on("game:start", () => {
 	waitingModal?.remove();
-	// showGameBoardAtGameStart();
 
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);

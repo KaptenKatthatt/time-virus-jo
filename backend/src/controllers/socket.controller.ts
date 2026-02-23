@@ -125,8 +125,6 @@ export const handleConnection = (
 			// Emit that game is starting
 			io.to(availableGame.id).emit("game:start", gameStartPayload);
 
-			// Timer to wait for modal to clear before starting game, to avoid race condition
-			// setTimeout(() => {
 			// Create first virus
 			const startingVirus = summonVirus();
 
@@ -161,14 +159,10 @@ export const handleConnection = (
 				fastest_Time: activeGames[availableGame.id].fastest_Time,
 			};
 
-			console.log("Game:data skickas");
 			io.to(availableGame.id).emit("game:data", gameData);
 
 			// Emit virus to all players
 			io.to(availableGame.id).emit("game:virus", startingVirus);
-
-			//Set spawn time for virus
-			// }, 4000);
 		}
 	});
 
