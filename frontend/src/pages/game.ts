@@ -11,8 +11,6 @@ import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
-	console.log("Game() called");
-
 	const player1 = {
 		name: "Player 1",
 		id: "id1",
@@ -32,8 +30,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
-			console.log("Längst upp i setupGameDataListers");
-
 			if (!Array.isArray(payload)) {
 				const players: {
 					player1: PlayerPayload;
@@ -73,10 +69,9 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				if (payload.round) {
 					updateRounbNbr(roundNbrEl, payload.round);
 				} else {
-					console.log("roundnbr empty", payload.round);
+					console.error("roundnbr empty", payload.round);
 				}
 			}
-			console.log("game:data received", payload);
 		});
 	};
 
@@ -118,10 +113,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const sendReactionTime = () => {
-		console.log("sendReactionTime socket.id", socket.id);
-		console.log("sendReactionTime p1id", player1.id);
-		console.log("sendReactionTime p2id", player2.id);
-
 		const clickTime = Date.now();
 		if (spawnTime === 0) {
 			console.error("spawnTime is not set.");
@@ -134,12 +125,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			timestamp: reactionTime,
 		};
 
-		// if (socket.id === player1.id) {
-		// 	playerOne.updateReactionTime(reactionTime);
-		// } else if (socket.id === player2.id) {
-		// 	playerTwo.updateReactionTime(reactionTime);
-		// }
-		// console.log("Reaction time", reactionTime);
 		socket.emit("player:clicked", payload);
 	};
 
