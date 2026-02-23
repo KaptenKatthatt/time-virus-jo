@@ -77,7 +77,6 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-// TODO Refactor show/hide functions into one function
 const showLobbyAfterJoin = (player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
@@ -88,10 +87,11 @@ const showLobbyAfterJoin = (player?: Player) => {
 	app.appendChild(lobbyPage);
 };
 
-const showGameBoardAtGameStart = () => {
-	app.innerHTML = "";
-	app.appendChild(Game(socket));
-};
+// const showGameBoardAtGameStart = () => {
+// 	app.innerHTML = "";
+// 	// app.appendChild(Game(socket));
+// 	app.appendChild(gameEl);
+// };
 
 const showGameOver = (payload: GameOverPayload) => {
 	app.innerHTML = "";
@@ -108,18 +108,20 @@ socket.on("player:confirmed", showLobbyAfterJoin);
 socket.on("game:created", (payload) => {
 	console.log(payload.message);
 });
+const gameEl = Game(socket);
 
 socket.on("game:start", (payload) => {
 	waitingModal?.remove();
+	// showGameBoardAtGameStart();
 
 	const matchModal = MatchFoundModal();
 	document.body.appendChild(matchModal);
 
 	setTimeout(() => {
 		matchModal.remove();
-
+		app.innerHTML = "";
+		app.appendChild(gameEl);
 		console.log(payload.message);
-		showGameBoardAtGameStart();
 	}, 3000);
 });
 

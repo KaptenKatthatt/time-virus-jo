@@ -11,6 +11,8 @@ import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 
 export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+	console.log("Game() called");
+
 	const player1 = {
 		name: "Player 1",
 		id: "id1",
@@ -30,6 +32,8 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
+			console.log("Längst upp i setupGameDataListers");
+
 			if (!Array.isArray(payload)) {
 				const players: {
 					player1: PlayerPayload;
@@ -55,15 +59,15 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 				player2.name = players.player2.name;
 				player2.score = players.player2.score;
 
-				const updatedScore = Score(players.player1, players.player2, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
-
 				//Update player info
 				playerOne.updateName(player1.name);
 				playerTwo.updateName(player2.name);
 
 				playerOne.updatePlayerId(player1.id);
 				playerTwo.updatePlayerId(player2.id);
+
+				const updatedScore = Score(players.player1, players.player2, socket.id!);
+				score.innerHTML = updatedScore.innerHTML;
 
 				// Update round nbr
 				if (payload.round) {
@@ -72,10 +76,12 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 					console.log("roundnbr empty", payload.round);
 				}
 			}
+			console.log("game:data received", payload);
 		});
 	};
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
+		sendReactionTime();
 		console.log("Virus clicked");
 		virus.remove();
 
@@ -84,8 +90,6 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			inactivityTimer = null;
 			console.log("Cleared inactivity timer");
 		}
-
-		sendReactionTime();
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
@@ -114,6 +118,10 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 	};
 
 	const sendReactionTime = () => {
+		console.log("sendReactionTime socket.id", socket.id);
+		console.log("sendReactionTime p1id", player1.id);
+		console.log("sendReactionTime p2id", player2.id);
+
 		const clickTime = Date.now();
 		if (spawnTime === 0) {
 			console.error("spawnTime is not set.");
@@ -125,13 +133,13 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 			playerId: socket.id,
 			timestamp: reactionTime,
 		};
-		socket.emit("player:clicked", payload);
-
 		if (socket.id === player1.id) {
 			playerOne.updateReactionTime(reactionTime);
 		} else if (socket.id === player2.id) {
 			playerTwo.updateReactionTime(reactionTime);
 		}
+		console.log("Reaction time", reactionTime);
+		socket.emit("player:clicked", payload);
 	};
 
 	const render = () => {
@@ -149,11 +157,11 @@ export default function Game(socket: Socket<ServerToClientEvents, ClientToServer
 
 		const score = Score(player1, player2, socket.id!);
 
-		setupGameDataListeners(score, roundNbrEl);
-		setupVirusListeners(board, gameTimerEl);
-
 		playerOne = PlayerCard(player1, socket.id!);
 		playerTwo = PlayerCard(player2, socket.id!);
+
+		setupVirusListeners(board, gameTimerEl);
+		setupGameDataListeners(score, roundNbrEl);
 
 		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
