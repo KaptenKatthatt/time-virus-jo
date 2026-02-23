@@ -119,11 +119,11 @@ socket.on("game:start", (payload) => {
 	// Preload game to be available before apending.
 	const gameEl = Game(socket);
 
+	// Wait for Matching countdown modal
 	setTimeout(() => {
 		matchModal.remove();
 		app.innerHTML = "";
 		app.appendChild(gameEl);
-		console.log(payload.message);
 	}, 3000);
 });
 
