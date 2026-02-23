@@ -46,6 +46,9 @@ let currentPlayer: Player | undefined = undefined;
  * Socket Event Listeners
  */
 
+const lobbyPage = Lobby(socket);
+const playerName = InputPlayerName(socket);
+
 // Listen for when a connection is established
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
