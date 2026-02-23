@@ -1,8 +1,9 @@
+/* import type { ScoreBoardPayload } from "@shared/types/payloads.types"; */
 import type { ScoreboardOmitId } from "../types/scoreboard.types";
 
-export default function Scoreboard() {
+export default function Scoreboard(data: ScoreboardOmitId[]) {
 	//TODO: get scoreboard data from server
-	const data: ScoreboardOmitId[] = [
+	/* const data: ScoreboardOmitId[] = [
 		{
 			name: "name",
 			player_one_name: "Jonas",
@@ -24,7 +25,7 @@ export default function Scoreboard() {
 			player_one_score: 9,
 			player_two_score: 1,
 		},
-	];
+	]; */
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -68,7 +69,7 @@ function GameResult(data: ScoreboardOmitId[]) {
 			div.appendChild(result2)
 
 			return div;
-		});
+		}); 
 
 		elementList.forEach((item: HTMLDivElement) => {
 			div.appendChild(item);
