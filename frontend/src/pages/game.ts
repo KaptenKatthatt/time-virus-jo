@@ -1,5 +1,3 @@
-import type { Socket } from "socket.io-client";
-import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GamePayload, ReactionData } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
@@ -9,8 +7,9 @@ import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 import type { PlayerPayload } from "../types/game.types";
+import type { AppClientSocket } from "../types/socket.types";
 
-export default function Game(socket: Socket<ServerToClientEvents, ClientToServerEvents>) {
+export default function Game(socket: AppClientSocket) {
 	let player1Data: PlayerPayload = {
 		name: "Player 1",
 		id: "id1",

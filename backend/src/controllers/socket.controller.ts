@@ -1,9 +1,8 @@
 /**
  * Socket Controller
  */
-import { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types.ts";
+
 import Debug from "debug";
-import { Server, Socket } from "socket.io";
 
 import type {
 	GameCreatedPayload,
@@ -28,6 +27,7 @@ import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
 import { summonVirus } from "../services/virus.service.ts";
 import { createScoreboard, getScoreboard } from "../services/updateScoreBoard.service.ts";
+import type { AppServer, AppSocket } from "../types/socket.types.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -58,10 +58,7 @@ export interface ActiveGame {
 }
 
 // Handle new socket connection
-export const handleConnection = (
-	socket: Socket<ClientToServerEvents, ServerToClientEvents>,
-	io: Server<ClientToServerEvents, ServerToClientEvents>,
-) => {
+export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	// Yay someone connected to me
 	debug("🙋 A user connected with id: %s", socket.id);
 

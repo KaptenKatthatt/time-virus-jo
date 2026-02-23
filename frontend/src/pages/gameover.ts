@@ -1,15 +1,13 @@
-import type { Socket } from "socket.io-client";
 import Button from "../components/Button";
 // import type { ScoreboardOmitId } from "../types/scoreboard.types";
 //import type { PrismaGame } from "@shared/types/Models.types";
-import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
+import type { AppClientSocket } from "../types/socket.types";
 
-export default function GameOver(socket: Socket<ServerToClientEvents, ClientToServerEvents>, payload: GameOverPayload) {
-
+export default function GameOver(socket: AppClientSocket, payload: GameOverPayload) {
 	const onQuit = () => {
 		console.log("click");
-	}
+	};
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -28,7 +26,7 @@ export default function GameOver(socket: Socket<ServerToClientEvents, ClientToSe
 		const score = Result(payload, socket.id);
 
 		const button = Button("To lobby", onQuit);
-		
+
 		button.classList.add("fs-2");
 
 		buttonWrapper.appendChild(button);
@@ -66,11 +64,15 @@ function Result(data: GameOverPayload, socketId: string | undefined) {
 	return render();
 }
 
-function ResultItem(name: string | null, score: number | null, winner: string | null, socketId: string | undefined)  {
+function ResultItem(
+	name: string | null,
+	score: number | null,
+	winner: string | null,
+	socketId: string | undefined,
+) {
 	const render = () => {
 		const div = document.createElement("div");
 		const isMe = winner === socketId ? "text-primary fw-bold" : "";
-
 
 		div.className =
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";

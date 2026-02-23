@@ -1,8 +1,4 @@
-import type {
-	ClientToServerEvents,
-	ServerToClientEvents,
-} from "@shared/types/SocketEvents.types.ts";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 
 // Styling
 import "./assets/scss/style.scss";
@@ -18,13 +14,13 @@ import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
 import type { GameOverPayload, ScoreBoardPayload } from "@shared/types/payloads.types";
-// import Scoreboard from "./components/Scoreboard";
+import type { AppClientSocket } from "./types/socket.types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 
 // Connect to Socket.IO Server
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_HOST);
+const socket: AppClientSocket = io(SOCKET_HOST);
 
 /**
  * Page Component inits
