@@ -1,4 +1,4 @@
-import type { PrismaGame, PrismaPlayer, PrismaScoreboard } from "./Models.types.ts";
+import type { PrismaGame, PrismaPlayer } from "./Models.types.ts";
 
 export type GamePayload = PrismaGame;
 export type GameId = GamePayload["id"];
