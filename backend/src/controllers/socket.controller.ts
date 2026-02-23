@@ -23,6 +23,7 @@ import {
 	getPlayerByPlayerId,
 	deletePlayer,
 	checkIfFastestPlayer,
+	resetGame,
 } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
@@ -36,6 +37,7 @@ debug("Socket Controller initialized");
 /**
  * Variables
  */
+const rematchArr: string[] = [];
 
 //TODO Change Record to something understandable
 export const activeGames: Record<string, ActiveGame> = {};
@@ -79,11 +81,84 @@ export const handleConnection = (
 			socket.data.name = playerName;
 			const data = await getScoreboard();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", {player, data});
+			socket.emit("player:confirmed", { player, data });
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
 			console.error("⚠️Error handling playerJoinLobbyRequest:", err);
+		}
+	});
+
+	socket.on("player:rematch", async (payload) => {
+		const player = await getPlayerByPlayerId(payload.playerId);
+		const game = await getGameByPlayerId(payload.playerId);
+
+		if (!game) {
+			return;
+		}
+		if (!player) {
+			return;
+		}
+
+		const checkArr = rematchArr.includes(payload.playerId!);
+		if (!checkArr) {
+			rematchArr.push(payload.playerId);
+		}
+
+		const playerTwoCheck = rematchArr.includes(game.player_one_id!);
+		const playerOneCheck = rematchArr.includes(game.player_two_id!);
+
+		console.log(rematchArr);
+
+		if (playerOneCheck && playerTwoCheck) {
+			const startingVirus = summonVirus();
+			await resetGame(game.id);
+
+			const gameStartPayload: GameStartPayload = {
+				gameId: game.id,
+				message: "All players joined. Starting game",
+			};
+
+			io.to(game.id).emit("game:start", gameStartPayload);
+
+			activeGames[game.id] = {
+				round: 1,
+				player_one_id: game.player_one_id,
+				player_two_id: game.player_two_id!,
+				player_one_name: game.player_one_name!,
+				player_two_name: game.player_two_name!,
+				player_one_score: 0,
+				player_two_score: 0,
+				clickedPlayers: [],
+				currentSpawnTime: Date.now() + startingVirus.delay,
+				fastest_player_id: "",
+				fastest_Time: 9999,
+			};
+
+			const gameData: GamePayload = {
+				id: game.id,
+				name: null,
+				player_one_id: activeGames[game.id].player_one_id,
+				player_two_id: activeGames[game.id].player_two_id,
+				player_one_name: activeGames[game.id].player_one_name,
+				player_two_name: activeGames[game.id].player_two_name,
+				player_one_score: activeGames[game.id].player_one_score,
+				player_two_score: activeGames[game.id].player_two_score,
+				round: activeGames[game.id].round,
+				fastest_player_id: activeGames[game.id].fastest_player_id,
+				fastest_Time: activeGames[game.id].fastest_Time,
+			};
+
+			io.to(game.id).emit("game:data", gameData);
+
+			setTimeout(() => {
+				io.to(game.id).emit("game:virus", startingVirus);
+			}, 3000);
+		} else {
+			socket.to(game.id).emit("player:rematch", {
+				playerId: payload.playerId,
+				name: player.name,
+			});
 		}
 	});
 
@@ -277,12 +352,11 @@ export const handleConnection = (
 					player_two_name: currentGame.player_two_name,
 					player_one_score: currentGame.player_one_score,
 					player_two_score: currentGame.player_two_score,
-					name: ""
-				}
+					name: "",
+				};
 
 				createScoreboard(scoreboardData);
 
-				
 				let winnerId: string | null = null;
 
 				if (currentGame.player_one_score > currentGame.player_two_score) {
