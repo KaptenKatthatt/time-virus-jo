@@ -356,22 +356,22 @@ export const handleConnection = (
 
 				await createScoreboard(scoreboardData);
 
-				let winnerId: string | null = null;
-
-				if (currentGame.player_one_score > currentGame.player_two_score) {
-					winnerId = currentGame.player_one_id;
-				} else if (currentGame.player_two_score > currentGame.player_one_score) {
-					winnerId = currentGame.player_two_id;
-				} else {
-					winnerId = null;
-				}
+				const isPlayerOneWinner =
+					currentGame.player_one_score > currentGame.player_two_score;
+				const isplayerTwoWinner =
+					currentGame.player_one_score < currentGame.player_two_score;
 
 				const winnerData: GameOverPayload = {
-					player_one_name: currentGame.player_one_name,
-					player_two_name: currentGame.player_two_name,
-					player_one_score: currentGame.player_one_score,
-					player_two_score: currentGame.player_two_score,
-					winner: winnerId,
+					playerOne: {
+						name: currentGame.player_one_name,
+						score: currentGame.player_one_score,
+						isWinner: isPlayerOneWinner,
+					},
+					playerTwo: {
+						name: currentGame.player_two_name,
+						score: currentGame.player_two_score,
+						isWinner: isplayerTwoWinner,
+					},
 				};
 
 				io.to(gameId).emit("game:over", winnerData);

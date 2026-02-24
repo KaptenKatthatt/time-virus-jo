@@ -1,12 +1,9 @@
-import type { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import Button from "../components/Button";
-// import type { ScoreboardOmitId } from "../types/scoreboard.types";
-//import type { PrismaGame } from "@shared/types/Models.types";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
 import Lobby from "./lobby";
 import { RematchModal } from "../components/LobbyModals";
-import Game from "./game";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -15,6 +12,8 @@ export default function GameOver(
 	payload: GameOverPayload,
 ) {
 	const onQuit = (currentDiv: HTMLDivElement) => {
+		// TODO: join the lobby
+
 		const lobbyPage = Lobby(socket, []);
 		currentDiv.remove();
 
@@ -45,9 +44,9 @@ export default function GameOver(
 		`;
 
 		const buttonWrapper = document.createElement("div");
-		buttonWrapper.className = "d-flex justify-content-center align-items-center";
+		buttonWrapper.className = "d-flex justify-content-center align-items-center gap-5";
 
-		const score = Result(payload, socket.id);
+		const score = Result(payload);
 
 		const quitButton = Button("To lobby", () => {
 			onQuit(div);
@@ -69,9 +68,7 @@ export default function GameOver(
 	return render();
 }
 
-function Result(data: GameOverPayload, socketId: string | undefined) {
-	const winner = data.winner === socketId ? true : false;
-
+function Result(data: GameOverPayload) {
 	const render = () => {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
@@ -81,11 +78,8 @@ function Result(data: GameOverPayload, socketId: string | undefined) {
 		div.className =
 			"d-flex p-5 gap-4 justify-content-evenly align-items-center border-img-dark";
 
-		console.log("Winner 👑", winner);
-		console.log("socket 🚀", socketId);
-
-		const scoreEl1 = ResultItem(data.player_one_name, data.player_one_score, winner);
-		const scoreEl2 = ResultItem(data.player_two_name, data.player_two_score, winner);
+		const scoreEl1 = ResultItem(data.playerOne);
+		const scoreEl2 = ResultItem(data.playerTwo);
 
 		div.appendChild(scoreEl1);
 		div.appendChild(span);
@@ -96,8 +90,9 @@ function Result(data: GameOverPayload, socketId: string | undefined) {
 	return render();
 }
 
-function ResultItem(name: string | null, score: number | null, winnerId: boolean) {
-	const isMe = winnerId ? "text-primary fw-bold" : "";
+function ResultItem(data: { name: string; score: number, isWinner: boolean }) {
+	const { name, score, isWinner } = data;
+	const winnerStyle = isWinner ? "text-primary fw-bold" : "";
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -106,11 +101,11 @@ function ResultItem(name: string | null, score: number | null, winnerId: boolean
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
 
 		const test = document.createElement("span");
-		test.innerHTML = `<span></span>`;
+		test.innerHTML = `<span>👑</span>`;
 
 		div.innerHTML = `
-			${isMe ? "<span>👑</span>" : "<span>😭</span>"}
-			<span class="${isMe}">${name}</span>
+			${winnerStyle ? "<span>👑</span>" : "<span>😭</span>"}
+			<span class="${winnerStyle}">${name}</span>
 			<span>${score}</span>
 		`;
 
