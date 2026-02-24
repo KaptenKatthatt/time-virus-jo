@@ -49,4 +49,5 @@ model Scoreboard {
   player_one_score Int
   player_two_score Int
   players          Player[]
+  createdAt        DateTime @default(now())
 }
