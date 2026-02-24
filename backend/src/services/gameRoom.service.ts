@@ -5,6 +5,19 @@
 import type { ActiveGame } from "../controllers/socket.controller.ts";
 import { prisma } from "../lib/prisma.ts";
 
+export const resetGame = async (gameId: string) => {
+	return await prisma.game.update({
+		where: { id: gameId },
+		data: {
+			player_one_score: 0,
+			player_two_score: 0,
+			round: 1,
+			fastest_player_id: "",
+			fastest_Time: 0,
+		},
+	});
+};
+
 export const createGame = async (playerOneId: string, playerOneName: string) => {
 	return await prisma.game.create({
 		data: {
