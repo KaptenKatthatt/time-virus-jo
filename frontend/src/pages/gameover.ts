@@ -14,6 +14,7 @@ export default function GameOver(
 	const onQuit = (currentDiv: HTMLDivElement) => {
 		// TODO: join the lobby
 
+		socket.emit("player:left", { playerId: socket.id! });
 		const lobbyPage = Lobby(socket, []);
 		currentDiv.remove();
 
@@ -25,12 +26,20 @@ export default function GameOver(
 	};
 
 	socket.on("player:rematch", (payload) => {
-		const rematchModal = RematchModal(payload.name, () => {
-			socket.emit("player:rematch", { playerId: socket.id! });
-			rematchModal.remove();
-		});
+		const rematchModal = RematchModal(
+			payload.name,
+			() => {
+				socket.emit("player:rematch", { playerId: socket.id! });
+				rematchModal.remove();
+			},
+			() => {
+				socket.emit("player:left", { playerId: socket.id! });
+			},
+		);
 		document.body.appendChild(rematchModal);
 	});
+
+	socket.on("player:left", () => {});
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -90,7 +99,7 @@ function Result(data: GameOverPayload) {
 	return render();
 }
 
-function ResultItem(data: { name: string; score: number, isWinner: boolean }) {
+function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 	const { name, score, isWinner } = data;
 	const winnerStyle = isWinner ? "text-primary fw-bold" : "";
 

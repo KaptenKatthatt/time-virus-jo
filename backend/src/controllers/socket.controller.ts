@@ -86,6 +86,23 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 	});
 
+	socket.on("player:left", async (payload) => {
+		const player = await getPlayerByPlayerId(payload.playerId);
+		const game = await getGameByPlayerId(payload.playerId);
+
+		if (!game) {
+			return;
+		}
+
+		if (!player) {
+			return;
+		}
+
+		await deleteGame(socket.id);
+
+		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
+	});
+
 	socket.on("player:rematch", async (payload) => {
 		const player = await getPlayerByPlayerId(payload.playerId);
 		const game = await getGameByPlayerId(payload.playerId);

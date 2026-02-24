@@ -78,7 +78,7 @@ export function DisconnectedUser(playerName: string, onReturn?: () => void) {
 	return render();
 }
 
-export function RematchModal(playerName: string, onClick?: () => void) {
+export function RematchModal(playerName: string, onClick?: () => void, onCancel?: () => void) {
 	const render = () => {
 		const container = document.createElement("div");
 		container.className = "disconnect-modal";
@@ -97,7 +97,7 @@ export function RematchModal(playerName: string, onClick?: () => void) {
 			if (onClick) onClick();
 		});
 		const cancelbtn = Button("Cancel", () => {
-			// if (onClick) onClick();
+			if (onCancel) onCancel();
 		});
 		cancelbtn.classList.add("border-img-dark-solid");
 		cancelbtn.classList.remove("border-img-green-solid");

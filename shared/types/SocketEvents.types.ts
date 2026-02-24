@@ -23,6 +23,7 @@ export interface ServerToClientEvents {
   "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
   "player:rematch": (payload: { playerId: string; name: string }) => void;
+  "player:left": (payload: { playerId: string; name: string }) => void;
 }
 
 // Events emitted by the client to the server
@@ -34,6 +35,7 @@ export interface ClientToServerEvents {
   "player:joins": (payload: string) => void;
   "player:start": (payload: string) => void;
   "player:rematch": (payload: { playerId: string }) => void;
+  "player:left": (payload: { playerId: string; }) => void;
 }
 
 export interface TimestampPayload {
