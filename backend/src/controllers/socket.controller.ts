@@ -114,8 +114,10 @@ export const handleConnection = (
 			const startingVirus = summonVirus();
 			await resetGame(game.id);
 
-			delete rematchArr[rematchArr.indexOf(game.player_one_id)];
-			delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
+			// delete rematchArr[rematchArr.indexOf(game.player_one_id)];
+			// delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
+			rematchArr.pop();
+			rematchArr.pop();
 
 			const gameStartPayload: GameStartPayload = {
 				gameId: game.id,
