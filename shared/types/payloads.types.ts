@@ -59,11 +59,8 @@ export interface ReactionData {
 }
 
 export interface LobbyUpdatePayload {
-  // List with 10 latest games
-  scoreBoardList: ScoreBoardPayload[];
-
-  // Live list with the current games
-  liveGameDataList: LiveGameData[];
+  allPlayedGames: ScoreBoardPayload[];
+  allLiveGames: LiveGameData[];
 }
 
 export interface LiveGameData {

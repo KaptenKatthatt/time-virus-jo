@@ -12,6 +12,7 @@ import type {
 	ScoreBoardPayload,
 	ReactionData,
 	LiveGameData,
+	LobbyUpdatePayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -58,7 +59,7 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
-const buildLobbyUpdate = async () => {
+const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 	// Get all played games from db
 	const allPlayedGames = await getScoreboard();
 
