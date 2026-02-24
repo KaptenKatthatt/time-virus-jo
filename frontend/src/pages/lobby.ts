@@ -1,5 +1,6 @@
 import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
+import Livematches from "../components/Livematches";
 import { WaitingModal } from "../components/LobbyModals";
 import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "../types/socket.types";
@@ -14,14 +15,21 @@ function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 		const div = document.createElement("div");
 
 		div.className =
-			"container d-flex flex-column justify-content-center align-items-center vh-100 gap-4";
+			"container d-flex flex-column align-items-center";
 
-		div.innerHTML = `
-			<div>
-			</div>
-		`;
+		const title = document.createElement("h1");
+		title.innerText = "Lobby";
+		title.className = "my-5 lacquer-regular text-primary";
 
+		const scoreboardWrapper = document.createElement("div");
+		scoreboardWrapper.className = "scoreboard-wrapper w-100 mb-3";
 		const scoreboardEl = Scoreboard(payload);
+		scoreboardWrapper.appendChild(scoreboardEl);
+
+		const liveWrapper = document.createElement("div");
+		liveWrapper.className = "scoreboard-wrapper w-100 mb-5";
+		const liveEl = Livematches();
+		liveWrapper.appendChild(liveEl);
 
 		const button = Button("Start game", () => {
 			console.log("start game");
@@ -34,10 +42,12 @@ function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 			document.body.appendChild(waitingModal);
 		});
 
-		button.classList.add("fs-2");
+		button.classList.add("fs-3", "mb-4");
 
-		div.appendChild(scoreboardEl);
+		div.appendChild(title);
 		div.appendChild(button);
+		div.appendChild(liveWrapper);
+		div.appendChild(scoreboardWrapper);
 
 		return div;
 	};
