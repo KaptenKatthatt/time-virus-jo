@@ -2,40 +2,16 @@
 import type { ScoreboardOmitId } from "../types/scoreboard.types";
 
 export default function Scoreboard(data: ScoreboardOmitId[]) {
-	//TODO: get scoreboard data from server
-	/* const data: ScoreboardOmitId[] = [
-		{
-			name: "name",
-			player_one_name: "Jonas",
-			player_two_name: "Emil",
-			player_one_score: 9,
-			player_two_score: 1,
-		},
-		{
-			name: "name",
-			player_one_name: "Jonas",
-			player_two_name: "Emil",
-			player_one_score: 9,
-			player_two_score: 1,
-		},
-		{
-			name: "name",
-			player_one_name: "Jonas",
-			player_two_name: "Emil",
-			player_one_score: 9,
-			player_two_score: 1,
-		},
-	]; */
-
 	const render = () => {
 		const div = document.createElement("div");
 		div.className = "border-img-dark p-5 text-center";
 
 		const title = document.createElement("h1")
 		title.innerText = "Scoreboard"
-		title.className = "mb-5 lacquer-regular text-primary"
+		title.className = "mb-4 lacquer-regular text-primary"
 
 		const gameResult = GameResult(data);
+		
 
 		div.appendChild(title);
 		div.appendChild(gameResult);
@@ -49,7 +25,7 @@ function GameResult(data: ScoreboardOmitId[]) {
 	const render = () => {
 		const div = document.createElement("div");
 
-		div.className = "text-center d-flex flex-column gap-4";
+		div.className = "text-center d-flex flex-column gap-3";
 
 		const elementList = data.map((item: ScoreboardOmitId) => {
 			const div = document.createElement("div")
@@ -59,7 +35,7 @@ function GameResult(data: ScoreboardOmitId[]) {
 			sep.innerHTML = `
 				<span>VS</span>
 			`
-			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-5"
+			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4"
 
 			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "")
 			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "")
@@ -85,7 +61,7 @@ function GameResultItem(name: string, score: number, winner: string) {
 		const div = document.createElement("div");
 
 		div.className =
-			"d-flex p-4 flex-column justify-content-center align-items-center gap-2";
+			"d-flex p-3 flex-column justify-content-center align-items-center gap-2";
 
 		if (winner === name) {
 			div.classList.add("text-success");
