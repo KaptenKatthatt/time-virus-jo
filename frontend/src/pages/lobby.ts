@@ -7,7 +7,7 @@ import type { AppClientSocket } from "../types/socket.types";
 
 export let waitingModal: HTMLElement | null = null;
 
-export function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
+export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
 	// TODO Move logic from button to here
 
 	//send start matchmaking to server
@@ -21,19 +21,16 @@ export function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
 
 	const scoreboardWrapper = document.createElement("div");
 	scoreboardWrapper.className = "scoreboard-wrapper w-100 mb-3";
-	const scoreboardEl = Scoreboard(payload);
+	let scoreboardEl = Scoreboard(payload.allPlayedGames);
 	scoreboardWrapper.appendChild(scoreboardEl);
 
 	const liveWrapper = document.createElement("div");
 	liveWrapper.className = "scoreboard-wrapper w-100 mb-5";
-	const liveEl = Livematches();
+	let liveEl = Livematches(payload.allLiveGames);
 	liveWrapper.appendChild(liveEl);
 
 	const button = Button("Start game", () => {
-		console.log("start game");
-		// Send join game request to backend
 		if (socket.id) {
-			console.log("Sending join request");
 			socket.emit("playerJoinGameRequest", socket.id);
 		}
 		waitingModal = WaitingModal();
@@ -49,6 +46,13 @@ export function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
 
 	return {
 		element: div,
-		updateGameTables: (payload: LobbyUpdatePayload) => {},
+		updateGameTables: (payload: LobbyUpdatePayload) => {
+			liveWrapper.innerHTML = "";
+			scoreboardWrapper.innerHTML = "";
+			liveEl = Livematches(payload.allLiveGames);
+			scoreboardEl = Scoreboard(payload.allPlayedGames);
+			liveWrapper.appendChild(liveEl);
+			scoreboardWrapper.appendChild(scoreboardEl);
+		},
 	};
 }

@@ -1,17 +1,15 @@
-/* import type { ScoreBoardPayload } from "@shared/types/payloads.types"; */
-import type { ScoreboardOmitId } from "../types/scoreboard.types";
+import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 
-export default function Scoreboard(data: ScoreboardOmitId[]) {
+export default function Scoreboard(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
 		div.className = "border-img-dark p-5 text-center";
 
-		const title = document.createElement("h1")
-		title.innerText = "Scoreboard"
-		title.className = "mb-4 lacquer-regular text-primary"
+		const title = document.createElement("h1");
+		title.innerText = "Scoreboard";
+		title.className = "mb-4 lacquer-regular text-primary";
 
 		const gameResult = GameResult(data);
-		
 
 		div.appendChild(title);
 		div.appendChild(gameResult);
@@ -21,31 +19,32 @@ export default function Scoreboard(data: ScoreboardOmitId[]) {
 	return render();
 }
 
-function GameResult(data: ScoreboardOmitId[]) {
+function GameResult(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
 
 		div.className = "text-center d-flex flex-column gap-3";
 
-		const elementList = data.map((item: ScoreboardOmitId) => {
-			const div = document.createElement("div")
-			const sep = document.createElement("span")
-			sep.className = "text-muted"
+		const elementList = data.map((item) => {
+			const div = document.createElement("div");
+			const separator = document.createElement("span");
+			separator.className = "text-muted";
 
-			sep.innerHTML = `
+			separator.innerHTML = `
 				<span>VS</span>
-			`
-			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4"
+			`;
+			div.className =
+				"d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4";
 
-			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "")
-			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "")
+			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "");
+			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "");
 
-			div.appendChild(result1)
-			div.appendChild(sep)
-			div.appendChild(result2)
+			div.appendChild(result1);
+			div.appendChild(separator);
+			div.appendChild(result2);
 
 			return div;
-		}); 
+		});
 
 		elementList.forEach((item: HTMLDivElement) => {
 			div.appendChild(item);
@@ -60,8 +59,7 @@ function GameResultItem(name: string, score: number, winner: string) {
 	const render = () => {
 		const div = document.createElement("div");
 
-		div.className =
-			"d-flex p-3 flex-column justify-content-center align-items-center gap-2";
+		div.className = "d-flex p-3 flex-column justify-content-center align-items-center gap-2";
 
 		if (winner === name) {
 			div.classList.add("text-success");

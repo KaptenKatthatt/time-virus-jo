@@ -50,9 +50,6 @@ socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
 
-	/**
-	 * Add page to index.html
-	 */
 	app.appendChild(playerName);
 });
 
@@ -77,7 +74,6 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-// TODO Refactor show/hide functions into one function
 const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
