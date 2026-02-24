@@ -11,6 +11,7 @@ import type {
 	GameOverPayload,
 	ScoreBoardPayload,
 	ReactionData,
+	LiveGameData,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -57,7 +58,26 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
-const buildLobbyUpdate = async () => {};
+const buildLobbyUpdate = async () => {
+	// Get all played games from db
+	const allPlayedGames = await getScoreboard();
+
+	// Get all live games and convert to an array
+	const allLiveGames: LiveGameData[] = Object.entries(activeGames).map(([gameId, game]) => {
+		return {
+			gameId,
+			player_one_name: game.player_one_name,
+			player_one_score: game.player_one_score,
+			player_two_name: game.player_two_name,
+			player_two_score: game.player_two_score,
+		};
+	});
+
+	return {
+		allPlayedGames,
+		allLiveGames,
+	};
+};
 
 // Handle new socket connection
 export const handleConnection = (socket: AppSocket, io: AppServer) => {
