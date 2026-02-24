@@ -8,6 +8,7 @@ import type {
   ScoreBoardPayload,
   PlayerConfirmedPayload,
   ReactionData,
+  LobbyUpdatePayload,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -22,6 +23,7 @@ export interface ServerToClientEvents {
   "player:disconnected": (playerWhoLeft: PlayerConfirmedPayload) => void;
   "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
+  "lobby:update": (payload: LobbyUpdatePayload) => void;
 }
 
 // Events emitted by the client to the server

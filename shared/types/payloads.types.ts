@@ -57,3 +57,19 @@ export interface ReactionData {
   playerId: string;
   reactionTime: number;
 }
+
+export interface LobbyUpdatePayload {
+  // List with 10 latest games
+  scoreBoardList: ScoreBoardPayload[];
+
+  // Live list with the current games
+  liveGameDataList: LiveGameData[];
+}
+
+export interface LiveGameData {
+  gameId: string;
+  player_one_name: string;
+  player_one_score: number;
+  player_two_name: string;
+  player_two_score: number;
+}

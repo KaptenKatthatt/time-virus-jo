@@ -57,6 +57,8 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
+const buildLobbyUpdate = async () => {};
+
 // Handle new socket connection
 export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	// Yay someone connected to me
