@@ -16,8 +16,9 @@ export const createScoreboard = async (payload: ScoreBoardPayload) => {
 export const getScoreboard = async () => {
     return await prisma.scoreboard.findMany({
         orderBy: {
-            id: "desc",
+            createdAt: "desc",
         },
+        take: 10,
         omit: {
             id: true,
         }
