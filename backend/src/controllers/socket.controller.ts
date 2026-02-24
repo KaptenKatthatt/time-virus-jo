@@ -31,6 +31,7 @@ import { createPlayer } from "../services/player.service.ts";
 import { summonVirus } from "../services/virus.service.ts";
 import { createScoreboard, getScoreboard } from "../services/updateScoreBoard.service.ts";
 import type { AppServer, AppSocket } from "../types/socket.types.ts";
+import { updateLobbyForAll } from "../lib/updateLobbyForAll.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -61,7 +62,7 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
-const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
+export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 	// Get all played games from db
 	const allPlayedGames = await getScoreboard();
 
@@ -101,8 +102,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			socket.join("lobby");
 
 			// Emit data about current state of played and live games to all
-			const lobbyData = await buildLobbyUpdate();
-			io.to("lobby").emit("lobby:update", lobbyData);
+			updateLobbyForAll(io);
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;
@@ -222,10 +222,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Join Player 1 into game
 			socket.join(newGame.id);
 
-			//TODO Refactor into helper function
 			// Emit data about current state of played and live games to all
-			const lobbyData = await buildLobbyUpdate();
-			io.to("lobby").emit("lobby:update", lobbyData);
+			updateLobbyForAll(io);
 
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = newGame.id;
@@ -329,8 +327,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 
 		// Emit data about current state of played and live games to all
-		const lobbyData = await buildLobbyUpdate();
-		io.to("lobby").emit("lobby:update", lobbyData);
+		updateLobbyForAll(io);
 	});
 
 	/**
@@ -389,8 +386,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			io.to(gameId).emit("game:data", gameData);
 
 			// Emit data about current state of played and live games to all
-			const lobbyData = await buildLobbyUpdate();
-			io.to("lobby").emit("lobby:update", lobbyData);
+			updateLobbyForAll(io);
 
 			// If round less than ten, send new virus
 			if (currentGame.round <= 3) {
@@ -442,8 +438,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				delete activeGames[gameId];
 
 				// Emit data about current state of played and live games to all
-				const lobbyData = await buildLobbyUpdate();
-				io.to("lobby").emit("lobby:update", lobbyData);
+				updateLobbyForAll(io);
 			}
 		}
 	});
