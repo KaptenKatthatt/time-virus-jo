@@ -19,13 +19,16 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 	title.innerText = "Lobby";
 	title.className = "my-5 lacquer-regular text-primary";
 
+	const grid = document.createElement("div");
+	grid.className = "lobby-grid w-100";
+
 	const scoreboardWrapper = document.createElement("div");
-	scoreboardWrapper.className = "scoreboard-wrapper w-100 mb-3";
-	let scoreboardEl = Scoreboard(payload.allPlayedGames);
+	scoreboardWrapper.className = "scoreboard-wrapper w-100 my-3";
+	const scoreboardEl = Scoreboard(payload);
 	scoreboardWrapper.appendChild(scoreboardEl);
 
 	const liveWrapper = document.createElement("div");
-	liveWrapper.className = "scoreboard-wrapper w-100 mb-5";
+	liveWrapper.className = "scoreboard-wrapper w-100 my-3";
 	let liveEl = Livematches(payload.allLiveGames);
 	liveWrapper.appendChild(liveEl);
 
@@ -37,12 +40,14 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 		document.body.appendChild(waitingModal);
 	});
 
-	button.classList.add("fs-3", "mb-4");
+	button.classList.add("fs-3", "mb-5");
+
+	grid.appendChild(liveWrapper);
+	grid.appendChild(scoreboardWrapper);
 
 	div.appendChild(title);
 	div.appendChild(button);
-	div.appendChild(liveWrapper);
-	div.appendChild(scoreboardWrapper);
+	div.appendChild(grid);
 
 	return {
 		element: div,
