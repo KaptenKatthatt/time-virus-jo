@@ -130,6 +130,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		await deleteGame(socket.id);
 
 		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
+
+		// Send latest lobby to client after leaving game
+		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
+		socket.emit("lobby:update", updatedLobbyData);
 	});
 
 	socket.on("player:rematch", async (payload) => {

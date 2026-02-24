@@ -39,6 +39,7 @@ export interface ClientToServerEvents {
   "player:start": (payload: string) => void;
   "player:rematch": (payload: { playerId: string }) => void;
   "player:left": (payload: { playerId: string }) => void;
+  "lobby:get": (payload: LobbyUpdatePayload) => void;
 }
 
 export interface TimestampPayload {

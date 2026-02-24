@@ -11,14 +11,16 @@ export default function GameOver(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
 	payload: GameOverPayload,
 ) {
+	// If player clicks go to lobby on game over screen, go to lobby.
 	const onQuit = (currentDiv: HTMLDivElement) => {
-		// TODO: join the lobby
-
 		socket.emit("player:left", { playerId: socket.id! });
-		const lobbyPage = Lobby(socket, []);
-		currentDiv.remove();
 
-		app.appendChild(lobbyPage);
+		// Get updated lobby data with event
+		socket.on("lobby:update", (payload) => {
+			const lobbyPage = Lobby(socket, payload);
+			currentDiv.remove();
+			app.appendChild(lobbyPage.element);
+		});
 	};
 
 	const onRematch = () => {
