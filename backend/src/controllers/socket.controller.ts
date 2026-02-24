@@ -101,7 +101,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			socket.join("lobby");
 
 			// Emit data about current state of played and live games to all
-			updateLobbyForAll(io);
+			await updateLobbyForAll(io);
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;

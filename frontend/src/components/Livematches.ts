@@ -9,10 +9,10 @@ export default function Livematches(liveGames: LiveGameData[]) {
 		title.innerText = "🔴 Live matches";
 		title.className = "mb-4 lacquer-regular text-primary";
 
-		const matchtList = Livematchlist(liveGames);
+		const matchList = Livematchlist(liveGames);
 
 		div.appendChild(title);
-		div.appendChild(matchtList);
+		div.appendChild(matchList);
 
 		return div;
 	};

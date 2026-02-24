@@ -87,7 +87,6 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 
 	lobbyInstance = Lobby(socket, data);
 
-	// const lobbyPage = Lobby(socket, data);
 	app.innerHTML = "";
 	app.appendChild(lobbyInstance.element);
 };

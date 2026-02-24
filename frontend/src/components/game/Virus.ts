@@ -1,7 +1,7 @@
 import virusImg from "../../assets/imgs/virusv1.svg";
 
-export function Virus(x: number, y: number, cb?: (event?: PointerEvent) => void) {
-	const listener = (event: PointerEvent) => {
+export function Virus(x: number, y: number, cb?: (event?: MouseEvent) => void) {
+	const listener = (event: MouseEvent) => {
 		if (cb) {
 			cb(event);
 		}

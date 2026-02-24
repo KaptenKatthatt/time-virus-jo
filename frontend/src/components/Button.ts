@@ -1,5 +1,5 @@
-export default function Button(text: string, cb?: (event?: PointerEvent) => void) {
-	const listener = (event: PointerEvent) => {
+export default function Button(text: string, cb?: (event?: MouseEvent) => void) {
+	const listener = (event: MouseEvent) => {
 		if (cb) {
 			cb(event);
 		}
