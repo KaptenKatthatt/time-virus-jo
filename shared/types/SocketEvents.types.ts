@@ -14,19 +14,19 @@ import type {
 
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
-  score: (payload: ScorePayload) => void; // Remove Later
   "game:created": (payload: GameCreatedPayload) => void;
   "game:data": (payload: GamePayload | GamePayload[]) => void;
   "game:over": (payload: GameOverPayload) => void;
   "game:start": (payload: GameStartPayload) => void;
   "game:virus": (payload: VirusPayload) => void;
+  "lobby:update": (payload: LobbyUpdatePayload) => void;
   "player:connected": (payload: PlayerConnectedPayload) => void;
   "player:disconnected": (playerWhoLeft: PlayerDisconnectedPayload) => void;
-  "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
-  "scoreboard:data": (payload: ScoreBoardPayload) => void;
-  "lobby:update": (payload: LobbyUpdatePayload) => void;
-  "player:rematch": (payload: { playerId: string; name: string }) => void;
   "player:left": (payload: { playerId: string; name: string }) => void;
+  "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
+  "player:rematch": (payload: { playerId: string; name: string }) => void;
+  "player:returnedToLobby": (payload: LobbyUpdatePayload) => void;
+  "scoreboard:data": (payload: ScoreBoardPayload) => void;
 }
 
 // Events emitted by the client to the server
@@ -39,7 +39,6 @@ export interface ClientToServerEvents {
   "player:start": (payload: string) => void;
   "player:rematch": (payload: { playerId: string }) => void;
   "player:left": (payload: { playerId: string }) => void;
-  "lobby:get": (payload: LobbyUpdatePayload) => void;
 }
 
 export interface TimestampPayload {

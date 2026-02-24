@@ -2,25 +2,15 @@ import { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
-import Lobby from "./lobby";
 import { RematchModal } from "../components/LobbyModals";
-
-const app = document.querySelector<HTMLDivElement>("#app")!;
 
 export default function GameOver(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
 	payload: GameOverPayload,
 ) {
-	// If player clicks go to lobby on game over screen, go to lobby.
-	const onQuit = (currentDiv: HTMLDivElement) => {
+	// If player clicks go to lobby, tell server to send player to lobby
+	const onQuit = () => {
 		socket.emit("player:left", { playerId: socket.id! });
-
-		// Get updated lobby data with event
-		socket.on("lobby:update", (payload) => {
-			const lobbyPage = Lobby(socket, payload);
-			currentDiv.remove();
-			app.appendChild(lobbyPage.element);
-		});
 	};
 
 	const onRematch = () => {
@@ -60,7 +50,7 @@ export default function GameOver(
 		const score = Result(payload);
 
 		const quitButton = Button("To lobby", () => {
-			onQuit(div);
+			onQuit();
 		});
 		const rematchButton = Button("Rematch ", onRematch);
 

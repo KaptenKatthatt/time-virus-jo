@@ -145,3 +145,7 @@ socket.on("player:disconnected", (payload: PlayerDisconnectedPayload) => {
 socket.on("game:over", (winnerData) => {
 	showGameOver(winnerData);
 });
+
+socket.on("player:returnedToLobby", (payload) => {
+	showLobbyAfterJoin(payload);
+});

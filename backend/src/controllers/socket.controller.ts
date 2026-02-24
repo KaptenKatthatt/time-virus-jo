@@ -131,9 +131,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
 
-		// Send latest lobby to client after leaving game
+		// Send latest lobby to client after leaving game and going to lobby
 		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
-		socket.emit("lobby:update", updatedLobbyData);
+		socket.emit("player:returnedToLobby", updatedLobbyData);
 	});
 
 	socket.on("player:rematch", async (payload) => {
