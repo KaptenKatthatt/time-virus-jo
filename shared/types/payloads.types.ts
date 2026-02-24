@@ -28,7 +28,7 @@ export interface ScoreBoardPayload {
 
 export interface PlayerConnectedPayload {
   player: PrismaPlayer;
-  data: LobbyUpdatePayload[];
+  data: LobbyUpdatePayload;
 }
 
 export interface PlayerDisconnectedPayload {

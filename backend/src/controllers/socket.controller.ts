@@ -13,8 +13,6 @@ import type {
 	ReactionData,
 	LiveGameData,
 	LobbyUpdatePayload,
-	PlayerConnectedPayload,
-	PlayerDisconnectedPayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -44,7 +42,6 @@ debug("Socket Controller initialized");
  */
 const rematchArr: string[] = [];
 
-//TODO Change Record to something understandable
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
@@ -312,13 +309,13 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		// Emit data about current state of played and live games to all
 		updateLobbyForAll(io);
 
-		const newlobbydata = await buildLobbyUpdate();
+		const updatedLobbydata = await buildLobbyUpdate();
 
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
 			socket.to(gameToDelete.id).emit("player:disconnected", {
 				player: playerWhoLeft,
-				data: newlobbydata,
+				data: updatedLobbydata,
 			});
 
 			// Delete game on disconnect

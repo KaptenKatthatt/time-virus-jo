@@ -26,7 +26,7 @@ export interface ServerToClientEvents {
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
   "lobby:update": (payload: LobbyUpdatePayload) => void;
   "player:rematch": (payload: { playerId: string; name: string }) => void;
-  // "player:left": (payload: { playerId: string; name: string }) => void;
+  "player:left": (payload: { playerId: string; name: string }) => void;
 }
 
 // Events emitted by the client to the server
