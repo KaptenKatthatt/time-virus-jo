@@ -97,6 +97,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				name: playerName,
 			});
 
+			socket.join("lobby");
+
 			// Save player name on socket for global use
 			socket.data.name = playerName;
 			const data = await getScoreboard();
