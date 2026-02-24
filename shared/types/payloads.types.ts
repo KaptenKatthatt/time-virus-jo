@@ -26,9 +26,14 @@ export interface ScoreBoardPayload {
   player_two_score: number;
 }
 
-export interface PlayerConfirmedPayload {
+export interface PlayerConnectedPayload {
   player: PrismaPlayer;
-  data: ScoreBoardPayload[];
+  data: LobbyUpdatePayload;
+}
+
+export interface PlayerDisconnectedPayload {
+  player: PrismaPlayer;
+  data: LobbyUpdatePayload;
 }
 
 export interface GameCreatedPayload {
@@ -61,4 +66,17 @@ export interface VirusPayload {
 export interface ReactionData {
   playerId: string;
   reactionTime: number;
+}
+
+export interface LobbyUpdatePayload {
+  allPlayedGames: ScoreBoardPayload[];
+  allLiveGames: LiveGameData[];
+}
+
+export interface LiveGameData {
+  gameId: string;
+  player_one_name: string;
+  player_one_score: number;
+  player_two_name: string;
+  player_two_score: number;
 }

@@ -11,6 +11,8 @@ import type {
 	GameOverPayload,
 	ScoreBoardPayload,
 	ReactionData,
+	LiveGameData,
+	LobbyUpdatePayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -29,6 +31,7 @@ import { createPlayer } from "../services/player.service.ts";
 import { summonVirus } from "../services/virus.service.ts";
 import { createScoreboard, getScoreboard } from "../services/updateScoreBoard.service.ts";
 import type { AppServer, AppSocket } from "../types/socket.types.ts";
+import { updateLobbyForAll } from "../lib/updateLobbyForAll.ts";
 
 // Create a new debug instance
 const debug = Debug("backend:socket_controller");
@@ -39,7 +42,6 @@ debug("Socket Controller initialized");
  */
 const rematchArr: string[] = [];
 
-//TODO Change Record to something understandable
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
@@ -59,6 +61,27 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
+export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
+	// Get all played games from db
+	const allPlayedGames = await getScoreboard();
+
+	// Get all live games and convert to an array
+	const allLiveGames: LiveGameData[] = Object.entries(activeGames).map(([gameId, game]) => {
+		return {
+			gameId,
+			player_one_name: game.player_one_name,
+			player_one_score: game.player_one_score,
+			player_two_name: game.player_two_name,
+			player_two_score: game.player_two_score,
+		};
+	});
+
+	return {
+		allPlayedGames,
+		allLiveGames,
+	};
+};
+
 // Handle new socket connection
 export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	// Yay someone connected to me
@@ -74,11 +97,17 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				name: playerName,
 			});
 
+			// Add new player to lobby
+			socket.join("lobby");
+
+			// Emit data about current state of played and live games to all
+			await updateLobbyForAll(io);
+
 			// Save player name on socket for global use
 			socket.data.name = playerName;
-			const data = await getScoreboard();
+			const data = await buildLobbyUpdate();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", { player, data });
+			socket.emit("player:connected", { player, data });
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -101,6 +130,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		await deleteGame(socket.id);
 
 		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
+
+		// Send latest lobby to client after leaving game and going to lobby
+		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
+		socket.emit("player:returnedToLobby", updatedLobbyData);
 	});
 
 	socket.on("player:rematch", async (payload) => {
@@ -122,14 +155,12 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const playerTwoCheck = rematchArr.includes(game.player_one_id!);
 		const playerOneCheck = rematchArr.includes(game.player_two_id!);
 
-		console.log(rematchArr);
+		debug(rematchArr);
 
 		if (playerOneCheck && playerTwoCheck) {
 			const startingVirus = summonVirus();
 			await resetGame(game.id);
 
-			// delete rematchArr[rematchArr.indexOf(game.player_one_id)];
-			// delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
 			rematchArr.pop();
 			rematchArr.pop();
 
@@ -170,10 +201,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			io.to(game.id).emit("game:data", gameData);
 
-
 			setTimeout(() => {
 				io.to(game.id).emit("game:virus", startingVirus);
-			}, 4000)
+			}, 4000);
 		} else {
 			socket.to(game.id).emit("player:rematch", {
 				playerId: payload.playerId,
@@ -194,6 +224,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			// Join Player 1 into game
 			socket.join(newGame.id);
+
+			// Emit data about current state of played and live games to all
+			updateLobbyForAll(io);
 
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = newGame.id;
@@ -261,7 +294,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Emit virus to all players
 			setTimeout(() => {
 				io.to(availableGame.id).emit("game:virus", startingVirus);
-			}, 4000)
+			}, 4000);
 		}
 	});
 
@@ -270,11 +303,21 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const gameToDelete = await getGameByPlayerId(socket.id);
 		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
+		// Delete game from activeGames
+		if (gameToDelete) {
+			delete activeGames[gameToDelete.id];
+		}
+
+		// Emit data about current state of played and live games to all
+		updateLobbyForAll(io);
+
+		const updatedLobbydata = await buildLobbyUpdate();
+
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
 			socket.to(gameToDelete.id).emit("player:disconnected", {
 				player: playerWhoLeft,
-				data: [],
+				data: updatedLobbydata,
 			});
 
 			// Delete game on disconnect
@@ -349,6 +392,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			io.to(gameId).emit("game:data", gameData);
 
+			// Emit data about current state of played and live games to all
+			updateLobbyForAll(io);
+
 			// If round less than ten, send new virus
 			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
@@ -394,6 +440,12 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				};
 
 				io.to(gameId).emit("game:over", winnerData);
+
+				// Delete game from activeGames
+				delete activeGames[gameId];
+
+				// Emit data about current state of played and live games to all
+				updateLobbyForAll(io);
 			}
 		}
 	});

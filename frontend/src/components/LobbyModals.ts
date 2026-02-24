@@ -43,7 +43,7 @@ export function MatchFoundModal(cb?: () => void) {
 			text.innerText = String(time);
 			if (time === 0) {
 				clearInterval(interval);
-				if(cb) cb()
+				if (cb) cb();
 			}
 		}, 1000);
 
@@ -85,7 +85,7 @@ export function RematchModal(playerName: string, onClick?: () => void, onCancel?
 		container.className = "disconnect-modal";
 
 		const title = document.createElement("h2");
-		title.innerText = "Player wants a remtach";
+		title.innerText = "Player wants a rematch";
 
 		const text = document.createElement("p");
 		text.className = "my-4";
