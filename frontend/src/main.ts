@@ -47,10 +47,8 @@ let lobbyInstance: ReturnType<typeof Lobby> | null = null;
  * Socket Event Listeners
  */
 
-// const lobbyPage = Lobby(socket);
-const playerName = InputPlayerName(socket);
-
 // Listen for when a connection is established
+const playerName = InputPlayerName(socket);
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);

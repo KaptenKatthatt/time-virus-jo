@@ -155,14 +155,12 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const playerTwoCheck = rematchArr.includes(game.player_one_id!);
 		const playerOneCheck = rematchArr.includes(game.player_two_id!);
 
-		console.log(rematchArr);
+		debug(rematchArr);
 
 		if (playerOneCheck && playerTwoCheck) {
 			const startingVirus = summonVirus();
 			await resetGame(game.id);
 
-			// delete rematchArr[rematchArr.indexOf(game.player_one_id)];
-			// delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
 			rematchArr.pop();
 			rematchArr.pop();
 
