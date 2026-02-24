@@ -12,7 +12,6 @@ export default function GameOver(
 	payload: GameOverPayload,
 ) {
 	const onQuit = (currentDiv: HTMLDivElement) => {
-		// TODO: join the lobby
 
 		socket.emit("player:left", { playerId: socket.id! });
 		const lobbyPage = Lobby(socket, []);

@@ -39,7 +39,6 @@ debug("Socket Controller initialized");
  */
 const rematchArr: string[] = [];
 
-//TODO Change Record to something understandable
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
@@ -128,8 +127,6 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			const startingVirus = summonVirus();
 			await resetGame(game.id);
 
-			// delete rematchArr[rematchArr.indexOf(game.player_one_id)];
-			// delete rematchArr[rematchArr.indexOf(game.player_two_id!)];
 			rematchArr.pop();
 			rematchArr.pop();
 

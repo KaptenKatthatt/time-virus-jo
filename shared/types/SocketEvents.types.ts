@@ -12,7 +12,6 @@ import type {
 
 // Events emitted by the server to the client
 export interface ServerToClientEvents {
-  score: (payload: ScorePayload) => void; // Remove Later
   "game:created": (payload: GameCreatedPayload) => void;
   "game:data": (payload: GamePayload | GamePayload[]) => void;
   "game:over": (payload: GameOverPayload) => void;
