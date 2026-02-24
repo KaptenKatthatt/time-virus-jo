@@ -26,9 +26,14 @@ export interface ScoreBoardPayload {
   player_two_score: number;
 }
 
-export interface PlayerConfirmedPayload {
+export interface PlayerConnectedPayload {
   player: PrismaPlayer;
-  data: ScoreBoardPayload[];
+  data: LobbyUpdatePayload[];
+}
+
+export interface PlayerDisconnectedPayload {
+  player: PrismaPlayer;
+  data: LobbyUpdatePayload;
 }
 
 export interface GameCreatedPayload {

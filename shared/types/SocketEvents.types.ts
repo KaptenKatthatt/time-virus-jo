@@ -6,9 +6,10 @@ import type {
   GameCreatedPayload,
   GameStartPayload,
   ScoreBoardPayload,
-  PlayerConfirmedPayload,
+  PlayerConnectedPayload,
   ReactionData,
   LobbyUpdatePayload,
+  PlayerDisconnectedPayload,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -19,13 +20,13 @@ export interface ServerToClientEvents {
   "game:over": (payload: GameOverPayload) => void;
   "game:start": (payload: GameStartPayload) => void;
   "game:virus": (payload: VirusPayload) => void;
-  "player:confirmed": (payload: PlayerConfirmedPayload) => void;
-  "player:disconnected": (playerWhoLeft: PlayerConfirmedPayload) => void;
+  "player:connected": (payload: PlayerConnectedPayload) => void;
+  "player:disconnected": (playerWhoLeft: PlayerDisconnectedPayload) => void;
   "player:reactionTime": (ReactionDataPayLoad: ReactionData) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
   "lobby:update": (payload: LobbyUpdatePayload) => void;
   "player:rematch": (payload: { playerId: string; name: string }) => void;
-  "player:left": (payload: { playerId: string; name: string }) => void;
+  // "player:left": (payload: { playerId: string; name: string }) => void;
 }
 
 // Events emitted by the client to the server

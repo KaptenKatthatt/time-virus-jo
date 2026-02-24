@@ -13,7 +13,11 @@ import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
-import type { GameOverPayload, LobbyUpdatePayload } from "@shared/types/payloads.types";
+import type {
+	GameOverPayload,
+	LobbyUpdatePayload,
+	PlayerDisconnectedPayload,
+} from "@shared/types/payloads.types";
 import type { AppClientSocket } from "./types/socket.types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -37,6 +41,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
  * Variables
  */
 let currentPlayer: Player | undefined = undefined;
+let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 
 /**
  * Socket Event Listeners
@@ -80,9 +85,11 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 		currentPlayer = player;
 	}
 
-	const lobbyPage = Lobby(socket, data);
+	lobbyInstance = Lobby(socket, data);
+
+	// const lobbyPage = Lobby(socket, data);
 	app.innerHTML = "";
-	app.appendChild(lobbyPage);
+	app.appendChild(lobbyInstance.element);
 };
 
 const showGameOver = (payload: GameOverPayload) => {
@@ -95,12 +102,14 @@ const showGameOver = (payload: GameOverPayload) => {
  */
 
 // Gamestate listeners
-socket.on("player:confirmed", (payload) => {
+socket.on("player:connected", (payload) => {
 	showLobbyAfterJoin(payload.data, payload.player);
 });
 
 socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
-	Lobby(socket, payload);
+	if (lobbyInstance) {
+		lobbyInstance.updateGameTables(payload);
+	}
 });
 
 socket.on("game:created", (payload) => {
@@ -122,7 +131,7 @@ socket.on("game:start", () => {
 	document.body.appendChild(matchModal);
 });
 
-socket.on("player:disconnected", (payload) => {
+socket.on("player:disconnected", (payload: PlayerDisconnectedPayload) => {
 	const data = payload.data;
 	const playerWhoLeft = payload.player;
 	const modal = DisconnectedUser(playerWhoLeft.name, () => {

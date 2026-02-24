@@ -13,6 +13,8 @@ import type {
 	ReactionData,
 	LiveGameData,
 	LobbyUpdatePayload,
+	PlayerConnectedPayload,
+	PlayerDisconnectedPayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -106,9 +108,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;
-			const data = await getScoreboard();
+			const data = await buildLobbyUpdate();
 			// Emit player creation confirmation for game start
-			socket.emit("player:confirmed", { player, data });
+			socket.emit("player:connected", { player, data });
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -200,10 +202,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			io.to(game.id).emit("game:data", gameData);
 
-
 			setTimeout(() => {
 				io.to(game.id).emit("game:virus", startingVirus);
-			}, 4000)
+			}, 4000);
 		} else {
 			socket.to(game.id).emit("player:rematch", {
 				playerId: payload.playerId,
@@ -294,7 +295,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Emit virus to all players
 			setTimeout(() => {
 				io.to(availableGame.id).emit("game:virus", startingVirus);
-			}, 4000)
+			}, 4000);
 		}
 	});
 
@@ -303,11 +304,21 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const gameToDelete = await getGameByPlayerId(socket.id);
 		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
+		// Delete game from activeGames
+		if (gameToDelete) {
+			delete activeGames[gameToDelete.id];
+		}
+
+		// Emit data about current state of played and live games to all
+		updateLobbyForAll(io);
+
+		const newlobbydata = await buildLobbyUpdate();
+
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
 			socket.to(gameToDelete.id).emit("player:disconnected", {
 				player: playerWhoLeft,
-				data: [],
+				data: newlobbydata,
 			});
 
 			// Delete game on disconnect
@@ -325,14 +336,6 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 
 		debug("👋 A user disconnected with id: %s", socket.id);
-
-		// Delete game from activeGames
-		if (gameToDelete) {
-			delete activeGames[gameToDelete.id];
-		}
-
-		// Emit data about current state of played and live games to all
-		updateLobbyForAll(io);
 	});
 
 	/**
