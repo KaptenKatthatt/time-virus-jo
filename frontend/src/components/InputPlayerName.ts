@@ -14,7 +14,7 @@ export function InputPlayerName(socket: AppClientSocket) {
 
 		const input = document.createElement("input");
 		input.type = "text";
-		input.placeholder = "Enter a username";
+		input.placeholder = "Enter player name...";
 		input.autofocus = true;
 		input.className = "fs-3 p-3 border-img-dark-small input-f text-input";
 
@@ -24,7 +24,7 @@ export function InputPlayerName(socket: AppClientSocket) {
 		button.innerText = "JOIN";
 
 		const err = document.createElement("span");
-		err.innerText = "Enter username";
+		err.innerText = "Enter player name";
 		err.className = "d-none";
 
 		form.addEventListener("submit", (e) => {
