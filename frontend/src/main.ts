@@ -13,7 +13,7 @@ import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
-import type { GameOverPayload, ScoreBoardPayload } from "@shared/types/payloads.types";
+import type { GameOverPayload, LobbyUpdatePayload } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "./types/socket.types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -78,7 +78,7 @@ socket.io.on("reconnect", () => {
  * Functions
  */
 // TODO Refactor show/hide functions into one function
-const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) => {
+const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
 		currentPlayer = player;
@@ -101,6 +101,10 @@ const showGameOver = (payload: GameOverPayload) => {
 // Gamestate listeners
 socket.on("player:confirmed", (payload) => {
 	showLobbyAfterJoin(payload.data, payload.player);
+});
+
+socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
+	Lobby(socket, payload);
 });
 
 socket.on("game:created", (payload) => {
