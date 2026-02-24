@@ -6,6 +6,10 @@
 	grid-template-rows: repeat(10, 1fr);
 }
 
+.game-board * {
+	user-select: none;
+}
+
 .game-grid {
 	display: grid;
 	grid-template-rows: 1fr 0.5fr;
@@ -36,9 +40,6 @@
 	border: none;
 	cursor: pointer;
 	font-size: 20px;
-	// &::before {
-	// 	content: "👾";
-	// }
 }
 
 @media (min-width: 992px) {

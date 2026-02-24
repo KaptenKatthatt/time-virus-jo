@@ -11,6 +11,7 @@ export function Virus(x: number, y: number, cb?: (event?: PointerEvent) => void)
         const virus = document.createElement("img");
 
         virus.src = virusImg;
+        virus.draggable = false;
         virus.className = `virus x${x} y${y}`;
 
         virus.addEventListener("click", listener);
