@@ -8,9 +8,8 @@ import type { AppClientSocket } from "../types/socket.types";
 export let waitingModal: HTMLElement | null = null;
 
 export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
-	// TODO Move logic from button to here
+	// TODO: Move logic from button to here
 
-	//send start matchmaking to server
 	const div = document.createElement("div");
 
 	div.className = "container d-flex flex-column align-items-center";
@@ -24,7 +23,7 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 
 	const scoreboardWrapper = document.createElement("div");
 	scoreboardWrapper.className = "scoreboard-wrapper w-100 my-3";
-	const scoreboardEl = Scoreboard(payload);
+	let scoreboardEl = Scoreboard(payload.allPlayedGames);
 	scoreboardWrapper.appendChild(scoreboardEl);
 
 	const liveWrapper = document.createElement("div");
