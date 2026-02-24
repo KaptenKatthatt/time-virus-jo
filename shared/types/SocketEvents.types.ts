@@ -7,7 +7,7 @@ import type {
   GameStartPayload,
   ScoreBoardPayload,
   PlayerConfirmedPayload,
-  ReactionData
+  ReactionData,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
