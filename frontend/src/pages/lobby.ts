@@ -1,5 +1,6 @@
 import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
+import Livematches from "../components/Livematches";
 import { WaitingModal } from "../components/LobbyModals";
 import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "../types/socket.types";
@@ -25,6 +26,11 @@ function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 		const scoreboardEl = Scoreboard(payload);
 		scoreboardWrapper.appendChild(scoreboardEl);
 
+		const liveWrapper = document.createElement("div");
+		liveWrapper.className = "scoreboard-wrapper w-100 mb-5";
+		const liveEl = Livematches();
+		liveWrapper.appendChild(liveEl);
+
 		const button = Button("Start game", () => {
 			console.log("start game");
 			// Send join game request to backend
@@ -40,6 +46,7 @@ function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 
 		div.appendChild(title);
 		div.appendChild(button);
+		div.appendChild(liveWrapper);
 		div.appendChild(scoreboardWrapper);
 
 		return div;
