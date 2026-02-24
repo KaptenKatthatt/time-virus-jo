@@ -114,18 +114,16 @@ socket.on("game:created", (payload) => {
 socket.on("game:start", () => {
 	waitingModal?.remove();
 
-	const matchModal = MatchFoundModal();
-	document.body.appendChild(matchModal);
-
 	// Preload game to be available before appending.
 	const gameEl = Game(socket);
 
-	// Wait for Matching countdown modal
-	setTimeout(() => {
+	const matchModal = MatchFoundModal(() => {
 		matchModal.remove();
 		app.innerHTML = "";
 		app.appendChild(gameEl);
-	}, 3000);
+	});
+
+	document.body.appendChild(matchModal);
 });
 
 socket.on("player:disconnected", (payload) => {

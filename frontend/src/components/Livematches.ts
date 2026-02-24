@@ -1,33 +1,51 @@
-/* import type { ScoreBoardPayload } from "@shared/types/payloads.types"; */
-import type { ScoreboardOmitId } from "../types/scoreboard.types";
+export default function Livematches() {
+	const dummyData = [
+		{
+			player_one_name: "Kalle",
+			player_two_name: "Pelle",
+			player_one_score: 1,
+			player_two_score: 2,
+		},
+		{
+			player_one_name: "Lisa",
+			player_two_name: "Anders",
+			player_one_score: 1,
+			player_two_score: 2,
+		},
+		{
+			player_one_name: "Johan",
+			player_two_name: "Haxx0r",
+			player_one_score: 1,
+			player_two_score: 2,
+		},
+	];
 
-export default function Scoreboard(data: ScoreboardOmitId[]) {
 	const render = () => {
 		const div = document.createElement("div");
 		div.className = "border-img-dark p-5 text-center";
 
 		const title = document.createElement("h1")
-		title.innerText = "Scoreboard"
+		title.innerText = "🔴 Live matches"
 		title.className = "mb-4 lacquer-regular text-primary"
 
-		const gameResult = GameResult(data);
+		const matchtList = Livematchlist(dummyData);
 		
 
 		div.appendChild(title);
-		div.appendChild(gameResult);
+		div.appendChild(matchtList);
 
 		return div;
 	};
 	return render();
 }
 
-function GameResult(data: ScoreboardOmitId[]) {
+function Livematchlist(data) {
 	const render = () => {
 		const div = document.createElement("div");
 
 		div.className = "text-center d-flex flex-column gap-3";
 
-		const elementList = data.map((item: ScoreboardOmitId) => {
+		const elementList = data.map((item) => {
 			const div = document.createElement("div")
 			const sep = document.createElement("span")
 			sep.className = "text-muted"
@@ -37,8 +55,8 @@ function GameResult(data: ScoreboardOmitId[]) {
 			`
 			div.className = "d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4"
 
-			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "")
-			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "")
+			const result1 = LiveMatchItem(item.player_one_name, item.player_one_score)
+			const result2 = LiveMatchItem(item.player_two_name, item.player_two_score)
 
 			div.appendChild(result1)
 			div.appendChild(sep)
@@ -56,17 +74,12 @@ function GameResult(data: ScoreboardOmitId[]) {
 	return render();
 }
 
-function GameResultItem(name: string, score: number, winner: string) {
+function LiveMatchItem(name: string, score: number) {
 	const render = () => {
 		const div = document.createElement("div");
 
 		div.className =
 			"d-flex p-3 flex-column justify-content-center align-items-center gap-2";
-
-		if (winner === name) {
-			div.classList.add("text-success");
-			div.classList.add("fw-bold");
-		}
 
 		div.innerHTML = `
 			<span>${name}</span>

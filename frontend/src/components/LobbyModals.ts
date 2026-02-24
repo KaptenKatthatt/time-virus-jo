@@ -22,7 +22,7 @@ export function WaitingModal() {
 	return render();
 }
 
-export function MatchFoundModal() {
+export function MatchFoundModal(cb?: () => void) {
 	const render = () => {
 		const container = document.createElement("div");
 		container.className = "match-modal";
@@ -43,6 +43,7 @@ export function MatchFoundModal() {
 			text.innerText = String(time);
 			if (time === 0) {
 				clearInterval(interval);
+				if(cb) cb()
 			}
 		}, 1000);
 

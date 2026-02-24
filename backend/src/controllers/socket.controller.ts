@@ -200,7 +200,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			io.to(game.id).emit("game:data", gameData);
 
-			io.to(game.id).emit("game:virus", startingVirus);
+
+			setTimeout(() => {
+				io.to(game.id).emit("game:virus", startingVirus);
+			}, 4000)
 		} else {
 			socket.to(game.id).emit("player:rematch", {
 				playerId: payload.playerId,
@@ -289,7 +292,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			io.to(availableGame.id).emit("game:data", gameData);
 
 			// Emit virus to all players
-			io.to(availableGame.id).emit("game:virus", startingVirus);
+			setTimeout(() => {
+				io.to(availableGame.id).emit("game:virus", startingVirus);
+			}, 4000)
 		}
 	});
 
