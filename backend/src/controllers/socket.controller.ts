@@ -97,7 +97,12 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				name: playerName,
 			});
 
+			// Add new player to lobby
 			socket.join("lobby");
+
+			// Emit data about current state of played and live games to all
+			const lobbyData = await buildLobbyUpdate();
+			io.to("lobby").emit("lobby:update", lobbyData);
 
 			// Save player name on socket for global use
 			socket.data.name = playerName;
@@ -217,6 +222,11 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Join Player 1 into game
 			socket.join(newGame.id);
 
+			//TODO Refactor into helper function
+			// Emit data about current state of played and live games to all
+			const lobbyData = await buildLobbyUpdate();
+			io.to("lobby").emit("lobby:update", lobbyData);
+
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = newGame.id;
 
@@ -312,6 +322,15 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 
 		debug("👋 A user disconnected with id: %s", socket.id);
+
+		// Delete game from activeGames
+		if (gameToDelete) {
+			delete activeGames[gameToDelete.id];
+		}
+
+		// Emit data about current state of played and live games to all
+		const lobbyData = await buildLobbyUpdate();
+		io.to("lobby").emit("lobby:update", lobbyData);
 	});
 
 	/**
@@ -369,6 +388,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			io.to(gameId).emit("game:data", gameData);
 
+			// Emit data about current state of played and live games to all
+			const lobbyData = await buildLobbyUpdate();
+			io.to("lobby").emit("lobby:update", lobbyData);
+
 			// If round less than ten, send new virus
 			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
@@ -414,6 +437,13 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				};
 
 				io.to(gameId).emit("game:over", winnerData);
+
+				// Delete game from activeGames
+				delete activeGames[gameId];
+
+				// Emit data about current state of played and live games to all
+				const lobbyData = await buildLobbyUpdate();
+				io.to("lobby").emit("lobby:update", lobbyData);
 			}
 		}
 	});
