@@ -4,13 +4,18 @@ export type GamePayload = PrismaGame;
 export type GameId = GamePayload["id"];
 export type PlayerId = Pick<PrismaPlayer, "id">;
 
-type GameScore = Pick<
-  PrismaGame,
-  "player_one_name" | "player_two_name" | "player_one_score" | "player_two_score"
->;
+export interface GameOverPayload {
+  playerOne: {
+    name: string;
+    score: number;
+    isWinner: boolean;
+  };
 
-export interface GameOverPayload extends GameScore {
-  winner: string | null;
+  playerTwo: {
+    name: string;
+    score: number;
+    isWinner: boolean;
+  };
 }
 
 export interface ScoreBoardPayload {
