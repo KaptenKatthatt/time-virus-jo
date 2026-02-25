@@ -119,6 +119,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const player = await getPlayerByPlayerId(payload.playerId);
 		const game = await getGameByPlayerId(payload.playerId);
 
+		// Send latest lobby to client after leaving game and going to lobby
+		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
+		socket.emit("player:returnedToLobby", updatedLobbyData);
+
 		if (!game) {
 			return;
 		}
@@ -130,10 +134,6 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		await deleteGame(socket.id);
 
 		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
-
-		// Send latest lobby to client after leaving game and going to lobby
-		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
-		socket.emit("player:returnedToLobby", updatedLobbyData);
 	});
 
 	socket.on("player:rematch", async (payload) => {
@@ -273,7 +273,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				fastest_Time: 9999,
 			};
 
-			console.log("Created game", activeGames[availableGame.id]);
+			// console.log("Created game", activeGames[availableGame.id]);
 
 			const gameData: GamePayload = {
 				id: availableGame.id,
@@ -367,12 +367,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Compare reaction time of both
 			if (fastestInRound.playerId === currentGame.player_one_id) {
 				currentGame.player_one_score++;
-				console.log(`Fastest player this round ${currentGame.player_one_name}`);
 			} else {
 				currentGame.player_two_score++;
-				console.log(`Fastest player this round ${currentGame.player_two_name}`);
 			}
-			console.log("Current game obj", currentGame);
 
 			currentGame.round++;
 			// Emit result update (fastest player this round and fastest in game)
@@ -409,8 +406,6 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				currentGame.currentSpawnTime = Date.now() + nextVirus.delay;
 				io.to(gameId).emit("game:data", gameData);
 			} else {
-				console.log("Game over");
-
 				const scoreboardData: ScoreBoardPayload = {
 					player_one_name: currentGame.player_one_name,
 					player_two_name: currentGame.player_two_name,
