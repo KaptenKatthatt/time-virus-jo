@@ -28,6 +28,7 @@ export default function Game(socket: AppClientSocket) {
 	let inactivityTimer: number | null = null;
 
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
+		socket.off("game:data");
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
 				player1Data = {
@@ -72,6 +73,7 @@ export default function Game(socket: AppClientSocket) {
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
+		socket.off("game:virus");
 		socket.on("game:virus", (payload) => {
 			const virus = Virus(payload.x + 1, payload.y + 1, () => {
 				handleVirusClick(virus);
@@ -111,11 +113,19 @@ export default function Game(socket: AppClientSocket) {
 		socket.emit("player:clicked", payload);
 	};
 
+	socket.off("player:reactionTime");
 	socket.on("player:reactionTime", (payload: ReactionData) => {
 		if (payload.playerId === player1Data.id) {
 			player1Card.updateReactionTime(payload.reactionTime);
 		} else if (payload.playerId === player2Data.id) {
 			player2Card.updateReactionTime(payload.reactionTime);
+		}
+	});
+
+	socket.once("game:over", () => {
+		if (inactivityTimer) {
+			clearTimeout(inactivityTimer);
+			inactivityTimer = null;
 		}
 	});
 

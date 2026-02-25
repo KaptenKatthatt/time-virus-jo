@@ -2,3 +2,64 @@
 	display: grid;
 	grid-template-rows: 0.5fr 1fr 0.5fr;
 }
+
+.winnerStyle {
+	padding: 5px;
+	border-radius: 15px;
+	animation: winnerWinner linear 2s infinite;
+}
+
+@keyframes winnerWinner {
+	0% {
+		opacity: 1;
+		scale: 1.1;
+	}
+	50% {
+		opacity: 0.5;
+		scale: 1;
+	}
+	100% {
+		opacity: 1;
+		scale: 1.1;
+	}
+}
+
+.winnerIcon {
+	animation: floatVertical ease-in-out infinite 2s;
+}
+
+@keyframes floatVertical {
+	0% {
+		scale: 1.1;
+		transform: translateY(0px);
+	}
+	50% {
+		scale: 1;
+		transform: translateY(20px);
+	}
+	100% {
+		scale: 1.1;
+		transform: translateY(0px);
+	}
+}
+
+.loserIcon {
+	padding: 5px;
+	border-radius: 15px;
+	animation: noChickenDinner linear 2s infinite;
+}
+
+@keyframes noChickenDinner {
+	0% {
+		opacity: 1;
+		scale: 1.1;
+	}
+	50% {
+		opacity: 0.5;
+		scale: 1;
+	}
+	100% {
+		opacity: 1;
+		scale: 1.1;
+	}
+}

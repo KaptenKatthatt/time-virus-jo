@@ -29,3 +29,53 @@ body {
 	font-weight: 400;
 	font-style: normal;
 }
+
+.spray-cursor-off {
+	cursor:
+		url("../imgs/spray-off100x100.png") 68 0,
+		auto;
+}
+
+.spray-cursor-on {
+	cursor:
+		url("../imgs/spray-on100x100.png") 68 0,
+		auto;
+}
+
+.overflow {
+	overflow: auto;
+	max-height: 600px;
+	// padding-right: 10px;
+	/* width */
+	&::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	/* Track */
+	&::-webkit-scrollbar-track {
+		background: #202020;
+	}
+
+	/* Handle */
+	&::-webkit-scrollbar-thumb {
+		background: $primary;
+		border: 4px solid #202020;
+		border-radius: 10px;
+	}
+
+	/* Handle on hover */
+	&::-webkit-scrollbar-thumb:hover {
+		background: #555;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

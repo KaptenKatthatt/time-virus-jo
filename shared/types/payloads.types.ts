@@ -24,6 +24,7 @@ export interface ScoreBoardPayload {
   player_two_name: string;
   player_one_score: number;
   player_two_score: number;
+  createdAt?: Date;
 }
 
 export interface PlayerConnectedPayload {

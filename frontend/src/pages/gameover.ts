@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
-import { RematchModal } from "../components/LobbyModals";
+import { DisconnectedUser, RematchModal } from "../components/LobbyModals";
 
 export default function GameOver(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
@@ -17,21 +17,50 @@ export default function GameOver(
 		socket.emit("player:rematch", { playerId: socket.id! });
 	};
 
+	let rematchModal: HTMLDivElement | undefined;
+	socket.off("player:rematch");
 	socket.on("player:rematch", (payload) => {
-		const rematchModal = RematchModal(
+		if (rematchModal) {
+			rematchModal.remove();
+		}
+
+		rematchModal = RematchModal(
 			payload.name,
 			() => {
+				// Rematch button callback
 				socket.emit("player:rematch", { playerId: socket.id! });
-				rematchModal.remove();
+				if (rematchModal) {
+					rematchModal.remove();
+				}
 			},
+			// Cancel button callback
 			() => {
+				if (rematchModal) {
+					rematchModal.remove();
+				}
 				socket.emit("player:left", { playerId: socket.id! });
 			},
 		);
 		document.body.appendChild(rematchModal);
 	});
 
-	socket.on("player:left", () => {});
+	// Used for if opponent clicks cancel on rematch. Takes remaining user back to lobby.
+	socket.off("player:left");
+	socket.on("player:left", (payload) => {
+		if (rematchModal) {
+			rematchModal.remove();
+		}
+
+		let disconnectedModal: HTMLDivElement | null = null;
+
+		if (!socket.id) return;
+		disconnectedModal = DisconnectedUser(payload.name, () => {
+			disconnectedModal?.remove();
+			onQuit();
+		});
+
+		document.body.appendChild(disconnectedModal);
+	});
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -93,7 +122,7 @@ function Result(data: GameOverPayload) {
 
 function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 	const { name, score, isWinner } = data;
-	const winnerStyle = isWinner ? "text-primary fw-bold" : "";
+	const winnerStyle = isWinner ? "text-primary fw-bold winnerStyle" : "";
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -101,11 +130,8 @@ function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 		div.className =
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
 
-		const test = document.createElement("span");
-		test.innerHTML = `<span>👑</span>`;
-
 		div.innerHTML = `
-			${winnerStyle ? "<span>👑</span>" : "<span>😭</span>"}
+			${winnerStyle ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
 			<span class="${winnerStyle}">${name}</span>
 			<span>${score}</span>
 		`;
