@@ -63,13 +63,11 @@ export default function Game(socket: AppClientSocket) {
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		sendReactionTime();
-		console.log("Virus clicked");
 		virus.remove();
 
 		if (inactivityTimer) {
 			clearTimeout(inactivityTimer);
 			inactivityTimer = null;
-			console.log("Cleared inactivity timer");
 		}
 	};
 
@@ -84,9 +82,7 @@ export default function Game(socket: AppClientSocket) {
 				element.appendChild(virus);
 				restartGameTimer(gameTimerEl);
 
-				console.log("virus spawned, inactivity timer started");
 				inactivityTimer = window.setTimeout(() => {
-					console.log("Player inactive - returning to login");
 					window.location.reload();
 				}, 30000);
 			}, payload.delay);

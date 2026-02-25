@@ -33,10 +33,8 @@ function Lobby(socket: AppClientSocket, payload: ScoreBoardPayload[]) {
 		liveWrapper.appendChild(liveEl);
 
 		const button = Button("Start game", () => {
-			console.log("start game");
 			// Send join game request to backend
 			if (socket.id) {
-				console.log("Sending join request");
 				socket.emit("playerJoinGameRequest", socket.id);
 			}
 			waitingModal = WaitingModal();
