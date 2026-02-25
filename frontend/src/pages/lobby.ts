@@ -8,7 +8,6 @@ import type { AppClientSocket } from "../types/socket.types";
 export let waitingModal: HTMLElement | null = null;
 
 export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
-	// TODO: Move logic from button to here
 
 	const div = document.createElement("div");
 

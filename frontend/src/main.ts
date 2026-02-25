@@ -27,12 +27,6 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 const socket: AppClientSocket = io(SOCKET_HOST);
 
 /**
- * Page Component inits
- */
-
-// const playerName = InputPlayerName(socket);
-
-/**
  * DOM References
  */
 const app = document.querySelector<HTMLDivElement>("#app")!;
