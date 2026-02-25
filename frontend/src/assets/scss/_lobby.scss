@@ -20,9 +20,8 @@
 .pulsing-circle {
 	&::before {
 		margin-bottom: -4px;
-		content: "";
-		width: 24px;
-		height: 24px;
+		content: "🔴";
+		font-size: 20px;
 		border-radius: 50%;
 		animation: pulse linear 2s infinite;
 		display: inline-block;
