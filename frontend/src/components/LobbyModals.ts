@@ -4,7 +4,6 @@ import { Modal } from "./Modal";
 export function WaitingModal() {
 	const render = () => {
 		const container = document.createElement("div");
-
 		const spinner = document.createElement("div");
 		spinner.className = "spinner-border text-primary mb-3 mt-3";
 		spinner.role = "status";
@@ -89,7 +88,7 @@ export function RematchModal(playerName: string, onClick?: () => void, onCancel?
 
 		const text = document.createElement("p");
 		text.className = "my-4";
-		text.innerText = `${playerName} requseted a Rematch`;
+		text.innerText = `${playerName} requested a Rematch`;
 
 		const btnWrapper = document.createElement("div");
 		btnWrapper.className = "d-flex gap-5";

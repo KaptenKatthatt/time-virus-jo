@@ -21,16 +21,20 @@ export default function GameOver(
 		const rematchModal = RematchModal(
 			payload.name,
 			() => {
+				// Rematch button callback
 				socket.emit("player:rematch", { playerId: socket.id! });
 				rematchModal.remove();
 			},
+			// Cancel button callback
 			() => {
+				rematchModal.remove();
 				socket.emit("player:left", { playerId: socket.id! });
 			},
 		);
 		document.body.appendChild(rematchModal);
 	});
 
+	// Used for if opponent clicks cancel on rematch. Then send both players to lobby. Use for remove rematch modal
 	socket.on("player:left", () => {});
 
 	const render = () => {
