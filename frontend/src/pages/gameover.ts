@@ -17,17 +17,23 @@ export default function GameOver(
 		socket.emit("player:rematch", { playerId: socket.id! });
 	};
 
+	let rematchModal: HTMLDivElement | undefined;
+	socket.off("player:rematch");
 	socket.on("player:rematch", (payload) => {
-		const rematchModal = RematchModal(
+		rematchModal = RematchModal(
 			payload.name,
 			() => {
 				// Rematch button callback
 				socket.emit("player:rematch", { playerId: socket.id! });
-				rematchModal.remove();
+				if (rematchModal) {
+					rematchModal.remove();
+				}
 			},
 			// Cancel button callback
 			() => {
-				rematchModal.remove();
+				if (rematchModal) {
+					rematchModal.remove();
+				}
 				socket.emit("player:left", { playerId: socket.id! });
 			},
 		);
@@ -35,7 +41,12 @@ export default function GameOver(
 	});
 
 	// Used for if opponent clicks cancel on rematch. Then send both players to lobby. Use for remove rematch modal
-	socket.on("player:left", () => {});
+	socket.off("player:left");
+	socket.on("player:left", () => {
+		if (rematchModal) {
+			rematchModal.remove();
+		}
+	});
 
 	const render = () => {
 		const div = document.createElement("div");
