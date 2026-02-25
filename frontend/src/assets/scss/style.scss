@@ -29,3 +29,11 @@ body {
 	font-weight: 400;
 	font-style: normal;
 }
+
+.spray-cursor-off {
+	cursor: url("../imgs/spray-off100x100.png") 68 0 , auto;
+}
+
+.spray-cursor-on {
+	cursor: url("../imgs/spray-on100x100.png") 68 0 , auto;
+}
