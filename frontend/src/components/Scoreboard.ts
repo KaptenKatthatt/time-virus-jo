@@ -3,7 +3,7 @@ import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 export default function Scoreboard(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
-		div.className = "border-img-dark p-5 text-center";
+		div.className = "border-img-dark p-5 text-center ";
 
 		const title = document.createElement("h1");
 		title.innerText = "Scoreboard";
@@ -23,25 +23,39 @@ function GameResult(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
 
-		div.className = "text-center d-flex flex-column gap-3";
+		div.className = "text-center d-flex flex-column gap-3 overflow";
 
 		const elementList = data.map((item) => {
 			const div = document.createElement("div");
+
+			div.className = "d-flex justify-content-center flex-column border-img-green-small p-2";
+
+			const dateTime = document.createElement("span");
+			const createdAt = new Date(item.createdAt);
+			const date = createdAt.toLocaleDateString("sv-SE");
+			const time = createdAt.toLocaleTimeString("sv-SE");
+			dateTime.innerText = `${date} ${time}`;
+			dateTime.className = "pb-4";
+
 			const separator = document.createElement("span");
 			separator.className = "text-muted";
-
 			separator.innerHTML = `
 				<span>VS</span>
 			`;
-			div.className =
-				"d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4";
+			separator.className = "lacquer-regular text-muted";
+
+			const wrapper = document.createElement("div");
+			wrapper.className = "d-flex justify-content-around align-items-center fs-5";
 
 			const result1 = GameResultItem(item.player_one_name, item.player_one_score, "");
 			const result2 = GameResultItem(item.player_two_name, item.player_two_score, "");
 
-			div.appendChild(result1);
-			div.appendChild(separator);
-			div.appendChild(result2);
+			wrapper.appendChild(result1);
+			wrapper.appendChild(separator);
+			wrapper.appendChild(result2);
+
+			div.appendChild(wrapper);
+			div.appendChild(dateTime);
 
 			return div;
 		});
