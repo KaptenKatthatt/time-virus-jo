@@ -31,9 +31,24 @@ body {
 }
 
 .spray-cursor-off {
-	cursor: url("../imgs/spray-off100x100.png") 68 0 , auto;
+	cursor:
+		url("../imgs/spray-off100x100.png") 68 0,
+		auto;
 }
 
 .spray-cursor-on {
-	cursor: url("../imgs/spray-on100x100.png") 68 0 , auto;
+	cursor:
+		url("../imgs/spray-on100x100.png") 68 0,
+		auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }

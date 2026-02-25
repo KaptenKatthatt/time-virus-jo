@@ -89,11 +89,3 @@
 		grid-template-rows: 0.1fr 1fr 0.1fr;
 	}
 }
-
-@media (prefers-reduced-motion: reduce) {
-	.virus,
-	.virus:hover {
-		animation: none !important;
-		transition: none !important;
-	}
-}
