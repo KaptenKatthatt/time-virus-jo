@@ -82,6 +82,7 @@ export default function Game(socket: AppClientSocket) {
 				element.appendChild(virus);
 				restartGameTimer(gameTimerEl);
 
+				// If player inactive, send to lobby
 				inactivityTimer = window.setTimeout(() => {
 					window.location.reload();
 				}, 30000);
