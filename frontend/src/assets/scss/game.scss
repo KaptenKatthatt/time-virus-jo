@@ -34,8 +34,46 @@
 	height: 100%;
 	background: transparent;
 	border: none;
-	// cursor: pointer;
 	font-size: 20px;
+	animation: loiterSpin 3s alternate infinite;
+
+	&:hover {
+		animation: attackJump 1s alternate infinite;
+	}
+}
+
+@keyframes loiterSpin {
+	0% {
+		transform: rotate(0deg) translateX(0) translateY(0) scale(1);
+		opacity: 0.2;
+	}
+	50% {
+		transform: rotate(180deg) translateY(20px) translateX(10px) scale(1.6);
+		opacity: 1;
+		filter: brightness(1.3);
+	}
+
+	100% {
+		transform: rotate(360deg) translateX(-10px) translateY(-20px) scale(1);
+		opacity: 0.4;
+	}
+}
+
+@keyframes attackJump {
+	0% {
+		transform: translateX(0) translateY(0) scale(1);
+		opacity: 0.2;
+	}
+	50% {
+		transform: translateY(20px) translateX(10px) scale(1.6);
+		opacity: 1;
+		filter: brightness(1.3);
+	}
+
+	100% {
+		transform: translateX(-10px) translateY(-20px) scale(1);
+		opacity: 0.4;
+	}
 }
 
 @media (min-width: 992px) {
