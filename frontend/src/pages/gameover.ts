@@ -20,6 +20,10 @@ export default function GameOver(
 	let rematchModal: HTMLDivElement | undefined;
 	socket.off("player:rematch");
 	socket.on("player:rematch", (payload) => {
+		if (rematchModal) {
+			rematchModal.remove();
+		}
+
 		rematchModal = RematchModal(
 			payload.name,
 			() => {
@@ -55,7 +59,6 @@ export default function GameOver(
 			onQuit();
 		});
 
-		if (!disconnectedModal) return;
 		document.body.appendChild(disconnectedModal);
 	});
 
@@ -126,9 +129,6 @@ function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 
 		div.className =
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
-
-		const test = document.createElement("span");
-		test.innerHTML = `<span>👑</span>`;
 
 		div.innerHTML = `
 			${winnerStyle ? "<span>👑</span>" : "<span>😭</span>"}
