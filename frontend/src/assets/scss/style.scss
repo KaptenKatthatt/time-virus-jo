@@ -42,17 +42,6 @@ body {
 		auto;
 }
 
-@media (prefers-reduced-motion: reduce) {
-	*,
-	*::before,
-	*::after {
-		animation-duration: 0.01ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
-		scroll-behavior: auto !important;
-	}
-}
-
 .overflow {
 	overflow: auto;
 	max-height: 600px;
@@ -77,5 +66,16 @@ body {
 	/* Handle on hover */
 	&::-webkit-scrollbar-thumb:hover {
 		background: #555;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
 }
