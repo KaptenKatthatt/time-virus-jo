@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
-import { RematchModal } from "../components/LobbyModals";
+import { DisconnectedUser, RematchModal } from "../components/LobbyModals";
 
 export default function GameOver(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
@@ -40,12 +40,23 @@ export default function GameOver(
 		document.body.appendChild(rematchModal);
 	});
 
-	// Used for if opponent clicks cancel on rematch. Then send both players to lobby. Use for remove rematch modal
+	// Used for if opponent clicks cancel on rematch. Takes remaining user back to lobby.
 	socket.off("player:left");
-	socket.on("player:left", () => {
+	socket.on("player:left", (payload) => {
 		if (rematchModal) {
 			rematchModal.remove();
 		}
+
+		let disconnectedModal: HTMLDivElement | null = null;
+
+		if (!socket.id) return;
+		disconnectedModal = DisconnectedUser(payload.name, () => {
+			disconnectedModal?.remove();
+			onQuit();
+		});
+
+		if (!disconnectedModal) return;
+		document.body.appendChild(disconnectedModal);
 	});
 
 	const render = () => {
