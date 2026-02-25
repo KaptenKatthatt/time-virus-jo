@@ -13,7 +13,11 @@ import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
-import type { GameOverPayload, ScoreBoardPayload } from "@shared/types/payloads.types";
+import type {
+	GameOverPayload,
+	LobbyUpdatePayload,
+	PlayerDisconnectedPayload,
+} from "@shared/types/payloads.types";
 import type { AppClientSocket } from "./types/socket.types";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
@@ -21,12 +25,6 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 
 // Connect to Socket.IO Server
 const socket: AppClientSocket = io(SOCKET_HOST);
-
-/**
- * Page Component inits
- */
-
-// const playerName = InputPlayerName(socket);
 
 /**
  * DOM References
@@ -37,22 +35,18 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
  * Variables
  */
 let currentPlayer: Player | undefined = undefined;
+let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 
 /**
  * Socket Event Listeners
  */
 
-// const lobbyPage = Lobby(socket);
-const playerName = InputPlayerName(socket);
-
 // Listen for when a connection is established
+const playerName = InputPlayerName(socket);
 socket.on("connect", () => {
 	console.log("💥 Connected to server", socket.io.opts.hostname + ":" + socket.io.opts.port);
 	console.log("🔗 Socket ID:", socket.id);
 
-	/**
-	 * Add page to index.html
-	 */
 	app.appendChild(playerName);
 });
 
@@ -77,16 +71,14 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-// TODO Refactor show/hide functions into one function
-const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) => {
+const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => {
 	if (player) {
-		console.log("Player %s joined", player.name);
 		currentPlayer = player;
 	}
+	lobbyInstance = Lobby(socket, data);
 
-	const lobbyPage = Lobby(socket, data);
 	app.innerHTML = "";
-	app.appendChild(lobbyPage);
+	app.appendChild(lobbyInstance.element);
 };
 
 const showGameOver = (payload: GameOverPayload) => {
@@ -99,12 +91,14 @@ const showGameOver = (payload: GameOverPayload) => {
  */
 
 // Gamestate listeners
-socket.on("player:confirmed", (payload) => {
+socket.on("player:connected", (payload) => {
 	showLobbyAfterJoin(payload.data, payload.player);
 });
 
-socket.on("game:created", (payload) => {
-	console.log(payload.message);
+socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
+	if (lobbyInstance) {
+		lobbyInstance.updateGameTables(payload);
+	}
 });
 
 socket.on("game:start", () => {
@@ -122,7 +116,7 @@ socket.on("game:start", () => {
 	document.body.appendChild(matchModal);
 });
 
-socket.on("player:disconnected", (payload) => {
+socket.on("player:disconnected", (payload: PlayerDisconnectedPayload) => {
 	const data = payload.data;
 	const playerWhoLeft = payload.player;
 	const modal = DisconnectedUser(playerWhoLeft.name, () => {
@@ -135,4 +129,8 @@ socket.on("player:disconnected", (payload) => {
 
 socket.on("game:over", (winnerData) => {
 	showGameOver(winnerData);
+});
+
+socket.on("player:returnedToLobby", (payload) => {
+	showLobbyAfterJoin(payload);
 });

@@ -6,11 +6,6 @@ export function PlayerCard(player: PlayerPayload, socketId: string) {
 	const name = player.name;
 
 	const render = () => {
-		console.log("");
-		console.log("playerIdddd", playerId);
-		console.log("socketiddcd", socketId);
-		console.log("");
-
 		const div = document.createElement("div");
 		const isMe = socketId === playerId ? "text-primary" : "";
 
