@@ -23,12 +23,6 @@ console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
 const socket: AppClientSocket = io(SOCKET_HOST);
 
 /**
- * Page Component inits
- */
-
-// const playerName = InputPlayerName(socket);
-
-/**
  * DOM References
  */
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -77,7 +71,6 @@ socket.io.on("reconnect", () => {
 /**
  * Functions
  */
-// TODO Refactor show/hide functions into one function
 const showLobbyAfterJoin = async (data: ScoreBoardPayload[], player?: Player) => {
 	if (player) {
 		console.log("Player %s joined", player.name);
