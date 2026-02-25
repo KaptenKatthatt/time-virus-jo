@@ -1,26 +1,60 @@
 .lobby-grid > .scoreboard-wrapper {
-    max-width: 460px;
-    width: 100%;
-    margin: 0 auto;
+	max-width: 460px;
+	width: 100%;
+	margin: 0 auto;
 }
 
 .lobby-grid {
-    display: grid;
-    gap: 2rem;
-    width: 100%;
-    justify-content: center;
+	display: grid;
+	gap: 2rem;
+	width: 100%;
+	justify-content: center;
+}
+
+.liveHeading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.pulsing-circle {
+	&::before {
+		margin-bottom: -4px;
+		content: "🔴";
+		font-size: 20px;
+		border-radius: 50%;
+		animation: pulse linear 2s infinite;
+		display: inline-block;
+	}
+}
+@keyframes pulse {
+	0% {
+		background-color: hsl(0, 75%, 46%);
+		opacity: 1;
+		scale: 1.1;
+	}
+	50% {
+		background-color: hsl(0, 75%, 46%);
+		opacity: 0.5;
+		scale: 1;
+	}
+	100% {
+		background-color: hsl(0, 75%, 46%);
+		opacity: 1;
+		scale: 1.1;
+	}
 }
 
 @media (min-width: 600px) {
-    .lobby-grid {
-        grid-template-columns: 1fr;
-    }
+	.lobby-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (min-width: 768px) {
-    .lobby-grid {
-        grid-template-columns: repeat(auto-fit, minmax(0, 460px));
-        row-gap: 2rem;
-        column-gap: 3rem;
-    }
+	.lobby-grid {
+		grid-template-columns: repeat(auto-fit, minmax(0, 460px));
+		row-gap: 2rem;
+		column-gap: 3rem;
+	}
 }
