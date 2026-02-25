@@ -107,10 +107,6 @@ socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
 	}
 });
 
-// socket.on("game:created", (payload) => {
-// 	console.log(payload.message);
-// });
-
 socket.on("game:start", () => {
 	waitingModal?.remove();
 
