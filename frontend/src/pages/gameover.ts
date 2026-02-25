@@ -122,7 +122,7 @@ function Result(data: GameOverPayload) {
 
 function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 	const { name, score, isWinner } = data;
-	const winnerStyle = isWinner ? "text-primary fw-bold" : "";
+	const winnerStyle = isWinner ? "text-primary fw-bold winnerStyle" : "";
 
 	const render = () => {
 		const div = document.createElement("div");
@@ -131,7 +131,7 @@ function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2 ";
 
 		div.innerHTML = `
-			${winnerStyle ? "<span>👑</span>" : "<span>😭</span>"}
+			${winnerStyle ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
 			<span class="${winnerStyle}">${name}</span>
 			<span>${score}</span>
 		`;
