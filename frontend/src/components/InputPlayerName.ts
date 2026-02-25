@@ -14,6 +14,8 @@ export function InputPlayerName(socket: AppClientSocket) {
 
 		const input = document.createElement("input");
 		input.type = "text";
+		input.minLength = 3;
+		input.maxLength = 12;
 		input.placeholder = "Enter player name...";
 		input.autofocus = true;
 		input.className = "fs-3 p-3 border-img-dark-small input-f text-input";
@@ -30,7 +32,8 @@ export function InputPlayerName(socket: AppClientSocket) {
 		form.addEventListener("submit", (e) => {
 			e.preventDefault();
 			const playerName = input.value.trim();
-			if (!playerName) {
+			if (!playerName || playerName.length < 3 || playerName.length > 12) {
+				err.innerText = "Name must be 3-12 characters long";
 				err.className = "d-flex fs-4 text-danger";
 				return;
 			}
