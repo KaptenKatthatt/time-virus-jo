@@ -31,7 +31,7 @@ function GameResult(data: ScoreBoardPayload[]) {
 			div.className = "d-flex justify-content-center flex-column border-img-green-small p-2";
 
 			const dateTime = document.createElement("span");
-			const createdAt = new Date(item.createdAt);
+			const createdAt = new Date(item.createdAt!);
 			const date = createdAt.toLocaleDateString("sv-SE");
 			const time = createdAt.toLocaleTimeString("sv-SE");
 			dateTime.innerText = `${date} ${time}`;
