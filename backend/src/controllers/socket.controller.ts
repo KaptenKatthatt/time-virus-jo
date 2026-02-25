@@ -393,7 +393,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			updateLobbyForAll(io);
 
 			// If round less than ten, send new virus
-			if (currentGame.round <= 3) {
+			if (currentGame.round <= 10) {
 				currentGame.clickedPlayers = [];
 
 				//Create next virus
