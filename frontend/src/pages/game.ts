@@ -122,7 +122,7 @@ export default function Game(socket: AppClientSocket) {
 		}
 	});
 
-	socket.on("game:over", () => {
+	socket.once("game:over", () => {
 		if (inactivityTimer) {
 			clearTimeout(inactivityTimer);
 			inactivityTimer = null;
