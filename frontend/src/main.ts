@@ -79,10 +79,8 @@ socket.io.on("reconnect", () => {
  */
 const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => {
 	if (player) {
-		console.log("Player %s joined", player.name);
 		currentPlayer = player;
 	}
-
 	lobbyInstance = Lobby(socket, data);
 
 	app.innerHTML = "";
@@ -107,10 +105,6 @@ socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
 	if (lobbyInstance) {
 		lobbyInstance.updateGameTables(payload);
 	}
-});
-
-socket.on("game:created", (payload) => {
-	console.log(payload.message);
 });
 
 socket.on("game:start", () => {

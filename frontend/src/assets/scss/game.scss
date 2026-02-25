@@ -36,9 +36,6 @@
 	border: none;
 	cursor: pointer;
 	font-size: 20px;
-	// &::before {
-	// 	content: "👾";
-	// }
 }
 
 @media (min-width: 992px) {
@@ -54,17 +51,3 @@
 		grid-template-rows: 0.1fr 1fr 0.1fr;
 	}
 }
-
-// @media (min-width: 1200px) {
-// 	.game-grid {
-// 		display: grid;
-// 		grid-template-columns: 1fr 0.5fr;
-// 		grid-template-rows: 1fr;
-// 	}
-//
-// 	.aside-grid {
-// 		display: grid;
-// 		grid-template-columns: 1fr 1fr;
-// 		grid-template-rows: 0.1fr 1fr 0.1fr;
-// 	}
-// }
