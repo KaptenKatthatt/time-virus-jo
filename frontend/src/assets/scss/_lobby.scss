@@ -16,6 +16,10 @@
 	margin: 0 auto;
 }
 
+.scoreboard-wrapper .overflow {
+	overflow-x: hidden !important;
+}
+
 .lobby-games-column {
 	display: flex;
 	flex-direction: column;
@@ -172,8 +176,13 @@
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
+	.lobby-page.container {
+		max-width: 100%;
+		padding-inline: 1.5rem;
+	}
+
 	.lobby-grid {
-		grid-template-columns: minmax(0, 1fr) minmax(220px, 280px) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1.2fr) minmax(220px, 260px) minmax(0, 1.2fr);
 		row-gap: 2rem;
 		column-gap: 1.25rem;
 		align-items: start;

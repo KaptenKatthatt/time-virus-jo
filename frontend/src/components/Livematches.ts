@@ -7,8 +7,9 @@ export default function Livematches(liveGames: LiveGameData[]) {
 
 		const title = document.createElement("h5");
 		title.innerText = "Live Games";
-		title.className =
-			"lobby-section-heading liveHeading lacquer-regular text-primary pulsing-circle";
+		title.className = `lobby-section-heading liveHeading lacquer-regular text-primary pulsing-circle${
+			liveGames.length > 0 ? " pb-3" : ""
+		}`;
 
 		const matchList = Livematchlist(liveGames);
 
