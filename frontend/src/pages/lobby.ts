@@ -1,6 +1,7 @@
 import Button from "../components/Button";
 import Scoreboard from "../components/Scoreboard";
 import Livematches from "../components/Livematches";
+import Chat from "../components/Chat";
 import { WaitingModal } from "../components/LobbyModals";
 import type { LobbyUpdatePayload } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "../types/socket.types";
@@ -8,17 +9,19 @@ import type { AppClientSocket } from "../types/socket.types";
 export let waitingModal: HTMLElement | null = null;
 
 export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
-
 	const div = document.createElement("div");
 
-	div.className = "container d-flex flex-column align-items-center";
+	div.className = "container lobby-page";
 
-	const title = document.createElement("h1");
-	title.innerText = "Lobby";
-	title.className = "my-5 lacquer-regular text-primary";
+	const logo = document.createElement("div");
+	logo.className = "img lobby-logo";
 
 	const grid = document.createElement("div");
 	grid.className = "lobby-grid w-100";
+
+	// Left column: Live matches + Scoreboard stacked
+	const gamesColumn = document.createElement("div");
+	gamesColumn.className = "lobby-games-column";
 
 	const scoreboardWrapper = document.createElement("div");
 	scoreboardWrapper.className = "scoreboard-wrapper w-100 my-3";
@@ -30,6 +33,15 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 	let liveEl = Livematches(payload.allLiveGames);
 	liveWrapper.appendChild(liveEl);
 
+	gamesColumn.appendChild(liveWrapper);
+	gamesColumn.appendChild(scoreboardWrapper);
+
+	// Right column: Chat
+	const chatInstance = Chat(socket, payload.onlinePlayers ?? []);
+	const chatWrapper = document.createElement("div");
+	chatWrapper.className = "lobby-chat-column";
+	chatWrapper.appendChild(chatInstance.element);
+
 	const button = Button("Start game", () => {
 		if (socket.id) {
 			socket.emit("playerJoinGameRequest", socket.id);
@@ -38,14 +50,24 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 		document.body.appendChild(waitingModal);
 	});
 
-	button.classList.add("fs-3", "mb-5");
+	button.classList.add("fs-3", "lobby-start-button");
 
-	grid.appendChild(liveWrapper);
-	grid.appendChild(scoreboardWrapper);
+	const centerColumn = document.createElement("div");
+	centerColumn.className = "lobby-center-column";
+	centerColumn.appendChild(logo);
+	centerColumn.appendChild(button);
 
-	div.appendChild(title);
-	div.appendChild(button);
+	grid.appendChild(gamesColumn);
+	grid.appendChild(centerColumn);
+	grid.appendChild(chatWrapper);
+
 	div.appendChild(grid);
+
+	// Listen for chat messages
+	const onChatMessage = (msg: import("@shared/types/payloads.types").ChatMessage) => {
+		chatInstance.addMessage(msg);
+	};
+	socket.on("chat:message", onChatMessage);
 
 	return {
 		element: div,
@@ -56,6 +78,10 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 			scoreboardEl = Scoreboard(payload.allPlayedGames);
 			liveWrapper.appendChild(liveEl);
 			scoreboardWrapper.appendChild(scoreboardEl);
+			chatInstance.updatePlayers(payload.onlinePlayers ?? []);
+		},
+		destroy: () => {
+			socket.off("chat:message", onChatMessage);
 		},
 	};
 }

@@ -13,6 +13,7 @@ import type {
 	ReactionData,
 	LiveGameData,
 	LobbyUpdatePayload,
+	ChatMessage,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -25,6 +26,7 @@ import {
 	deletePlayer,
 	checkIfFastestPlayer,
 	resetGame,
+	getAllPlayers,
 } from "../services/gameRoom.service.ts";
 import type { Game } from "../../generated/prisma/client.ts";
 import { createPlayer } from "../services/player.service.ts";
@@ -41,6 +43,7 @@ debug("Socket Controller initialized");
  * Variables
  */
 const rematchArr: string[] = [];
+const chatHistory: ChatMessage[] = [];
 
 export const activeGames: Record<string, ActiveGame> = {};
 
@@ -76,9 +79,13 @@ export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 		};
 	});
 
+	// Get all online players from db
+	const onlinePlayers = await getAllPlayers();
+
 	return {
 		allPlayedGames,
 		allLiveGames,
+		onlinePlayers,
 	};
 };
 
@@ -108,6 +115,11 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			const data = await buildLobbyUpdate();
 			// Emit player creation confirmation for game start
 			socket.emit("player:connected", { player, data });
+
+			// Send chat history to the newly joined player
+			for (const msg of chatHistory) {
+				socket.emit("chat:message", msg);
+			}
 
 			debug(`✅Created player: ${player.name} PlayerId: ${player.id}`);
 		} catch (err) {
@@ -298,19 +310,53 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 	});
 
+	/**
+	 * Chat message in lobby
+	 */
+	socket.on("chat:message", ({ message }) => {
+		if (!socket.data.name || !message.trim()) return;
+
+		const sanitized = message.trim().slice(0, 200);
+		const chatMsg: ChatMessage = {
+			playerId: socket.id,
+			playerName: socket.data.name,
+			message: sanitized,
+			timestamp: Date.now(),
+		};
+
+		chatHistory.push(chatMsg);
+		// Keep only the last 100 messages
+		if (chatHistory.length > 100) chatHistory.shift();
+
+		io.to("lobby").emit("chat:message", chatMsg);
+	});
+
 	// Handle user disconnecting
 	socket.on("disconnect", async () => {
 		const gameToDelete = await getGameByPlayerId(socket.id);
 		const playerWhoLeft = await getPlayerByPlayerId(socket.id);
 
-		// Delete game from activeGames
+		// Delete game from activeGames in-memory object
 		if (gameToDelete) {
 			delete activeGames[gameToDelete.id];
 		}
 
-		// Emit data about current state of played and live games to all
-		updateLobbyForAll(io);
+		// Delete game from DB before broadcasting so lobby is accurate
+		if (gameToDelete) {
+			await deleteGame(socket.id);
+			debug("Game deleted", gameToDelete.id);
+		}
 
+		// Delete player from DB before broadcasting so they don't appear in onlinePlayers
+		if (playerWhoLeft) {
+			await deletePlayer(socket.id);
+			debug("Disconnected player deleted");
+		}
+
+		// Now broadcast updated lobby (player and game already removed from DB)
+		await updateLobbyForAll(io);
+
+		// Build lobby payload to send to remaining opponent (reflects deletion above)
 		const updatedLobbydata = await buildLobbyUpdate();
 
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
@@ -319,19 +365,6 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				player: playerWhoLeft,
 				data: updatedLobbydata,
 			});
-
-			// Delete game on disconnect
-			await deleteGame(socket.id);
-			debug("Game deleted", gameToDelete.id);
-		} else if (gameToDelete) {
-			// Delete game if we have an empty game
-			await deleteGame(socket.id);
-		}
-
-		// Delete remaining unused players to avoid ghosts
-		if (playerWhoLeft) {
-			await deletePlayer(socket.id);
-			debug("Disconnected player deleted");
 		}
 
 		debug("👋 A user disconnected with id: %s", socket.id);
@@ -393,7 +426,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			updateLobbyForAll(io);
 
 			// If round less than ten, send new virus
-			if (currentGame.round <= 10) {
+			if (currentGame.round <= 3) {
 				currentGame.clickedPlayers = [];
 
 				//Create next virus

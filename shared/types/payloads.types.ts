@@ -69,9 +69,22 @@ export interface ReactionData {
   reactionTime: number;
 }
 
+export interface OnlinePlayer {
+  id: string;
+  name: string;
+}
+
+export interface ChatMessage {
+  playerId: string;
+  playerName: string;
+  message: string;
+  timestamp: number;
+}
+
 export interface LobbyUpdatePayload {
   allPlayedGames: ScoreBoardPayload[];
   allLiveGames: LiveGameData[];
+  onlinePlayers: OnlinePlayer[];
 }
 
 export interface LiveGameData {

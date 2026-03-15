@@ -10,6 +10,7 @@ import type {
   ReactionData,
   LobbyUpdatePayload,
   PlayerDisconnectedPayload,
+  ChatMessage,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -27,6 +28,7 @@ export interface ServerToClientEvents {
   "player:rematch": (payload: { playerId: string; name: string }) => void;
   "player:returnedToLobby": (payload: LobbyUpdatePayload) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
+  "chat:message": (payload: ChatMessage) => void;
 }
 
 // Events emitted by the client to the server
@@ -39,6 +41,7 @@ export interface ClientToServerEvents {
   "player:start": (payload: string) => void;
   "player:rematch": (payload: { playerId: string }) => void;
   "player:left": (payload: { playerId: string }) => void;
+  "chat:message": (payload: { message: string }) => void;
 }
 
 export interface TimestampPayload {

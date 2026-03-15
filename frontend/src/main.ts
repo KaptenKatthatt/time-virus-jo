@@ -75,6 +75,7 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 	if (player) {
 		currentPlayer = player;
 	}
+	lobbyInstance?.destroy();
 	lobbyInstance = Lobby(socket, data);
 
 	app.innerHTML = "";

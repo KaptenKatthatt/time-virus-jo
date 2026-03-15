@@ -74,6 +74,12 @@ export const getPlayerByPlayerId = async (playerId: string) => {
 	});
 };
 
+export const getAllPlayers = async () => {
+	return await prisma.player.findMany({
+		select: { id: true, name: true },
+	});
+};
+
 /**
  * Checks if the player is faster than current fastest player in game object.
  * If so, update game object.
