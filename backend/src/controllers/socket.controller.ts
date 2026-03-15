@@ -224,6 +224,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				fastest_Time: 9999,
 			};
 
+			await updateLobbyForAll(io);
+
 			const gameData: GamePayload = {
 				id: game.id,
 				name: null,
@@ -265,7 +267,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			socket.join(newGame.id);
 
 			// Emit data about current state of played and live games to all
-			updateLobbyForAll(io);
+			await updateLobbyForAll(io);
 
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = newGame.id;
@@ -311,6 +313,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				fastest_player_id: "",
 				fastest_Time: 9999,
 			};
+
+			await updateLobbyForAll(io);
 
 			// console.log("Created game", activeGames[availableGame.id]);
 
@@ -450,7 +454,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			io.to(gameId).emit("game:data", gameData);
 
 			// Emit data about current state of played and live games to all
-			updateLobbyForAll(io);
+			await updateLobbyForAll(io);
 
 			// If round less than ten, send new virus
 			if (currentGame.round <= 3) {
@@ -500,7 +504,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				delete activeGames[gameId];
 
 				// Emit data about current state of played and live games to all
-				updateLobbyForAll(io);
+				await updateLobbyForAll(io);
 			}
 		}
 	});
