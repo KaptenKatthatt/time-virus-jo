@@ -1,6 +1,6 @@
 # 🦠 TimeVirus 🎮
 
-Welcome to **TimeVirus**, a real-time multiplayer game where players race against time, dodge viruses, and compete for the top score.
+Welcome to **TimeVirus**, a real-time multiplayer game where players race against time, kill viruses, and compete for the top score.
 
 This project began as a **group project** in our API course at **Medieinstitutet**.
 From **15 March 2026** and onward, it has continued as a **personal project** built solely by me.
