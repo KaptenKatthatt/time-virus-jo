@@ -10,7 +10,7 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 	playersSection.className = "chat-players border-img-dark p-3 mb-3";
 
 	const playersHeading = document.createElement("h5");
-	playersHeading.className = "text-primary lacquer-regular mb-2 text-center";
+	playersHeading.className = "lobby-section-heading text-primary lacquer-regular";
 	playersHeading.innerText = "Online";
 
 	const playersList = document.createElement("ul");
@@ -36,7 +36,7 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 	chatSection.className = "chat-section border-img-dark p-3 d-flex flex-column flex-grow-1";
 
 	const chatHeading = document.createElement("h5");
-	chatHeading.className = "text-primary lacquer-regular mb-2 text-center";
+	chatHeading.className = "lobby-section-heading text-primary lacquer-regular";
 	chatHeading.innerText = "Chat";
 
 	const messages = document.createElement("div");
@@ -47,7 +47,7 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 
 	const input = document.createElement("input");
 	input.type = "text";
-	input.placeholder = "Write something nice...or not.";
+	input.placeholder = "Write a message...";
 	input.maxLength = 200;
 	input.className = "flex-grow-1 p-2 border-img-dark-small input-f text-input";
 	input.autocomplete = "off";

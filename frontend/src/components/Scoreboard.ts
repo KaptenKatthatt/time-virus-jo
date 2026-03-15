@@ -3,11 +3,11 @@ import type { ScoreBoardPayload } from "@shared/types/payloads.types";
 export default function Scoreboard(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
-		div.className = "border-img-dark p-5 text-center ";
+		div.className = "border-img-dark p-3 text-center";
 
-		const title = document.createElement("h1");
+		const title = document.createElement("h5");
 		title.innerText = "Scoreboard";
-		title.className = "mb-4 lacquer-regular text-primary";
+		title.className = "lobby-section-heading lacquer-regular text-primary";
 
 		const gameResult = GameResult(data);
 

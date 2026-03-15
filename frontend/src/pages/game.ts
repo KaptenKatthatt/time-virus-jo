@@ -131,10 +131,10 @@ export default function Game(socket: AppClientSocket) {
 
 	const render = () => {
 		const div = document.createElement("div");
-		div.className = "game-grid justify-content-center gap-4 align-items-between h-100";
+		div.className = "game-grid justify-content-center";
 
 		const aside = document.createElement("aside");
-		aside.className = "d-flex flex-xl-column gap-4 justify-content-evenly p-5";
+		aside.className = "game-info-panel d-flex flex-xl-column justify-content-evenly";
 
 		const gameStatus = GameStatus();
 		const gameTimerEl = gameStatus.timerElement;
@@ -146,6 +146,11 @@ export default function Game(socket: AppClientSocket) {
 
 		player1Card = PlayerCard(player1Data, socket.id!);
 		player2Card = PlayerCard(player2Data, socket.id!);
+
+		gameStatus.element.classList.add("game-info-card");
+		score.classList.add("game-info-card");
+		player1Card.element.classList.add("game-info-card");
+		player2Card.element.classList.add("game-info-card");
 
 		setupVirusListeners(board, gameTimerEl);
 		setupGameDataListeners(score, roundNbrEl);

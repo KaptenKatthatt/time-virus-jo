@@ -1,5 +1,7 @@
 .game-board {
-	width: 80vmin;
+	width: min(96vw, 62dvh);
+	max-width: 100%;
+	max-height: 100%;
 	aspect-ratio: 1 / 1;
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
@@ -8,13 +10,64 @@
 
 .game-grid {
 	display: grid;
-	grid-template-rows: 1fr 0.5fr;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr) auto;
+	gap: clamp(0.5rem, 2.5vw, 1rem);
+	width: 100%;
+	max-width: 100vw;
+	height: 100%;
+	max-height: 100dvh;
+	padding: clamp(0.5rem, 2vw, 1rem);
+	box-sizing: border-box;
+	overflow: hidden;
+
+	> * {
+		min-width: 0;
+		min-height: 0;
+	}
 }
 
-.aside-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	grid-template-rows: 0.1fr;
+.game-info-panel {
+	display: grid !important;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: clamp(0.5rem, 2vw, 0.875rem);
+	padding: 0;
+	align-content: stretch;
+}
+
+.game-info-card {
+	min-width: 0;
+	min-height: 0;
+	padding: clamp(0.5rem, 1.8vw, 1rem) !important;
+	overflow: hidden;
+
+	.name {
+		word-break: break-word;
+		line-height: 1.2;
+	}
+}
+
+.game-grid {
+	.display-2 {
+		font-size: clamp(1.3rem, 6vw, 2rem) !important;
+	}
+
+	.display-4 {
+		font-size: clamp(1.15rem, 4.8vw, 1.8rem) !important;
+	}
+
+	.display-5 {
+		font-size: clamp(1.05rem, 4.5vw, 1.6rem) !important;
+	}
+
+	.display-6,
+	.fs-2 {
+		font-size: clamp(0.95rem, 3.8vw, 1.35rem) !important;
+	}
+
+	.fs-4 {
+		font-size: clamp(0.85rem, 3vw, 1.1rem) !important;
+	}
 }
 
 @for $i from 1 through 10 {
@@ -76,16 +129,124 @@
 	}
 }
 
-@media (min-width: 992px) {
-	.game-grid {
-		display: grid;
-		grid-template-columns: 1fr 0.5fr;
-		grid-template-rows: 1fr;
+@media (max-width: 767px) {
+	.game-board {
+		width: min(96vw, 60dvh);
 	}
 
-	.aside-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 0.1fr 1fr 0.1fr;
+	.game-info-panel {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+	.game-board {
+		width: min(90vw, 62dvh);
+	}
+
+	.game-info-panel {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
+	.game-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(14rem, 36vw);
+		grid-template-rows: minmax(0, 1fr);
+		align-items: stretch;
+		gap: clamp(0.35rem, 1.2vw, 0.75rem);
+		padding: clamp(0.35rem, 1.2vw, 0.75rem);
+	}
+
+	.game-board {
+		width: min(62vw, 94dvh);
+	}
+
+	.game-info-panel {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-auto-rows: minmax(0, 1fr);
+		gap: clamp(0.35rem, 1vw, 0.55rem);
+	}
+
+	.game-info-card {
+		padding: clamp(0.35rem, 1vw, 0.55rem) !important;
+	}
+
+	.game-grid {
+		.display-2 {
+			font-size: clamp(1rem, 3.2vw, 1.35rem) !important;
+		}
+
+		.display-4 {
+			font-size: clamp(0.9rem, 2.7vw, 1.15rem) !important;
+		}
+
+		.display-5 {
+			font-size: clamp(0.85rem, 2.5vw, 1.05rem) !important;
+		}
+
+		.display-6,
+		.fs-2,
+		.fs-4 {
+			font-size: clamp(0.75rem, 2.2vw, 0.95rem) !important;
+		}
+	}
+}
+
+@media (min-width: 1024px) {
+	.game-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(18rem, 32vw);
+		grid-template-rows: minmax(0, 1fr);
+		align-items: center;
+	}
+
+	.game-board {
+		width: min(74vw, 90dvh);
+	}
+
+	.game-info-panel {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (min-width: 1280px) {
+	.game-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(20rem, 28vw);
+		gap: clamp(0.75rem, 1.5vw, 1.5rem);
+	}
+
+	.game-board {
+		width: min(72vw, 88dvh);
+	}
+}
+
+@media (min-width: 1920px) {
+	.game-grid {
+		padding: clamp(1rem, 1.2vw, 1.75rem);
+		grid-template-columns: minmax(0, 1fr) minmax(22rem, 24vw);
+	}
+
+	.game-board {
+		width: min(70vw, 86dvh);
+	}
+
+	.game-grid .display-2 {
+		font-size: clamp(1.6rem, 2vw, 2.4rem) !important;
+	}
+}
+
+@media (min-width: 2560px) {
+	.game-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(24rem, 22vw);
+	}
+
+	.game-board {
+		width: min(68vw, 84dvh);
+	}
+}
+
+@media (min-width: 3840px) {
+	.game-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(28rem, 20vw);
 	}
 }

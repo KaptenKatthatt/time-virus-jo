@@ -3,11 +3,12 @@ import type { LiveGameData } from "@shared/types/payloads.types";
 export default function Livematches(liveGames: LiveGameData[]) {
 	const render = () => {
 		const div = document.createElement("div");
-		div.className = "border-img-dark p-5 text-center";
+		div.className = "border-img-dark px-3 py-4 text-center";
 
-		const title = document.createElement("h1");
+		const title = document.createElement("h5");
 		title.innerText = "Live Games";
-		title.className = "liveHeading mb-4 lacquer-regular text-primary pulsing-circle";
+		title.className =
+			"lobby-section-heading liveHeading lacquer-regular text-primary pulsing-circle";
 
 		const matchList = Livematchlist(liveGames);
 
