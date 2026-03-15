@@ -8,16 +8,18 @@ export const GameStatus = () => {
 				<div class="d-flex align-items-center gap-3">
 					<span class="roundNbr display-4">1</span>
 					<span class="round-slash fs-4">/</span>
-					<span class="round-total display-6">10</span>
+					<span class="round-total display-6">3</span>
 				</div>
 			`;
 
 	const gameTimerEl: HTMLSpanElement = div.querySelector(".gametimeDisplay")!;
 	const roundNbrEl: HTMLSpanElement = div.querySelector(".roundNbr")!;
+	const roundTotalEl: HTMLSpanElement = div.querySelector(".round-total")!;
 
 	return {
 		element: div,
 		timerElement: gameTimerEl,
 		roundNbrElement: roundNbrEl,
+		roundTotalElement: roundTotalEl,
 	};
 };

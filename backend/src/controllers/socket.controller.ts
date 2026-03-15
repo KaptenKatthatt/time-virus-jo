@@ -44,6 +44,7 @@ debug("Socket Controller initialized");
  */
 const rematchArr: string[] = [];
 const chatHistory: ChatMessage[] = [];
+const TOTAL_ROUNDS = 3;
 
 export const activeGames: Record<string, ActiveGame> = {};
 
@@ -238,6 +239,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				player_one_score: activeGames[game.id].player_one_score,
 				player_two_score: activeGames[game.id].player_two_score,
 				round: activeGames[game.id].round,
+				totalRounds: TOTAL_ROUNDS,
 				fastest_player_id: activeGames[game.id].fastest_player_id,
 				fastest_Time: activeGames[game.id].fastest_Time,
 			};
@@ -330,6 +332,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				player_one_score: activeGames[availableGame.id].player_one_score,
 				player_two_score: activeGames[availableGame.id].player_two_score,
 				round: activeGames[availableGame.id].round,
+				totalRounds: TOTAL_ROUNDS,
 				fastest_player_id: activeGames[availableGame.id].fastest_player_id,
 				fastest_Time: activeGames[availableGame.id].fastest_Time,
 			};
@@ -449,6 +452,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				player_one_score: currentGame.player_one_score,
 				player_two_score: currentGame.player_two_score,
 				round: currentGame.round,
+				totalRounds: TOTAL_ROUNDS,
 				fastest_player_id: currentGame.fastest_player_id,
 				fastest_Time: currentGame.fastest_Time,
 			};
@@ -458,8 +462,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Emit data about current state of played and live games to all
 			await updateLobbyForAll(io);
 
-			// If round less than ten, send new virus
-			if (currentGame.round <= 3) {
+			// If round is within configured round limit, send new virus
+			if (currentGame.round <= TOTAL_ROUNDS) {
 				currentGame.clickedPlayers = [];
 
 				//Create next virus

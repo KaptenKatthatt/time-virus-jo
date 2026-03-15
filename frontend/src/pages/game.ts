@@ -32,7 +32,11 @@ export default function Game(socket: AppClientSocket) {
 	let inactivityTimer: number | null = null;
 	let disconnectedModal: HTMLDivElement | null = null;
 
-	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
+	const setupGameDataListeners = (
+		score: HTMLDivElement,
+		roundNbrEl: HTMLSpanElement,
+		roundTotalEl: HTMLSpanElement,
+	) => {
 		socket.off("game:data");
 		socket.on("game:data", (payload: GamePayload | GamePayload[]) => {
 			if (!Array.isArray(payload)) {
@@ -63,6 +67,8 @@ export default function Game(socket: AppClientSocket) {
 				} else {
 					console.error("roundnbr empty", payload.round);
 				}
+
+				updateRoundTotal(roundTotalEl, payload.totalRounds);
 			}
 		});
 	};
@@ -126,6 +132,10 @@ export default function Game(socket: AppClientSocket) {
 
 	const updateRounbNbr = (element: HTMLSpanElement, roundNbr: number) => {
 		element.textContent = String(roundNbr);
+	};
+
+	const updateRoundTotal = (element: HTMLSpanElement, totalRounds: number) => {
+		element.textContent = String(totalRounds);
 	};
 
 	const sendReactionTime = () => {
@@ -200,6 +210,7 @@ export default function Game(socket: AppClientSocket) {
 		const gameStatus = GameStatus();
 		const gameTimerEl = gameStatus.timerElement;
 		const roundNbrEl = gameStatus.roundNbrElement;
+		const roundTotalEl = gameStatus.roundTotalElement;
 
 		const board = GameBoard();
 
@@ -214,7 +225,7 @@ export default function Game(socket: AppClientSocket) {
 		player2Card.element.classList.add("game-info-card");
 
 		setupVirusListeners(board, gameTimerEl);
-		setupGameDataListeners(score, roundNbrEl);
+		setupGameDataListeners(score, roundNbrEl, roundTotalEl);
 
 		aside.appendChild(gameStatus.element);
 		aside.appendChild(score);
