@@ -10,7 +10,6 @@ From **15 March 2026** and onward, it has continued as a **personal project** bu
 - [GrimSpook](https://github.com/GrimSpook)
 - [let-sandystar](https://github.com/let-sandystar)
 
-
 ## 🎯 Features
 
 - Real-time multiplayer gameplay with Socket.IO
@@ -23,9 +22,9 @@ From **15 March 2026** and onward, it has continued as a **personal project** bu
 ## 🕹️ Gameplay
 
 - Players join a shared lobby and wait for the round to begin.
-- Each round is time-limited, and players score by surviving and making fast decisions.
+- Each round is time-limited, and players score by clicking and making fast decisions.
 - Virus events and player actions are synchronized in real time through Socket.IO.
-- When the timer ends, the match transitions to game-over and the scoreboard updates live.
+- When the game ends, the match transitions to game-over and the scoreboard updates live.
 
 ## 🧩 Tech Stack
 
