@@ -5,6 +5,12 @@ Welcome to **TimeVirus**, a real-time multiplayer game where players race agains
 This project began as a **group project** in our API course at **Medieinstitutet**.
 From **15 March 2026** and onward, it has continued as a **personal project** built solely by me.
 
+## 🤝 Original Group Members
+
+- [GrimSpook](https://github.com/GrimSpook)
+- [let-sandystar](https://github.com/let-sandystar)
+
+
 ## 🎯 Features
 
 - Real-time multiplayer gameplay with Socket.IO
@@ -134,11 +140,6 @@ shared/
 - Reconnect support so disconnected players can return to ongoing matches
 - Persistent ranked leaderboard with seasonal statistics
 - Expanded automated testing for realtime Socket.IO flows and race conditions
-
-## 🤝 Original Group Members
-
-- [GrimSpook](https://github.com/GrimSpook)
-- [let-sandystar](https://github.com/let-sandystar)
 
 ## 📜 License
 
