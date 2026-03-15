@@ -6,10 +6,12 @@ import { Score } from "../components/game/Score";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
+import { DisconnectedUser } from "../components/LobbyModals";
 import type { PlayerPayload } from "../types/game.types";
 import type { AppClientSocket } from "../types/socket.types";
 
 const INACTIVITY_TIMEOUT_MS = 60000;
+const LOBBY_FALLBACK_TIMEOUT_MS = 1000;
 
 export default function Game(socket: AppClientSocket) {
 	let player1Data: PlayerPayload = {
@@ -28,6 +30,7 @@ export default function Game(socket: AppClientSocket) {
 	let player2Card: PlayerCardReturn;
 	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
+	let disconnectedModal: HTMLDivElement | null = null;
 
 	const setupGameDataListeners = (score: HTMLDivElement, roundNbrEl: HTMLSpanElement) => {
 		socket.off("game:data");
@@ -77,6 +80,27 @@ export default function Game(socket: AppClientSocket) {
 	const handleInactivity = () => {
 		if (!socket.id) return;
 		socket.emit("player:left", { playerId: socket.id });
+	};
+
+	const leaveGameWithFallback = () => {
+		let hasReturnedToLobby = false;
+		const onReturnedToLobby = () => {
+			hasReturnedToLobby = true;
+			socket.off("player:returnedToLobby", onReturnedToLobby);
+		};
+
+		socket.on("player:returnedToLobby", onReturnedToLobby);
+		handleInactivity();
+
+		window.setTimeout(() => {
+			socket.off("player:returnedToLobby", onReturnedToLobby);
+
+			if (hasReturnedToLobby) {
+				return;
+			}
+
+			window.dispatchEvent(new CustomEvent("app:forceLobbyFallback"));
+		}, LOBBY_FALLBACK_TIMEOUT_MS);
 	};
 
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
@@ -129,6 +153,29 @@ export default function Game(socket: AppClientSocket) {
 		}
 	});
 
+	socket.off("player:left");
+	socket.on("player:left", (payload: { playerId: string; name: string }) => {
+		if (!socket.id || payload.playerId === socket.id) {
+			return;
+		}
+
+		if (inactivityTimer) {
+			clearTimeout(inactivityTimer);
+			inactivityTimer = null;
+		}
+
+		if (disconnectedModal) {
+			disconnectedModal.remove();
+		}
+
+		disconnectedModal = DisconnectedUser(payload.name, () => {
+			disconnectedModal?.remove();
+			leaveGameWithFallback();
+		});
+
+		document.body.appendChild(disconnectedModal);
+	});
+
 	socket.once("game:over", () => {
 		if (inactivityTimer) {
 			clearTimeout(inactivityTimer);
@@ -139,6 +186,13 @@ export default function Game(socket: AppClientSocket) {
 	const render = () => {
 		const div = document.createElement("div");
 		div.className = "game-grid justify-content-center";
+
+		const exitButton = document.createElement("button");
+		exitButton.type = "button";
+		exitButton.className = "game-exit-button btn border-img-dark-small text-danger";
+		exitButton.textContent = "✕";
+		exitButton.setAttribute("aria-label", "Tillbaka till lobbyn");
+		exitButton.addEventListener("click", leaveGameWithFallback);
 
 		const aside = document.createElement("aside");
 		aside.className = "game-info-panel d-flex flex-xl-column justify-content-evenly";
@@ -167,6 +221,7 @@ export default function Game(socket: AppClientSocket) {
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
+		div.appendChild(exitButton);
 		div.appendChild(board);
 		div.appendChild(aside);
 

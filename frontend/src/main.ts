@@ -36,6 +36,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
  */
 let currentPlayer: Player | undefined = undefined;
 let lobbyInstance: ReturnType<typeof Lobby> | null = null;
+let latestLobbyData: LobbyUpdatePayload | null = null;
 
 /**
  * Socket Event Listeners
@@ -75,6 +76,7 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 	if (player) {
 		currentPlayer = player;
 	}
+	latestLobbyData = data;
 	lobbyInstance?.destroy();
 	lobbyInstance = Lobby(socket, data);
 
@@ -97,9 +99,21 @@ socket.on("player:connected", (payload) => {
 });
 
 socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
+	latestLobbyData = payload;
+
 	if (lobbyInstance) {
 		lobbyInstance.updateGameTables(payload);
 	}
+});
+
+window.addEventListener("app:forceLobbyFallback", () => {
+	if (latestLobbyData) {
+		showLobbyAfterJoin(latestLobbyData, currentPlayer);
+		return;
+	}
+
+	app.innerHTML = "";
+	app.appendChild(playerName);
 });
 
 socket.on("game:start", () => {

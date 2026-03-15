@@ -155,24 +155,26 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	});
 
 	socket.on("player:left", async (payload) => {
-		const player = await getPlayerByPlayerId(payload.playerId);
-		const game = await getGameByPlayerId(payload.playerId);
+		const playerId = payload.playerId;
+		const player = await getPlayerByPlayerId(playerId);
+		const game = await getGameByPlayerId(playerId);
 
-		// Send latest lobby to client after leaving game and going to lobby
+		if (game) {
+			delete activeGames[game.id];
+			socket.leave(game.id);
+			socket.data.gameId = "";
+
+			await deleteGame(playerId);
+			await updateLobbyForAll(io);
+
+			if (player) {
+				io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
+			}
+		}
+
+		// Always return caller to lobby even if game was already deleted by opponent
 		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdateForIo(io);
 		socket.emit("player:returnedToLobby", updatedLobbyData);
-
-		if (!game) {
-			return;
-		}
-
-		if (!player) {
-			return;
-		}
-
-		await deleteGame(socket.id);
-
-		io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
 	});
 
 	socket.on("player:rematch", async (payload) => {

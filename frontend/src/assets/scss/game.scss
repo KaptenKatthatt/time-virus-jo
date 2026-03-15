@@ -10,6 +10,7 @@
 
 .game-grid {
 	display: grid;
+	position: relative;
 	grid-template-columns: minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr) auto;
 	gap: clamp(0.5rem, 2.5vw, 1rem);
@@ -25,6 +26,22 @@
 		min-width: 0;
 		min-height: 0;
 	}
+}
+
+.game-exit-button {
+	position: absolute;
+	top: max(env(safe-area-inset-top), clamp(0.4rem, 1.4vw, 0.85rem));
+	right: max(env(safe-area-inset-right), clamp(0.4rem, 1.4vw, 0.85rem));
+	z-index: 5;
+	min-width: clamp(2.2rem, 5vw, 2.8rem);
+	height: clamp(2.2rem, 5vw, 2.8rem);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	line-height: 1;
+	font-size: clamp(1rem, 2.8vw, 1.45rem);
+	font-weight: 700;
 }
 
 .game-info-panel {
@@ -150,6 +167,14 @@
 }
 
 @media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
+	.game-exit-button {
+		top: max(env(safe-area-inset-top), 0.25rem);
+		right: max(env(safe-area-inset-right), 0.25rem);
+		min-width: 2rem;
+		height: 2rem;
+		font-size: 1rem;
+	}
+
 	.game-grid {
 		grid-template-columns: minmax(0, 1fr) minmax(14rem, 36vw);
 		grid-template-rows: minmax(0, 1fr);
