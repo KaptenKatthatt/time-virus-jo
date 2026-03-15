@@ -30,7 +30,8 @@ export function SelectRoundsModal(
 ) {
 	const render = () => {
 		const container = document.createElement("div");
-		container.className = "disconnect-modal d-flex flex-column gap-3 align-items-center";
+		container.className =
+			"disconnect-modal select-rounds-modal d-flex flex-column gap-3 align-items-center";
 
 		const title = document.createElement("h2");
 		title.innerText = "Select number of rounds";
@@ -44,8 +45,56 @@ export function SelectRoundsModal(
 		input.min = String(minRounds);
 		input.max = String(maxRounds);
 		input.value = String(defaultRounds);
-		input.className = "form-control text-center";
-		input.style.maxWidth = "180px";
+		input.className = "form-control text-center rounds-input";
+
+		const roundPicker = document.createElement("div");
+		roundPicker.className = "round-picker d-flex align-items-stretch gap-2";
+
+		const stepButtons = document.createElement("div");
+		stepButtons.className = "round-step-buttons d-flex flex-column gap-2";
+
+		const increaseButton = document.createElement("button");
+		increaseButton.type = "button";
+		increaseButton.className = "btn border-img-green-solid round-step-button";
+		increaseButton.setAttribute("aria-label", "Increase rounds");
+		increaseButton.innerText = "▲";
+
+		const decreaseButton = document.createElement("button");
+		decreaseButton.type = "button";
+		decreaseButton.className = "btn border-img-green-solid round-step-button";
+		decreaseButton.setAttribute("aria-label", "Decrease rounds");
+		decreaseButton.innerText = "▼";
+
+		const getSafeRoundValue = () => {
+			const parsedValue = Number(input.value);
+			if (!Number.isFinite(parsedValue)) {
+				return defaultRounds;
+			}
+
+			return Math.min(maxRounds, Math.max(minRounds, Math.floor(parsedValue)));
+		};
+
+		const updateRoundValue = (nextValue: number) => {
+			const safeValue = Math.min(maxRounds, Math.max(minRounds, Math.floor(nextValue)));
+			input.value = String(safeValue);
+		};
+
+		increaseButton.addEventListener("click", () => {
+			updateRoundValue(getSafeRoundValue() + 1);
+		});
+
+		decreaseButton.addEventListener("click", () => {
+			updateRoundValue(getSafeRoundValue() - 1);
+		});
+
+		input.addEventListener("change", () => {
+			updateRoundValue(getSafeRoundValue());
+		});
+
+		stepButtons.appendChild(increaseButton);
+		stepButtons.appendChild(decreaseButton);
+		roundPicker.appendChild(input);
+		roundPicker.appendChild(stepButtons);
 
 		const button = Button("Start", () => {
 			const parsedRounds = Number(input.value);
@@ -55,7 +104,7 @@ export function SelectRoundsModal(
 
 		container.appendChild(title);
 		container.appendChild(text);
-		container.appendChild(input);
+		container.appendChild(roundPicker);
 		container.appendChild(button);
 
 		return Modal(container);

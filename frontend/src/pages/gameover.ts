@@ -46,14 +46,17 @@ export default function GameOver(
 
 	// Used for if opponent clicks cancel on rematch. Takes remaining user back to lobby.
 	socket.off("player:left");
-	socket.on("player:left", (payload) => {
+	socket.on("player:left", (payload: { playerId: string; name: string }) => {
+		if (!socket.id || payload.playerId === socket.id) {
+			return;
+		}
+
 		if (rematchModal) {
 			rematchModal.remove();
 		}
 
 		let disconnectedModal: HTMLDivElement | null = null;
 
-		if (!socket.id) return;
 		disconnectedModal = DisconnectedUser(payload.name, () => {
 			disconnectedModal?.remove();
 			onQuit();

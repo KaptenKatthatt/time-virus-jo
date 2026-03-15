@@ -346,9 +346,10 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			await deleteGame(playerId);
 			await updateLobbyForAll(io);
 
-			if (player) {
-				io.to(game.id).emit("player:left", { playerId: player.id, name: player.name });
-			}
+			socket.to(game.id).emit("player:left", {
+				playerId,
+				name: player?.name ?? "Opponent",
+			});
 		}
 
 		// Always return caller to lobby even if game was already deleted by opponent

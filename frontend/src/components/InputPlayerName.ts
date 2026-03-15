@@ -37,6 +37,15 @@ export function InputPlayerName(socket: AppClientSocket) {
 				err.className = "d-flex fs-4 text-danger";
 				return;
 			}
+
+			if (!socket.connected) {
+				socket.connect();
+				socket.once("connect", () => {
+					socket.emit("playerJoinLobbyRequest", playerName);
+				});
+				return;
+			}
+
 			socket.emit("playerJoinLobbyRequest", playerName);
 		});
 

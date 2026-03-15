@@ -21,7 +21,7 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 		const unique = players.filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i);
 		unique.forEach((p) => {
 			const li = document.createElement("li");
-			li.className = "d-flex align-items-center gap-2 py-1";
+			li.className = "d-flex align-items-center gap-2 py-1 ps-2";
 			li.innerHTML = `<span class="online-dot"></span><span class="text-light">${escapeHtml(p.name)}</span>`;
 			playersList.appendChild(li);
 		});

@@ -52,10 +52,23 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 
 	button.classList.add("fs-3", "lobby-start-button");
 
+	const leaveButton = document.createElement("button");
+	leaveButton.type = "button";
+	leaveButton.className = "btn btn-danger fs-3 lobby-start-button";
+	leaveButton.innerText = "Leave game";
+	leaveButton.addEventListener("click", () => {
+		waitingModal?.remove();
+		if (socket.id) {
+			socket.emit("player:left", { playerId: socket.id });
+		}
+		socket.disconnect();
+	});
+
 	const centerColumn = document.createElement("div");
 	centerColumn.className = "lobby-center-column";
 	centerColumn.appendChild(logo);
 	centerColumn.appendChild(button);
+	centerColumn.appendChild(leaveButton);
 
 	grid.appendChild(gamesColumn);
 	grid.appendChild(centerColumn);

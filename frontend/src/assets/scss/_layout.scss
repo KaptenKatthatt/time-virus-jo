@@ -5,10 +5,72 @@
 
 .modal-content {
 	width: min(80vw, 400px);
-	height: min(40vh, 250px);
+	min-height: 320px;
+	height: auto;
+	max-height: 90vh;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	overflow-y: auto;
+	padding-top: 1.5rem !important;
+	padding-bottom: 1.5rem !important;
+}
+
+.select-rounds-modal {
+	width: 100%;
+	max-width: 340px;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}
+
+.select-rounds-modal > h2 {
+	margin-top: 0.25rem;
+	margin-bottom: 0.5rem;
+}
+
+.select-rounds-modal > .btn {
+	margin-top: 0.5rem;
+}
+
+.round-picker {
+	width: min(100%, 240px);
+}
+
+.rounds-input {
+	max-width: 160px;
+	font-size: 1.6rem;
+	font-weight: 700;
+	background-color: rgba($color: $primary, $alpha: 0.1);
+	color: #fff;
+	border-image-source: url("../border256x256dark.png");
+	border-image-slice: 96 96 96 96;
+	border-image-width: 16px 16px 16px 16px;
+	border-image-repeat: repeat repeat;
+	box-shadow: inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
+}
+
+.rounds-input:focus {
+	background-color: rgba($color: $primary, $alpha: 0.15);
+	color: #fff;
+	outline: none;
+	box-shadow: inset 0px 0px 20px 20px rgba($color: #000000, $alpha: 0.5);
+}
+
+.round-step-button {
+	min-width: 56px;
+	min-height: 52px;
+	font-size: 1.4rem;
+	font-weight: 700;
+	line-height: 1;
+	padding: 0.35rem 0.75rem;
+}
+
+.round-step-button:hover {
+	color: #fff;
+}
+
+.round-step-button:active {
+	transform: translateY(1px);
 }
 
 .waiting-txt::after {
@@ -20,9 +82,26 @@
 }
 
 @keyframes dots {
-	0% { content: ""; }
-	25% { content: "."; }
-	50% { content: ".."; }
-	75% { content: "..."; }
-	100% { content: ""; }
+	0% {
+		content: "";
+	}
+	25% {
+		content: ".";
+	}
+	50% {
+		content: "..";
+	}
+	75% {
+		content: "...";
+	}
+	100% {
+		content: "";
+	}
+}
+
+@media (max-width: 375px) {
+	.modal-content {
+		padding-left: calc(0.8rem) !important;
+		padding-right: calc(0.8rem) !important;
+	}
 }
