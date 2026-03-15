@@ -102,6 +102,8 @@
 
 .chat-players {
 	max-height: 200px;
+	min-height: 120px;
+	flex-shrink: 0;
 }
 
 .chat-players-list {

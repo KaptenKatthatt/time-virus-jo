@@ -89,6 +89,33 @@ export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 	};
 };
 
+const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload> => {
+	const basePayload = await buildLobbyUpdate();
+
+	const lobbySockets = await io.in("lobby").fetchSockets();
+	const socketPlayers = lobbySockets
+		.map((lobbySocket) => ({
+			id: lobbySocket.id,
+			name: lobbySocket.data.name as string | undefined,
+		}))
+		.filter((player) => Boolean(player.name));
+
+	const mergedPlayersById = new Map<string, { id: string; name: string }>();
+
+	for (const player of basePayload.onlinePlayers) {
+		mergedPlayersById.set(player.id, player);
+	}
+
+	for (const player of socketPlayers) {
+		mergedPlayersById.set(player.id, { id: player.id, name: player.name! });
+	}
+
+	return {
+		...basePayload,
+		onlinePlayers: Array.from(mergedPlayersById.values()),
+	};
+};
+
 // Handle new socket connection
 export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	// Yay someone connected to me
@@ -99,6 +126,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
+			// Save player name on socket for global use
+			socket.data.name = playerName;
+
 			const player = await createPlayer({
 				id: socket.id,
 				name: playerName,
@@ -109,10 +139,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 			// Emit data about current state of played and live games to all
 			await updateLobbyForAll(io);
-
-			// Save player name on socket for global use
-			socket.data.name = playerName;
-			const data = await buildLobbyUpdate();
+			const data = await buildLobbyUpdateForIo(io);
 			// Emit player creation confirmation for game start
 			socket.emit("player:connected", { player, data });
 
@@ -132,7 +159,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		const game = await getGameByPlayerId(payload.playerId);
 
 		// Send latest lobby to client after leaving game and going to lobby
-		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdate();
+		const updatedLobbyData: LobbyUpdatePayload = await buildLobbyUpdateForIo(io);
 		socket.emit("player:returnedToLobby", updatedLobbyData);
 
 		if (!game) {
@@ -357,7 +384,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		await updateLobbyForAll(io);
 
 		// Build lobby payload to send to remaining opponent (reflects deletion above)
-		const updatedLobbydata = await buildLobbyUpdate();
+		const updatedLobbydata = await buildLobbyUpdateForIo(io);
 
 		if (gameToDelete && playerWhoLeft && gameToDelete.player_two_id) {
 			// Tell remaining player that opponent disconnected
