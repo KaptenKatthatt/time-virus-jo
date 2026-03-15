@@ -23,9 +23,12 @@ import {
 	findAvailableGame,
 	joinGame,
 	deleteGame,
+	deleteGamesByPlayerIds,
 	getGameByPlayerId,
 	getPlayerByPlayerId,
 	deletePlayer,
+	deletePlayersByIds,
+	findGameIdsByPlayerIds,
 	checkIfFastestPlayer,
 	resetGame,
 	getAllPlayers,
@@ -57,7 +60,26 @@ const DEFAULT_ROUNDS = 3;
 const MIN_ROUNDS = 1;
 const MAX_ROUNDS = 10;
 
+const readPositiveIntegerEnv = (key: string, fallbackValue: number) => {
+	const rawValue = process.env[key];
+	if (!rawValue) {
+		return fallbackValue;
+	}
+
+	const parsedValue = Number.parseInt(rawValue, 10);
+	if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+		debug("Invalid %s=%s. Falling back to default value %d", key, rawValue, fallbackValue);
+		return fallbackValue;
+	}
+
+	return parsedValue;
+};
+
+const RECONCILE_INTERVAL_MS = readPositiveIntegerEnv("RECONCILE_INTERVAL_MS", 30_000);
+const STALE_GRACE_PERIOD_MS = readPositiveIntegerEnv("STALE_GRACE_PERIOD_MS", 45_000);
+
 export const activeGames: Record<string, ActiveGame> = {};
+const missingPlayersSince = new Map<string, number>();
 
 export interface ActiveGame {
 	round: number;
@@ -105,28 +127,111 @@ export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload> => {
 	const basePayload = await buildLobbyUpdate();
 
-	const lobbySockets = await io.in("lobby").fetchSockets();
-	const socketPlayers = lobbySockets
-		.map((lobbySocket) => ({
-			id: lobbySocket.id,
-			name: lobbySocket.data.name as string | undefined,
+	const connectedSockets = await io.fetchSockets();
+	const onlinePlayers = connectedSockets
+		.map((connectedSocket) => ({
+			id: connectedSocket.id,
+			name: connectedSocket.data.name as string | undefined,
 		}))
-		.filter((player) => Boolean(player.name));
-
-	const mergedPlayersById = new Map<string, { id: string; name: string }>();
-
-	for (const player of basePayload.onlinePlayers) {
-		mergedPlayersById.set(player.id, player);
-	}
-
-	for (const player of socketPlayers) {
-		mergedPlayersById.set(player.id, { id: player.id, name: player.name! });
-	}
+		.filter((player) => Boolean(player.name))
+		.map((player) => ({
+			id: player.id,
+			name: player.name!,
+		}));
 
 	return {
 		...basePayload,
-		onlinePlayers: Array.from(mergedPlayersById.values()),
+		onlinePlayers,
 	};
+};
+
+export { buildLobbyUpdateForIo };
+
+export const startReconcileCleanup = (io: AppServer) => {
+	let isReconciling = false;
+
+	console.log(
+		"🧹 Reconcile cleanup enabled (interval=%dms, grace=%dms)",
+		RECONCILE_INTERVAL_MS,
+		STALE_GRACE_PERIOD_MS,
+	);
+
+	const intervalRef = setInterval(async () => {
+		if (isReconciling) {
+			return;
+		}
+
+		isReconciling = true;
+
+		try {
+			const now = Date.now();
+			const connectedSockets = await io.fetchSockets();
+			const activeSocketIds = new Set(
+				connectedSockets.map((connectedSocket) => connectedSocket.id),
+			);
+			const dbPlayers = await getAllPlayers();
+			const dbPlayerIds = new Set(dbPlayers.map((player) => player.id));
+			const stalePlayerIds: string[] = [];
+
+			for (const player of dbPlayers) {
+				if (activeSocketIds.has(player.id)) {
+					missingPlayersSince.delete(player.id);
+					continue;
+				}
+
+				const firstMissingAt = missingPlayersSince.get(player.id);
+				if (!firstMissingAt) {
+					missingPlayersSince.set(player.id, now);
+					continue;
+				}
+
+				if (now - firstMissingAt >= STALE_GRACE_PERIOD_MS) {
+					stalePlayerIds.push(player.id);
+				}
+			}
+
+			for (const trackedPlayerId of Array.from(missingPlayersSince.keys())) {
+				if (activeSocketIds.has(trackedPlayerId) || !dbPlayerIds.has(trackedPlayerId)) {
+					missingPlayersSince.delete(trackedPlayerId);
+				}
+			}
+
+			if (stalePlayerIds.length === 0) {
+				return;
+			}
+
+			const staleGameIds = await findGameIdsByPlayerIds(stalePlayerIds);
+
+			await deleteGamesByPlayerIds(stalePlayerIds);
+			await deletePlayersByIds(stalePlayerIds);
+
+			for (const stalePlayerId of stalePlayerIds) {
+				missingPlayersSince.delete(stalePlayerId);
+			}
+
+			for (const staleGameId of staleGameIds) {
+				delete activeGames[staleGameId];
+				rematchRequestsByGame.delete(staleGameId);
+				pendingRoundSelectionByGame.delete(staleGameId);
+			}
+
+			await updateLobbyForAll(io);
+
+			debug(
+				"🧹 Reconcile removed stale players=%d games=%d",
+				stalePlayerIds.length,
+				staleGameIds.length,
+			);
+		} catch (err) {
+			console.error("⚠️ Reconcile cleanup failed:", err);
+		} finally {
+			isReconciling = false;
+		}
+	}, RECONCILE_INTERVAL_MS);
+
+	intervalRef.unref();
+
+	return intervalRef;
 };
 
 const normalizeTotalRounds = (totalRounds: number) => {

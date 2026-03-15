@@ -80,6 +80,52 @@ export const getAllPlayers = async () => {
 	});
 };
 
+export const cleanupTransientGameState = async () => {
+	await prisma.game.deleteMany();
+	await prisma.player.deleteMany();
+};
+
+export const findGameIdsByPlayerIds = async (playerIds: string[]) => {
+	if (playerIds.length === 0) {
+		return [] as string[];
+	}
+
+	const games = await prisma.game.findMany({
+		where: {
+			OR: [{ player_one_id: { in: playerIds } }, { player_two_id: { in: playerIds } }],
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	return games.map((game) => game.id);
+};
+
+export const deleteGamesByPlayerIds = async (playerIds: string[]) => {
+	if (playerIds.length === 0) {
+		return;
+	}
+
+	await prisma.game.deleteMany({
+		where: {
+			OR: [{ player_one_id: { in: playerIds } }, { player_two_id: { in: playerIds } }],
+		},
+	});
+};
+
+export const deletePlayersByIds = async (playerIds: string[]) => {
+	if (playerIds.length === 0) {
+		return;
+	}
+
+	await prisma.player.deleteMany({
+		where: {
+			id: { in: playerIds },
+		},
+	});
+};
+
 /**
  * Checks if the player is faster than current fastest player in game object.
  * If so, update game object.

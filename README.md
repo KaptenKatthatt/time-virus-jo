@@ -1,4 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/G7QpxwMA)
+
 # FED25 API-utveckling Realtime Boilerplate
 
 This is a boilerplate for a Real-time app using Socket.IO.
@@ -37,6 +38,11 @@ npm install
 ### Configuration
 
 Copy `backend/.env.example` to `backend/.env` and update the values.
+
+Optional cleanup tuning for stale players/games:
+
+- `RECONCILE_INTERVAL_MS` (default `30000`)
+- `STALE_GRACE_PERIOD_MS` (default `45000`)
 
 ### Development
 

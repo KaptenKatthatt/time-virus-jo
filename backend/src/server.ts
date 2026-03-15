@@ -3,7 +3,8 @@ import app from "./app.ts";
 import Debug from "debug";
 import http from "http";
 import { Server } from "socket.io";
-import { handleConnection } from "./controllers/socket.controller.ts";
+import { handleConnection, startReconcileCleanup } from "./controllers/socket.controller.ts";
+import { cleanupTransientGameState } from "./services/gameRoom.service.ts";
 import type { AppServer } from "./types/socket.types.ts";
 
 // Read port to start server on from `.env`, otherwise default to port 3000
@@ -34,7 +35,16 @@ io.on("connection", (socket) => {
 /**
  * Listen on provided port, on all network interfaces.
  */
-httpServer.listen(PORT);
+const startServer = async () => {
+	await cleanupTransientGameState();
+	startReconcileCleanup(io);
+	httpServer.listen(PORT);
+};
+
+startServer().catch((err) => {
+	console.error("🛑 Failed to initialize backend state", err);
+	process.exit(1);
+});
 
 /**
  * Event listener for HTTP server "error" event.
