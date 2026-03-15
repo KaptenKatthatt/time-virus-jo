@@ -14,6 +14,8 @@ import type {
 	LiveGameData,
 	LobbyUpdatePayload,
 	ChatMessage,
+	SelectRoundsPayload,
+	WaitingForRoundsPayload,
 } from "@shared/types/payloads.types.ts";
 
 import {
@@ -42,14 +44,24 @@ debug("Socket Controller initialized");
 /**
  * Variables
  */
-const rematchArr: string[] = [];
 const chatHistory: ChatMessage[] = [];
-const TOTAL_ROUNDS = 3;
+const rematchRequestsByGame = new Map<string, string[]>();
+const pendingRoundSelectionByGame = new Map<
+	string,
+	{
+		selectorPlayerId: string;
+		selectorName: string;
+	}
+>();
+const DEFAULT_ROUNDS = 3;
+const MIN_ROUNDS = 1;
+const MAX_ROUNDS = 10;
 
 export const activeGames: Record<string, ActiveGame> = {};
 
 export interface ActiveGame {
 	round: number;
+	totalRounds: number;
 	player_one_id: string;
 	player_two_id: string;
 	player_one_name: string;
@@ -117,6 +129,65 @@ const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload>
 	};
 };
 
+const normalizeTotalRounds = (totalRounds: number) => {
+	if (!Number.isFinite(totalRounds)) {
+		return DEFAULT_ROUNDS;
+	}
+
+	const parsedRounds = Math.floor(totalRounds);
+	return Math.min(MAX_ROUNDS, Math.max(MIN_ROUNDS, parsedRounds));
+};
+
+const startGameForRoom = async (io: AppServer, game: Game, totalRounds: number) => {
+	const startingVirus = summonVirus();
+	const normalizedRounds = normalizeTotalRounds(totalRounds);
+
+	const gameStartPayload: GameStartPayload = {
+		gameId: game.id,
+		message: "All players joined. Starting game",
+	};
+
+	io.to(game.id).emit("game:start", gameStartPayload);
+
+	activeGames[game.id] = {
+		round: 1,
+		totalRounds: normalizedRounds,
+		player_one_id: game.player_one_id,
+		player_two_id: game.player_two_id!,
+		player_one_name: game.player_one_name!,
+		player_two_name: game.player_two_name!,
+		player_one_score: 0,
+		player_two_score: 0,
+		clickedPlayers: [],
+		currentSpawnTime: Date.now() + startingVirus.delay,
+		fastest_player_id: "",
+		fastest_Time: 9999,
+	};
+
+	await updateLobbyForAll(io);
+
+	const gameData: GamePayload = {
+		id: game.id,
+		name: null,
+		player_one_id: activeGames[game.id].player_one_id,
+		player_two_id: activeGames[game.id].player_two_id,
+		player_one_name: activeGames[game.id].player_one_name,
+		player_two_name: activeGames[game.id].player_two_name,
+		player_one_score: activeGames[game.id].player_one_score,
+		player_two_score: activeGames[game.id].player_two_score,
+		round: activeGames[game.id].round,
+		totalRounds: activeGames[game.id].totalRounds,
+		fastest_player_id: activeGames[game.id].fastest_player_id,
+		fastest_Time: activeGames[game.id].fastest_Time,
+	};
+
+	io.to(game.id).emit("game:data", gameData);
+
+	setTimeout(() => {
+		io.to(game.id).emit("game:virus", startingVirus);
+	}, 4000);
+};
+
 // Handle new socket connection
 export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	// Yay someone connected to me
@@ -162,6 +233,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 		if (game) {
 			delete activeGames[game.id];
+			rematchRequestsByGame.delete(game.id);
+			pendingRoundSelectionByGame.delete(game.id);
 			socket.leave(game.id);
 			socket.data.gameId = "";
 
@@ -189,72 +262,53 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			return;
 		}
 
-		const checkArr = rematchArr.includes(payload.playerId!);
-		if (!checkArr) {
-			rematchArr.push(payload.playerId);
+		const existingRequests = rematchRequestsByGame.get(game.id) ?? [];
+		if (!existingRequests.includes(payload.playerId)) {
+			existingRequests.push(payload.playerId);
+			rematchRequestsByGame.set(game.id, existingRequests);
 		}
 
-		const playerTwoCheck = rematchArr.includes(game.player_one_id!);
-		const playerOneCheck = rematchArr.includes(game.player_two_id!);
-
-		debug(rematchArr);
-
-		if (playerOneCheck && playerTwoCheck) {
-			const startingVirus = summonVirus();
-			await resetGame(game.id);
-
-			rematchArr.pop();
-			rematchArr.pop();
-
-			const gameStartPayload: GameStartPayload = {
-				gameId: game.id,
-				message: "All players joined. Starting game",
-			};
-
-			io.to(game.id).emit("game:start", gameStartPayload);
-
-			activeGames[game.id] = {
-				round: 1,
-				player_one_id: game.player_one_id,
-				player_two_id: game.player_two_id!,
-				player_one_name: game.player_one_name!,
-				player_two_name: game.player_two_name!,
-				player_one_score: 0,
-				player_two_score: 0,
-				clickedPlayers: [],
-				currentSpawnTime: Date.now() + startingVirus.delay,
-				fastest_player_id: "",
-				fastest_Time: 9999,
-			};
-
-			await updateLobbyForAll(io);
-
-			const gameData: GamePayload = {
-				id: game.id,
-				name: null,
-				player_one_id: activeGames[game.id].player_one_id,
-				player_two_id: activeGames[game.id].player_two_id,
-				player_one_name: activeGames[game.id].player_one_name,
-				player_two_name: activeGames[game.id].player_two_name,
-				player_one_score: activeGames[game.id].player_one_score,
-				player_two_score: activeGames[game.id].player_two_score,
-				round: activeGames[game.id].round,
-				totalRounds: TOTAL_ROUNDS,
-				fastest_player_id: activeGames[game.id].fastest_player_id,
-				fastest_Time: activeGames[game.id].fastest_Time,
-			};
-
-			io.to(game.id).emit("game:data", gameData);
-
-			setTimeout(() => {
-				io.to(game.id).emit("game:virus", startingVirus);
-			}, 4000);
-		} else {
+		if (existingRequests.length === 1) {
 			socket.to(game.id).emit("player:rematch", {
 				playerId: payload.playerId,
 				name: player.name,
 			});
+			return;
 		}
+
+		if (existingRequests.length < 2) {
+			return;
+		}
+
+		await resetGame(game.id);
+
+		const selectorPlayerId = existingRequests[0];
+		const selectorName =
+			selectorPlayerId === game.player_one_id ? game.player_one_name! : game.player_two_name!;
+
+		pendingRoundSelectionByGame.set(game.id, {
+			selectorPlayerId,
+			selectorName,
+		});
+
+		rematchRequestsByGame.delete(game.id);
+
+		const selectPayload: SelectRoundsPayload = {
+			gameId: game.id,
+			selectorName,
+			minRounds: MIN_ROUNDS,
+			maxRounds: MAX_ROUNDS,
+			defaultRounds: DEFAULT_ROUNDS,
+		};
+		const waitingPayload: WaitingForRoundsPayload = {
+			gameId: game.id,
+			selectorName,
+		};
+		const waitingPlayerId =
+			selectorPlayerId === game.player_one_id ? game.player_two_id! : game.player_one_id;
+
+		io.to(selectorPlayerId).emit("rounds:select", selectPayload);
+		io.to(waitingPlayerId).emit("rounds:waiting", waitingPayload);
 	});
 
 	/**
@@ -283,67 +337,59 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			// Emit to Player 1 that game is created and is waiting for opponent
 			socket.emit("game:created", gameCreatedPayload);
 		} else {
-			await joinGame(playerId, availableGame.id, socket.data.name);
+			const joinedGame = await joinGame(playerId, availableGame.id, socket.data.name);
 
 			// Save game id on socket to be used everywhere
 			socket.data.gameId = availableGame.id;
 
-			// Send signal that games is full and to start game
-			const gameStartPayload: GameStartPayload = {
-				gameId: availableGame.id,
-				message: "All players joined. Starting game",
-			};
-
 			// Join player 2 into the game
 			socket.join(availableGame.id);
 
-			// Emit that game is starting
-			io.to(availableGame.id).emit("game:start", gameStartPayload);
+			const selectorName = joinedGame.player_one_name!;
+			pendingRoundSelectionByGame.set(joinedGame.id, {
+				selectorPlayerId: joinedGame.player_one_id,
+				selectorName,
+			});
 
-			// Create first virus
-			const startingVirus = summonVirus();
-
-			// Create game object
-			activeGames[availableGame.id] = {
-				round: 1,
-				player_one_id: availableGame.player_one_id,
-				player_two_id: playerId,
-				player_one_name: availableGame.player_one_name!,
-				player_two_name: socket.data.name,
-				player_one_score: 0,
-				player_two_score: 0,
-				clickedPlayers: [],
-				currentSpawnTime: Date.now() + startingVirus.delay,
-				fastest_player_id: "",
-				fastest_Time: 9999,
+			const selectPayload: SelectRoundsPayload = {
+				gameId: joinedGame.id,
+				selectorName,
+				minRounds: MIN_ROUNDS,
+				maxRounds: MAX_ROUNDS,
+				defaultRounds: DEFAULT_ROUNDS,
+			};
+			const waitingPayload: WaitingForRoundsPayload = {
+				gameId: joinedGame.id,
+				selectorName,
 			};
 
-			await updateLobbyForAll(io);
-
-			// console.log("Created game", activeGames[availableGame.id]);
-
-			const gameData: GamePayload = {
-				id: availableGame.id,
-				name: null,
-				player_one_id: activeGames[availableGame.id].player_one_id,
-				player_two_id: activeGames[availableGame.id].player_two_id,
-				player_one_name: activeGames[availableGame.id].player_one_name,
-				player_two_name: activeGames[availableGame.id].player_two_name,
-				player_one_score: activeGames[availableGame.id].player_one_score,
-				player_two_score: activeGames[availableGame.id].player_two_score,
-				round: activeGames[availableGame.id].round,
-				totalRounds: TOTAL_ROUNDS,
-				fastest_player_id: activeGames[availableGame.id].fastest_player_id,
-				fastest_Time: activeGames[availableGame.id].fastest_Time,
-			};
-
-			io.to(availableGame.id).emit("game:data", gameData);
-
-			// Emit virus to all players
-			setTimeout(() => {
-				io.to(availableGame.id).emit("game:virus", startingVirus);
-			}, 4000);
+			io.to(joinedGame.player_one_id).emit("rounds:select", selectPayload);
+			io.to(playerId).emit("rounds:waiting", waitingPayload);
 		}
+	});
+
+	socket.on("rounds:selected", async ({ totalRounds }) => {
+		const gameId = socket.data.gameId;
+		if (!gameId) {
+			return;
+		}
+
+		const pendingRoundSelection = pendingRoundSelectionByGame.get(gameId);
+		if (!pendingRoundSelection) {
+			return;
+		}
+
+		if (pendingRoundSelection.selectorPlayerId !== socket.id) {
+			return;
+		}
+
+		const game = await getGameByPlayerId(socket.id);
+		if (!game || !game.player_two_id) {
+			return;
+		}
+
+		pendingRoundSelectionByGame.delete(gameId);
+		await startGameForRoom(io, game, totalRounds);
 	});
 
 	/**
@@ -375,6 +421,8 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		// Delete game from activeGames in-memory object
 		if (gameToDelete) {
 			delete activeGames[gameToDelete.id];
+			rematchRequestsByGame.delete(gameToDelete.id);
+			pendingRoundSelectionByGame.delete(gameToDelete.id);
 		}
 
 		// Delete game from DB before broadcasting so lobby is accurate
@@ -412,6 +460,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	socket.on("player:clicked", async (timestampPayload) => {
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
+		if (!currentGame) {
+			return;
+		}
 
 		//Player reaction time
 		const reactionTime = timestampPayload.timestamp;
@@ -432,7 +483,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		if (currentGame.clickedPlayers.length === 2) {
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
-			const hasMoreRounds = currentGame.round < TOTAL_ROUNDS;
+			const hasMoreRounds = currentGame.round < currentGame.totalRounds;
 
 			// Compare reaction time of both
 			if (fastestInRound.playerId === currentGame.player_one_id) {
@@ -455,7 +506,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				player_one_score: currentGame.player_one_score,
 				player_two_score: currentGame.player_two_score,
 				round: currentGame.round,
-				totalRounds: TOTAL_ROUNDS,
+				totalRounds: currentGame.totalRounds,
 				fastest_player_id: currentGame.fastest_player_id,
 				fastest_Time: currentGame.fastest_Time,
 			};

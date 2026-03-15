@@ -12,7 +12,12 @@ import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
-import { DisconnectedUser, MatchFoundModal } from "./components/LobbyModals";
+import {
+	DisconnectedUser,
+	MatchFoundModal,
+	SelectRoundsModal,
+	WaitingForRoundSelectionModal,
+} from "./components/LobbyModals";
 import type {
 	GameOverPayload,
 	LobbyUpdatePayload,
@@ -37,6 +42,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 let currentPlayer: Player | undefined = undefined;
 let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 let latestLobbyData: LobbyUpdatePayload | null = null;
+let roundSelectionModal: HTMLElement | null = null;
 
 /**
  * Socket Event Listeners
@@ -73,6 +79,10 @@ socket.io.on("reconnect", () => {
  * Functions
  */
 const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+	roundSelectionModal = null;
+
 	if (player) {
 		currentPlayer = player;
 	}
@@ -85,6 +95,10 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 };
 
 const showGameOver = (payload: GameOverPayload) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+	roundSelectionModal = null;
+
 	app.innerHTML = "";
 	app.appendChild(GameOver(socket, payload));
 };
@@ -118,6 +132,8 @@ window.addEventListener("app:forceLobbyFallback", () => {
 
 socket.on("game:start", () => {
 	waitingModal?.remove();
+	roundSelectionModal?.remove();
+	roundSelectionModal = null;
 
 	// Preload game to be available before appending.
 	const gameEl = Game(socket);
@@ -129,6 +145,33 @@ socket.on("game:start", () => {
 	});
 
 	document.body.appendChild(matchModal);
+});
+
+socket.on("rounds:select", (payload) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+
+	roundSelectionModal = SelectRoundsModal(
+		payload.selectorName,
+		(totalRounds) => {
+			socket.emit("rounds:selected", { totalRounds });
+			roundSelectionModal?.remove();
+			roundSelectionModal = null;
+		},
+		payload.minRounds,
+		payload.maxRounds,
+		payload.defaultRounds,
+	);
+
+	document.body.appendChild(roundSelectionModal);
+});
+
+socket.on("rounds:waiting", (payload) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+
+	roundSelectionModal = WaitingForRoundSelectionModal(payload.selectorName);
+	document.body.appendChild(roundSelectionModal);
 });
 
 socket.on("player:disconnected", (payload: PlayerDisconnectedPayload) => {

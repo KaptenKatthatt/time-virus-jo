@@ -21,6 +21,69 @@ export function WaitingModal() {
 	return render();
 }
 
+export function SelectRoundsModal(
+	selectorName: string,
+	onSelect: (totalRounds: number) => void,
+	minRounds = 1,
+	maxRounds = 10,
+	defaultRounds = 3,
+) {
+	const render = () => {
+		const container = document.createElement("div");
+		container.className = "disconnect-modal d-flex flex-column gap-3 align-items-center";
+
+		const title = document.createElement("h2");
+		title.innerText = "Select number of rounds";
+
+		const text = document.createElement("p");
+		text.className = "my-2";
+		text.innerText = `${selectorName}, choose how many rounds to play`;
+
+		const input = document.createElement("input");
+		input.type = "number";
+		input.min = String(minRounds);
+		input.max = String(maxRounds);
+		input.value = String(defaultRounds);
+		input.className = "form-control text-center";
+		input.style.maxWidth = "180px";
+
+		const button = Button("Start", () => {
+			const parsedRounds = Number(input.value);
+			const safeRounds = Math.min(maxRounds, Math.max(minRounds, Math.floor(parsedRounds)));
+			onSelect(Number.isFinite(safeRounds) ? safeRounds : defaultRounds);
+		});
+
+		container.appendChild(title);
+		container.appendChild(text);
+		container.appendChild(input);
+		container.appendChild(button);
+
+		return Modal(container);
+	};
+
+	return render();
+}
+
+export function WaitingForRoundSelectionModal(selectorName: string) {
+	const render = () => {
+		const container = document.createElement("div");
+		const spinner = document.createElement("div");
+		spinner.className = "spinner-border text-primary mb-3 mt-3";
+		spinner.role = "status";
+
+		const text = document.createElement("p");
+		text.className = "text-center waiting-txt";
+		text.innerText = `Waiting for ${selectorName} to select number of rounds`;
+
+		container.appendChild(spinner);
+		container.appendChild(text);
+
+		return Modal(container);
+	};
+
+	return render();
+}
+
 export function MatchFoundModal(cb?: () => void) {
 	const render = () => {
 		const container = document.createElement("div");

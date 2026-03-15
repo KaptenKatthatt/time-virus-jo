@@ -49,6 +49,19 @@ export interface GameStartPayload {
   message: string;
 }
 
+export interface SelectRoundsPayload {
+  gameId: GameId;
+  selectorName: string;
+  minRounds: number;
+  maxRounds: number;
+  defaultRounds: number;
+}
+
+export interface WaitingForRoundsPayload {
+  gameId: GameId;
+  selectorName: string;
+}
+
 export interface ScorePayload {
   id: string;
   score: number;

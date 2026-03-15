@@ -11,6 +11,8 @@ import type {
   LobbyUpdatePayload,
   PlayerDisconnectedPayload,
   ChatMessage,
+  SelectRoundsPayload,
+  WaitingForRoundsPayload,
 } from "./payloads.types";
 
 // Events emitted by the server to the client
@@ -29,6 +31,8 @@ export interface ServerToClientEvents {
   "player:returnedToLobby": (payload: LobbyUpdatePayload) => void;
   "scoreboard:data": (payload: ScoreBoardPayload) => void;
   "chat:message": (payload: ChatMessage) => void;
+  "rounds:select": (payload: SelectRoundsPayload) => void;
+  "rounds:waiting": (payload: WaitingForRoundsPayload) => void;
 }
 
 // Events emitted by the client to the server
@@ -42,6 +46,7 @@ export interface ClientToServerEvents {
   "player:rematch": (payload: { playerId: string }) => void;
   "player:left": (payload: { playerId: string }) => void;
   "chat:message": (payload: { message: string }) => void;
+  "rounds:selected": (payload: { totalRounds: number }) => void;
 }
 
 export interface TimestampPayload {
