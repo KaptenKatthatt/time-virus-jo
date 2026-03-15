@@ -9,6 +9,8 @@ import { GameStatus } from "../components/game/GameStatus";
 import type { PlayerPayload } from "../types/game.types";
 import type { AppClientSocket } from "../types/socket.types";
 
+const INACTIVITY_TIMEOUT_MS = 60000;
+
 export default function Game(socket: AppClientSocket) {
 	let player1Data: PlayerPayload = {
 		name: "Player 1",
@@ -72,6 +74,11 @@ export default function Game(socket: AppClientSocket) {
 		}
 	};
 
+	const handleInactivity = () => {
+		if (!socket.id) return;
+		socket.emit("player:left", { playerId: socket.id });
+	};
+
 	const setupVirusListeners = (element: HTMLDivElement, gameTimerEl: HTMLSpanElement) => {
 		socket.off("game:virus");
 		socket.on("game:virus", (payload) => {
@@ -84,10 +91,10 @@ export default function Game(socket: AppClientSocket) {
 				element.appendChild(virus);
 				restartGameTimer(gameTimerEl);
 
-				// If player inactive, send to lobby
+				// If player inactive for too long, send to lobby
 				inactivityTimer = window.setTimeout(() => {
-					window.location.reload();
-				}, 30000);
+					handleInactivity();
+				}, INACTIVITY_TIMEOUT_MS);
 			}, payload.delay);
 			GameTimer("stop", gameTimerEl);
 		});
