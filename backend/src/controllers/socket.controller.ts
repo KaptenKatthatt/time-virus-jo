@@ -432,6 +432,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		if (currentGame.clickedPlayers.length === 2) {
 			// Check if current player is fastest player
 			const fastestInRound = checkIfFastestPlayer(currentGame);
+			const hasMoreRounds = currentGame.round < TOTAL_ROUNDS;
 
 			// Compare reaction time of both
 			if (fastestInRound.playerId === currentGame.player_one_id) {
@@ -440,7 +441,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 				currentGame.player_two_score++;
 			}
 
-			currentGame.round++;
+			if (hasMoreRounds) {
+				currentGame.round++;
+			}
 			// Emit result update (fastest player this round and fastest in game)
 			const gameData: GamePayload = {
 				id: gameId,
@@ -463,7 +466,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 			await updateLobbyForAll(io);
 
 			// If round is within configured round limit, send new virus
-			if (currentGame.round <= TOTAL_ROUNDS) {
+			if (hasMoreRounds) {
 				currentGame.clickedPlayers = [];
 
 				//Create next virus
