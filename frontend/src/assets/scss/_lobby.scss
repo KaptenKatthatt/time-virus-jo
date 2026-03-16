@@ -164,7 +164,7 @@
 	flex-shrink: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 920px) {
 	.lobby-grid {
 		grid-template-columns: 1fr;
 	}
@@ -175,7 +175,7 @@
 	}
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 921px) and (max-width: 1023px) {
 	.lobby-page.container {
 		max-width: 100%;
 		padding-inline: 1.5rem;
