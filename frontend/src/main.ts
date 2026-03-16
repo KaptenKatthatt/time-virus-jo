@@ -24,6 +24,7 @@ import type {
 	PlayerDisconnectedPayload,
 } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "./types/socket.types";
+import { APP_FADE_DURATION_MS, applyFadeDurationCssVar } from "./lib/fadeConfig";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -43,6 +44,45 @@ let currentPlayer: Player | undefined = undefined;
 let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 let latestLobbyData: LobbyUpdatePayload | null = null;
 let roundSelectionModal: HTMLElement | null = null;
+let queuedScreenTransition: Promise<void> = Promise.resolve();
+
+applyFadeDurationCssVar();
+
+const wait = (ms: number) =>
+	new Promise<void>((resolve) => {
+		window.setTimeout(resolve, ms);
+	});
+
+const replaceAppContent = (nextScreen: HTMLElement) => {
+	app.innerHTML = "";
+	app.appendChild(nextScreen);
+};
+
+const withScreenFade = (nextScreen: HTMLElement) => {
+	queuedScreenTransition = queuedScreenTransition
+		.catch(() => undefined)
+		.then(async () => {
+			const overlay = document.createElement("div");
+			overlay.className = "app-screen-fade-overlay";
+			document.body.appendChild(overlay);
+
+			requestAnimationFrame(() => {
+				overlay.classList.add("is-visible");
+			});
+
+			await wait(APP_FADE_DURATION_MS);
+			replaceAppContent(nextScreen);
+
+			requestAnimationFrame(() => {
+				overlay.classList.remove("is-visible");
+			});
+
+			await wait(APP_FADE_DURATION_MS);
+			overlay.remove();
+		});
+
+	return queuedScreenTransition;
+};
 
 /**
  * Socket Event Listeners
@@ -66,8 +106,7 @@ socket.on("disconnect", () => {
 	currentPlayer = undefined;
 
 	// Reset UI and go back to login screen
-	app.innerHTML = "";
-	app.appendChild(playerName);
+	void withScreenFade(playerName);
 });
 
 // Listen for when we're reconnected (either due to ours or the servers fault)
@@ -90,8 +129,7 @@ const showLobbyAfterJoin = async (data: LobbyUpdatePayload, player?: Player) => 
 	lobbyInstance?.destroy();
 	lobbyInstance = Lobby(socket, data);
 
-	app.innerHTML = "";
-	app.appendChild(lobbyInstance.element);
+	await withScreenFade(lobbyInstance.element);
 };
 
 const showGameOver = (payload: GameOverPayload) => {
@@ -99,8 +137,7 @@ const showGameOver = (payload: GameOverPayload) => {
 	roundSelectionModal?.remove();
 	roundSelectionModal = null;
 
-	app.innerHTML = "";
-	app.appendChild(GameOver(socket, payload));
+	void withScreenFade(GameOver(socket, payload));
 };
 
 /**
@@ -122,12 +159,11 @@ socket.on("lobby:update", (payload: LobbyUpdatePayload) => {
 
 window.addEventListener("app:forceLobbyFallback", () => {
 	if (latestLobbyData) {
-		showLobbyAfterJoin(latestLobbyData, currentPlayer);
+		void showLobbyAfterJoin(latestLobbyData, currentPlayer);
 		return;
 	}
 
-	app.innerHTML = "";
-	app.appendChild(playerName);
+	void withScreenFade(playerName);
 });
 
 socket.on("game:start", () => {
@@ -140,8 +176,7 @@ socket.on("game:start", () => {
 
 	const matchModal = MatchFoundModal(() => {
 		matchModal.remove();
-		app.innerHTML = "";
-		app.appendChild(gameEl);
+		void withScreenFade(gameEl);
 	});
 
 	document.body.appendChild(matchModal);
