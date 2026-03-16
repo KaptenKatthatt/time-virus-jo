@@ -74,16 +74,14 @@ const withScreenFade = (nextScreen: HTMLElement) => {
 				await wait(APP_FADE_DURATION_MS);
 				replaceAppContent(nextScreen);
 			} finally {
-				if (!overlay.isConnected) {
-					return;
+				if (overlay.isConnected) {
+					requestAnimationFrame(() => {
+						overlay.classList.remove("is-visible");
+					});
+
+					await wait(APP_FADE_DURATION_MS);
+					overlay.remove();
 				}
-
-				requestAnimationFrame(() => {
-					overlay.classList.remove("is-visible");
-				});
-
-				await wait(APP_FADE_DURATION_MS);
-				overlay.remove();
 			}
 		});
 
