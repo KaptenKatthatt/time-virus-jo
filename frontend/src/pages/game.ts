@@ -3,6 +3,7 @@ import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
+import popSound from "../assets/soundfx/pop.mp3";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
@@ -12,6 +13,16 @@ import type { AppClientSocket } from "../types/socket.types";
 
 const INACTIVITY_TIMEOUT_MS = 60000;
 const LOBBY_FALLBACK_TIMEOUT_MS = 1000;
+const popAudio = new Audio(popSound);
+
+popAudio.preload = "auto";
+popAudio.load();
+
+const playPopSound = () => {
+	popAudio.pause();
+	popAudio.currentTime = 0;
+	void popAudio.play().catch(() => {});
+};
 
 export default function Game(socket: AppClientSocket) {
 	let player1Data: PlayerPayload = {
@@ -75,6 +86,7 @@ export default function Game(socket: AppClientSocket) {
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		sendReactionTime();
+		playPopSound();
 
 		// Block repeat clicks and switch to the explosion animation.
 		virus.style.pointerEvents = "none";
