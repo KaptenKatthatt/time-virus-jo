@@ -75,12 +75,20 @@ export default function Game(socket: AppClientSocket) {
 
 	const handleVirusClick = (virus: HTMLImageElement) => {
 		sendReactionTime();
-		virus.remove();
+
+		// Block repeat clicks and switch to the explosion animation.
+		virus.style.pointerEvents = "none";
+		virus.classList.add("explode");
 
 		if (inactivityTimer) {
 			clearTimeout(inactivityTimer);
 			inactivityTimer = null;
 		}
+
+		// Remove virus after the explosion animation completes.
+		window.setTimeout(() => {
+			virus.remove();
+		}, 1000);
 	};
 
 	const handleInactivity = () => {
