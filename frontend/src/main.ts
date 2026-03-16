@@ -53,6 +53,13 @@ const wait = (ms: number) =>
 		window.setTimeout(resolve, ms);
 	});
 
+const nextAnimationFrame = () =>
+	new Promise<void>((resolve) => {
+		requestAnimationFrame(() => {
+			resolve();
+		});
+	});
+
 const replaceAppContent = (nextScreen: HTMLElement) => {
 	app.innerHTML = "";
 	app.appendChild(nextScreen);
@@ -67,23 +74,19 @@ const withScreenFade = (nextScreen: HTMLElement) => {
 			document.body.appendChild(overlay);
 
 			try {
-				requestAnimationFrame(() => {
-					overlay.classList.add("is-visible");
-				});
+				await nextAnimationFrame();
+				overlay.classList.add("is-visible");
 
 				await wait(APP_FADE_DURATION_MS);
 				replaceAppContent(nextScreen);
 			} finally {
-				if (!overlay.isConnected) {
-					return;
-				}
-
-				requestAnimationFrame(() => {
+				if (overlay.isConnected) {
+					await nextAnimationFrame();
 					overlay.classList.remove("is-visible");
-				});
 
-				await wait(APP_FADE_DURATION_MS);
-				overlay.remove();
+					await wait(APP_FADE_DURATION_MS);
+					overlay.remove();
+				}
 			}
 		});
 
