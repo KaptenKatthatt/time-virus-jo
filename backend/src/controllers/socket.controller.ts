@@ -24,11 +24,13 @@ import {
 	joinGame,
 	deleteGame,
 	deleteGamesByPlayerIds,
+	deleteGamesByIds,
 	getGameByPlayerId,
 	getPlayerByPlayerId,
 	deletePlayer,
 	deletePlayersByIds,
 	findGameIdsByPlayerIds,
+	findExistingGameIds,
 	checkIfFastestPlayer,
 	resetGame,
 	getAllPlayers,
@@ -80,6 +82,7 @@ const STALE_GRACE_PERIOD_MS = readPositiveIntegerEnv("STALE_GRACE_PERIOD_MS", 45
 
 export const activeGames: Record<string, ActiveGame> = {};
 const missingPlayersSince = new Map<string, number>();
+const missingGamesSince = new Map<string, number>();
 
 export interface ActiveGame {
 	round: number;
@@ -102,17 +105,28 @@ export interface ActiveGame {
 export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 	// Get all played games from db
 	const allPlayedGames = await getScoreboard();
+	const existingGameIds = new Set(await findExistingGameIds(Object.keys(activeGames)));
 
 	// Get all live games and convert to an array
-	const allLiveGames: LiveGameData[] = Object.entries(activeGames).map(([gameId, game]) => {
-		return {
+	const allLiveGames: LiveGameData[] = [];
+
+	for (const [gameId, game] of Object.entries(activeGames)) {
+		if (!existingGameIds.has(gameId)) {
+			delete activeGames[gameId];
+			missingGamesSince.delete(gameId);
+			rematchRequestsByGame.delete(gameId);
+			pendingRoundSelectionByGame.delete(gameId);
+			continue;
+		}
+
+		allLiveGames.push({
 			gameId,
 			player_one_name: game.player_one_name,
 			player_one_score: game.player_one_score,
 			player_two_name: game.player_two_name,
 			player_two_score: game.player_two_score,
-		};
-	});
+		});
+	}
 
 	// Get all online players from db
 	const onlinePlayers = await getAllPlayers();
@@ -172,6 +186,7 @@ export const startReconcileCleanup = (io: AppServer) => {
 			const dbPlayers = await getAllPlayers();
 			const dbPlayerIds = new Set(dbPlayers.map((player) => player.id));
 			const stalePlayerIds: string[] = [];
+			const staleGameIdsFromMemory: string[] = [];
 
 			for (const player of dbPlayers) {
 				if (activeSocketIds.has(player.id)) {
@@ -196,13 +211,44 @@ export const startReconcileCleanup = (io: AppServer) => {
 				}
 			}
 
-			if (stalePlayerIds.length === 0) {
+			for (const [gameId, game] of Object.entries(activeGames)) {
+				const areBothPlayersConnected =
+					activeSocketIds.has(game.player_one_id) &&
+					activeSocketIds.has(game.player_two_id);
+
+				if (areBothPlayersConnected) {
+					missingGamesSince.delete(gameId);
+					continue;
+				}
+
+				const firstMissingAt = missingGamesSince.get(gameId);
+				if (!firstMissingAt) {
+					missingGamesSince.set(gameId, now);
+					continue;
+				}
+
+				if (now - firstMissingAt >= STALE_GRACE_PERIOD_MS) {
+					staleGameIdsFromMemory.push(gameId);
+				}
+			}
+
+			for (const trackedGameId of Array.from(missingGamesSince.keys())) {
+				if (!activeGames[trackedGameId]) {
+					missingGamesSince.delete(trackedGameId);
+				}
+			}
+
+			if (stalePlayerIds.length === 0 && staleGameIdsFromMemory.length === 0) {
 				return;
 			}
 
-			const staleGameIds = await findGameIdsByPlayerIds(stalePlayerIds);
+			const staleGameIds = new Set(staleGameIdsFromMemory);
+			for (const gameId of await findGameIdsByPlayerIds(stalePlayerIds)) {
+				staleGameIds.add(gameId);
+			}
 
 			await deleteGamesByPlayerIds(stalePlayerIds);
+			await deleteGamesByIds(Array.from(staleGameIds));
 			await deletePlayersByIds(stalePlayerIds);
 
 			for (const stalePlayerId of stalePlayerIds) {
@@ -213,6 +259,7 @@ export const startReconcileCleanup = (io: AppServer) => {
 				delete activeGames[staleGameId];
 				rematchRequestsByGame.delete(staleGameId);
 				pendingRoundSelectionByGame.delete(staleGameId);
+				missingGamesSince.delete(staleGameId);
 			}
 
 			await updateLobbyForAll(io);
@@ -220,7 +267,7 @@ export const startReconcileCleanup = (io: AppServer) => {
 			debug(
 				"🧹 Reconcile removed stale players=%d games=%d",
 				stalePlayerIds.length,
-				staleGameIds.length,
+				staleGameIds.size,
 			);
 		} catch (err) {
 			console.error("⚠️ Reconcile cleanup failed:", err);

@@ -84,7 +84,7 @@ export default function Game(socket: AppClientSocket) {
 		});
 	};
 
-	const handleVirusClick = (virus: HTMLImageElement) => {
+	const handleVirusClick = (virus: HTMLDivElement) => {
 		sendReactionTime();
 		playPopSound();
 

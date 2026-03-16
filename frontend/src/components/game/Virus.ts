@@ -8,15 +8,26 @@ export function Virus(x: number, y: number, cb?: (event?: MouseEvent) => void) {
 	};
 
 	const render = () => {
-		const virus = document.createElement("img");
+		const hitbox = document.createElement("div");
+		const loiterVirus = document.createElement("img");
+		const attackVirus = document.createElement("img");
 
-		virus.src = virusImg;
-		virus.className = `virus x${x} y${y} spray-cursor-on`;
-		virus.draggable = false;
+		hitbox.className = `virus-hitbox x${x} y${y} spray-cursor-on`;
 
-		virus.addEventListener("click", listener);
+		loiterVirus.src = virusImg;
+		loiterVirus.className = "virus virus--loiter";
+		loiterVirus.draggable = false;
+		loiterVirus.alt = "";
 
-		return virus;
+		attackVirus.src = virusImg;
+		attackVirus.className = "virus virus--attack";
+		attackVirus.draggable = false;
+		attackVirus.alt = "";
+
+		hitbox.append(loiterVirus, attackVirus);
+		hitbox.addEventListener("click", listener);
+
+		return hitbox;
 	};
 
 	return render();

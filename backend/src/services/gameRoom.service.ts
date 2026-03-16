@@ -102,6 +102,23 @@ export const findGameIdsByPlayerIds = async (playerIds: string[]) => {
 	return games.map((game) => game.id);
 };
 
+export const findExistingGameIds = async (gameIds: string[]) => {
+	if (gameIds.length === 0) {
+		return [] as string[];
+	}
+
+	const games = await prisma.game.findMany({
+		where: {
+			id: { in: gameIds },
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	return games.map((game) => game.id);
+};
+
 export const deleteGamesByPlayerIds = async (playerIds: string[]) => {
 	if (playerIds.length === 0) {
 		return;
@@ -110,6 +127,18 @@ export const deleteGamesByPlayerIds = async (playerIds: string[]) => {
 	await prisma.game.deleteMany({
 		where: {
 			OR: [{ player_one_id: { in: playerIds } }, { player_two_id: { in: playerIds } }],
+		},
+	});
+};
+
+export const deleteGamesByIds = async (gameIds: string[]) => {
+	if (gameIds.length === 0) {
+		return;
+	}
+
+	await prisma.game.deleteMany({
+		where: {
+			id: { in: gameIds },
 		},
 	});
 };
