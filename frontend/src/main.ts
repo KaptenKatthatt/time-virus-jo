@@ -66,19 +66,25 @@ const withScreenFade = (nextScreen: HTMLElement) => {
 			overlay.className = "app-screen-fade-overlay";
 			document.body.appendChild(overlay);
 
-			requestAnimationFrame(() => {
-				overlay.classList.add("is-visible");
-			});
+			try {
+				requestAnimationFrame(() => {
+					overlay.classList.add("is-visible");
+				});
 
-			await wait(APP_FADE_DURATION_MS);
-			replaceAppContent(nextScreen);
+				await wait(APP_FADE_DURATION_MS);
+				replaceAppContent(nextScreen);
+			} finally {
+				if (!overlay.isConnected) {
+					return;
+				}
 
-			requestAnimationFrame(() => {
-				overlay.classList.remove("is-visible");
-			});
+				requestAnimationFrame(() => {
+					overlay.classList.remove("is-visible");
+				});
 
-			await wait(APP_FADE_DURATION_MS);
-			overlay.remove();
+				await wait(APP_FADE_DURATION_MS);
+				overlay.remove();
+			}
 		});
 
 	return queuedScreenTransition;

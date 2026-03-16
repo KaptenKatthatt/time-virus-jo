@@ -32,7 +32,7 @@ export function Modal(content: HTMLElement) {
 		const originalRemove = wrapper.remove.bind(wrapper);
 		let isClosing = false;
 
-		(wrapper as HTMLDivElement & { remove: () => void }).remove = () => {
+		wrapper.remove = () => {
 			if (isClosing) {
 				return;
 			}
