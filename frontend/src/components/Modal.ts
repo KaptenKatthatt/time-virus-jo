@@ -1,33 +1,70 @@
+import { APP_FADE_DURATION_MS } from "../lib/fadeConfig";
+
 export function Modal(content: HTMLElement) {
-    const render = () => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "modal fade show";
+	const render = () => {
+		const wrapper = document.createElement("div");
+		wrapper.className = "modal fade show app-modal-backdrop";
 
-        wrapper.style.position = "fixed";
-        wrapper.style.top = "0";
-        wrapper.style.left = "0";
-        wrapper.style.width = "100vw";
-        wrapper.style.height = "100vh";
-        wrapper.style.display = "flex";
-        wrapper.style.justifyContent = "center";
-        wrapper.style.alignItems = "center";
-        wrapper.style.background = "rgba(0,0,0,0.5)";
-        wrapper.style.zIndex = "2000";
+		wrapper.style.position = "fixed";
+		wrapper.style.top = "0";
+		wrapper.style.left = "0";
+		wrapper.style.width = "100vw";
+		wrapper.style.height = "100vh";
+		wrapper.style.display = "flex";
+		wrapper.style.justifyContent = "center";
+		wrapper.style.alignItems = "center";
+		wrapper.style.zIndex = "2000";
 
+		const dialog = document.createElement("div");
+		dialog.className = "modal-dialog modal-dialog-centered";
 
-        const dialog = document.createElement("div");
-        dialog.className = "modal-dialog modal-dialog-centered";
+		const textbox = document.createElement("div");
+		textbox.className = "modal-content p-2 text-center border-img-dark";
 
-        const textbox = document.createElement("div");
-        textbox.className = "modal-content p-2 text-center border-img-dark";
+		textbox.appendChild(content);
+		dialog.appendChild(textbox);
+		wrapper.appendChild(dialog);
 
+		requestAnimationFrame(() => {
+			wrapper.classList.add("is-visible");
+		});
 
-        textbox.appendChild(content);
-        dialog.appendChild(textbox);
-        wrapper.appendChild(dialog);
+		const originalRemove = wrapper.remove.bind(wrapper);
+		let isClosing = false;
 
-        return wrapper;
-    }
+		wrapper.remove = () => {
+			if (isClosing) {
+				return;
+			}
 
-    return render();
+			if (!wrapper.isConnected) {
+				originalRemove();
+				return;
+			}
+
+			isClosing = true;
+			wrapper.classList.remove("is-visible");
+
+			const cleanup = () => {
+				wrapper.removeEventListener("transitionend", onTransitionEnd);
+				window.clearTimeout(fallbackTimeout);
+				originalRemove();
+			};
+
+			const onTransitionEnd = (event: TransitionEvent) => {
+				if (event.target !== wrapper) {
+					return;
+				}
+
+				cleanup();
+			};
+
+			wrapper.addEventListener("transitionend", onTransitionEnd);
+			const fallbackTimeout = window.setTimeout(cleanup, APP_FADE_DURATION_MS + 40);
+		};
+
+		return wrapper;
+	};
+
+	return render();
 }

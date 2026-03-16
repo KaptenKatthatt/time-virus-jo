@@ -3,6 +3,50 @@
 	width: 100%;
 }
 
+:root {
+	--app-fade-duration: 250ms;
+}
+
+.app-screen-fade-overlay {
+	position: fixed;
+	inset: 0;
+	background: $dark;
+	opacity: 0;
+	pointer-events: none;
+	z-index: 4000;
+	transition: opacity var(--app-fade-duration) ease;
+}
+
+.app-screen-fade-overlay.is-visible {
+	opacity: 1;
+}
+
+.app-modal-backdrop {
+	background: rgba($color: $dark, $alpha: 0);
+	opacity: 0;
+	transition:
+		background-color var(--app-fade-duration) ease,
+		opacity var(--app-fade-duration) ease;
+
+	.modal-dialog {
+		opacity: 0;
+		transform: translateY(10px) scale(0.98);
+		transition:
+			opacity var(--app-fade-duration) ease,
+			transform var(--app-fade-duration) ease;
+	}
+}
+
+.app-modal-backdrop.is-visible {
+	background: rgba($color: $dark, $alpha: 0.8);
+	opacity: 1;
+
+	.modal-dialog {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
 .modal-content {
 	width: min(80vw, 400px);
 	min-height: 320px;
