@@ -43,25 +43,18 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		virus.style.setProperty("--lobby-chase-virus-rotation", `${rotationDegrees}deg`);
 	};
 
-	const getRandomChaseDuration = () => {
-		return (
-			LOBBY_CHASE_CONFIG.fastestDurationSeconds +
-			Math.random() *
-				(LOBBY_CHASE_CONFIG.fastestDurationSeconds *
-					LOBBY_CHASE_CONFIG.slowestDurationMultiplier -
-					LOBBY_CHASE_CONFIG.fastestDurationSeconds)
-		);
-	};
+	const getRandomChaseDuration = () =>
+		LOBBY_CHASE_CONFIG.fastestDurationSeconds *
+		(1 + Math.random() * (LOBBY_CHASE_CONFIG.slowestDurationMultiplier - 1));
 
 	const updateTrackBounds = () => {
 		chaseLayer.style.top = `${trackElement.offsetTop}px`;
 		chaseLayer.style.height = `${trackElement.offsetHeight}px`;
 	};
 
-	let lastLanePercent = -999;
+	let lastLanePercent: number | null = null;
 	let chaseDirection = 1;
 	let chaseDurationSeconds = getRandomChaseDuration();
-	let chasePositionX = 0;
 	let animationFrameId = 0;
 	let isStarted = false;
 	let runnerWidth = 0;
@@ -97,8 +90,7 @@ export function createLobbyChase(trackElement: HTMLElement) {
 	};
 
 	const applyLegProgress = (progress: number) => {
-		chasePositionX = legStartX + (legEndX - legStartX) * progress;
-		setRunnerTransform(chasePositionX, glideOffsetY);
+		setRunnerTransform(legStartX + (legEndX - legStartX) * progress, glideOffsetY);
 	};
 
 	const beginLeg = (direction: 1 | -1, timestamp: number, progress = 0) => {
@@ -110,7 +102,7 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		applyLegProgress(progress);
 	};
 
-	const resizeObserver = new ResizeObserver(() => {
+	const syncLayout = () => {
 		const now = performance.now();
 		const currentProgress =
 			legDurationMs > 0 ? Math.min((now - legStartTime) / legDurationMs, 1) : 0;
@@ -120,11 +112,17 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		updateLegEndpoints();
 		legStartTime = now - currentProgress * legDurationMs;
 		applyLegProgress(currentProgress);
-	});
+	};
+
+	const resizeObserver = new ResizeObserver(syncLayout);
 
 	const pickNewLane = (): number => {
 		const rangeMin = LOBBY_CHASE_CONFIG.minLanePercent;
 		const rangeMax = LOBBY_CHASE_CONFIG.minLanePercent + LOBBY_CHASE_CONFIG.laneRangePercent;
+		const fullRange = () => rangeMin + Math.random() * (rangeMax - rangeMin);
+		if (lastLanePercent === null) {
+			return fullRange();
+		}
 		const layerH = chaseLayer.clientHeight;
 		const minDiffPercent =
 			layerH > 0
@@ -132,15 +130,11 @@ export function createLobbyChase(trackElement: HTMLElement) {
 				: 10;
 		const exclMin = Math.max(rangeMin, lastLanePercent - minDiffPercent);
 		const exclMax = Math.min(rangeMax, lastLanePercent + minDiffPercent);
-		// No overlap with valid range (e.g. first run where lastLanePercent = -999)
-		if (exclMin >= exclMax) {
-			return rangeMin + Math.random() * (rangeMax - rangeMin);
-		}
 		const below = exclMin - rangeMin;
 		const above = rangeMax - exclMax;
 		const total = below + above;
 		if (total <= 0) {
-			return rangeMin + Math.random() * (rangeMax - rangeMin);
+			return fullRange();
 		}
 		const r = Math.random() * total;
 		return r < below ? rangeMin + r : exclMax + (r - below);
@@ -162,7 +156,8 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		const deltaSeconds = (timestamp - lastAnimationTimestamp) / 1000;
 		lastAnimationTimestamp = timestamp;
 		const rotationDelta = (-360 / LOBBY_CHASE_CONFIG.rotationDurationSeconds) * deltaSeconds;
-		virusRotationDegrees += chaseDirection === 1 ? -rotationDelta : rotationDelta;
+		virusRotationDegrees =
+			(virusRotationDegrees + (chaseDirection === 1 ? -rotationDelta : rotationDelta)) % 360;
 		setVirusRotation(virusRotationDegrees);
 
 		updateGlide(timestamp);
@@ -181,16 +176,14 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		animationFrameId = window.requestAnimationFrame(animateChase);
 	};
 
-	const onWindowResize = () => {
-		const now = performance.now();
-		const currentProgress =
-			legDurationMs > 0 ? Math.min((now - legStartTime) / legDurationMs, 1) : 0;
-		updateGlide(now);
-		updateTrackBounds();
-		refreshMetrics();
-		updateLegEndpoints();
-		legStartTime = now - currentProgress * legDurationMs;
-		applyLegProgress(currentProgress);
+	const handleVisibilityChange = () => {
+		if (document.hidden) {
+			window.cancelAnimationFrame(animationFrameId);
+			animationFrameId = 0;
+		} else if (isStarted) {
+			lastAnimationTimestamp = 0;
+			animationFrameId = window.requestAnimationFrame(animateChase);
+		}
 	};
 
 	const start = () => {
@@ -204,7 +197,8 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		setVirusRotation(virusRotationDegrees);
 		resetChaseFromLeft(performance.now());
 		resizeObserver.observe(trackElement);
-		window.addEventListener("resize", onWindowResize);
+		window.addEventListener("resize", syncLayout);
+		document.addEventListener("visibilitychange", handleVisibilityChange);
 		animationFrameId = window.requestAnimationFrame(animateChase);
 	};
 
@@ -213,8 +207,11 @@ export function createLobbyChase(trackElement: HTMLElement) {
 		start,
 		destroy: () => {
 			window.cancelAnimationFrame(animationFrameId);
+			animationFrameId = 0;
+			isStarted = false;
 			resizeObserver.disconnect();
-			window.removeEventListener("resize", onWindowResize);
+			window.removeEventListener("resize", syncLayout);
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
 		},
 	};
 }
