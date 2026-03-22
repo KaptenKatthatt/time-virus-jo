@@ -1,6 +1,6 @@
 {
-  "name": "fed25-api-realtime-boilerplate",
-  "version": "1.0.0",
+  "name": "time-virus-jonas-olson",
+  "version": "1.2.0",
   "scripts": {
     "install": "cd backend && npm install --include=dev && cd ../frontend && npm install --include=dev",
     "build": "env-cmd --silent bash build.sh",

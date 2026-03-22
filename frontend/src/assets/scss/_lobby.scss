@@ -7,6 +7,8 @@
 .lobby-page {
 	padding-top: 1rem;
 	padding-bottom: 2rem;
+	position: relative;
+	overflow: visible;
 }
 
 .lobby-grid > .lobby-games-column > .scoreboard-wrapper,
@@ -14,6 +16,8 @@
 	max-width: 100%;
 	width: 100%;
 	margin: 0 auto;
+	position: relative;
+	z-index: 3;
 }
 
 .scoreboard-wrapper .overflow {
@@ -46,6 +50,8 @@
 .lobby-start-button {
 	margin: 0;
 	min-width: 220px;
+	position: relative;
+	z-index: 1;
 }
 
 .lobby-grid {
@@ -54,6 +60,8 @@
 	width: 100%;
 	justify-content: center;
 	align-items: start;
+	position: relative;
+	overflow: hidden;
 }
 
 .lobby-section-heading {

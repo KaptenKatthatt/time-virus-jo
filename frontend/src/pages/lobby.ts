@@ -3,6 +3,7 @@ import Scoreboard from "../components/Scoreboard";
 import Livematches from "../components/Livematches";
 import Chat from "../components/Chat";
 import { WaitingModal } from "../components/LobbyModals";
+import { createLobbyChase } from "../lib/lobbyChase";
 import type { LobbyUpdatePayload } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "../types/socket.types";
 
@@ -18,6 +19,8 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 
 	const grid = document.createElement("div");
 	grid.className = "lobby-grid w-100";
+
+	const lobbyChase = createLobbyChase(grid);
 
 	// Left column: Live matches + Scoreboard stacked
 	const gamesColumn = document.createElement("div");
@@ -114,8 +117,10 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 
 	footer.appendChild(footerLinks);
 
+	div.appendChild(lobbyChase.element);
 	div.appendChild(grid);
 	div.appendChild(footer);
+	lobbyChase.start();
 
 	// Listen for chat messages
 	const onChatMessage = (msg: import("@shared/types/payloads.types").ChatMessage) => {
@@ -136,6 +141,7 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 		},
 		destroy: () => {
 			socket.off("chat:message", onChatMessage);
+			lobbyChase.destroy();
 		},
 	};
 }
