@@ -74,7 +74,48 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 	grid.appendChild(centerColumn);
 	grid.appendChild(chatWrapper);
 
+	const footer = document.createElement("footer");
+	footer.className = "lobby-footer";
+
+	const footerTopLine = document.createElement("div");
+	footerTopLine.className = "lobby-footer-top-line";
+	footer.appendChild(footerTopLine);
+
+	const footerHeading = document.createElement("h3");
+	footerHeading.className = "lobby-footer-heading";
+	footerHeading.textContent = "Made by these fine developers in 2026";
+	footer.appendChild(footerHeading);
+
+	const footerLinks = document.createElement("div");
+	footerLinks.className = "lobby-footer-links";
+
+	const developers = [
+		{ name: "KaptenKatthatt", url: "https://github.com/KaptenKatthatt" },
+		{ name: "let-sandystar", url: "https://github.com/let-sandystar" },
+		{ name: "GrimSpook", url: "https://github.com/GrimSpook" },
+	];
+
+	developers.forEach((developer, index) => {
+		const link = document.createElement("a");
+		link.className = "lobby-footer-link";
+		link.href = developer.url;
+		link.target = "_blank";
+		link.rel = "noopener noreferrer";
+		link.textContent = developer.name;
+		footerLinks.appendChild(link);
+
+		if (index < developers.length - 1) {
+			const separator = document.createElement("span");
+			separator.className = "lobby-footer-separator";
+			separator.setAttribute("aria-hidden", "true");
+			footerLinks.appendChild(separator);
+		}
+	});
+
+	footer.appendChild(footerLinks);
+
 	div.appendChild(grid);
+	div.appendChild(footer);
 
 	// Listen for chat messages
 	const onChatMessage = (msg: import("@shared/types/payloads.types").ChatMessage) => {
