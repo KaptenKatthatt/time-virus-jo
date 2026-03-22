@@ -1,7 +1,7 @@
 .lobby-logo {
 	animation: none;
-	width: 320px;
-	height: 120px;
+	width: 430px;
+	// height: 120px;
 }
 
 .lobby-page {
@@ -126,7 +126,7 @@
 
 .chat-section {
 	flex: 1;
-	min-height: 0;
+	min-height: 30vh;
 }
 
 .chat-messages {
@@ -283,5 +283,20 @@
 		.lobby-footer-top-line {
 			width: 70vw;
 		}
+	}
+}
+
+@media (min-width: 921px) {
+	.lobby-page.container {
+		max-width: 80%;
+		width: 100vw;
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		padding-bottom: 3rem;
+	}
+
+	.lobby-grid {
+		flex: 1;
 	}
 }
