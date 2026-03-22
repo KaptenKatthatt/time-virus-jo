@@ -55,6 +55,12 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 
 	button.classList.add("fs-3", "lobby-start-button");
 
+	const singlePlayerButton = Button("Single Player", () => {
+		window.dispatchEvent(new CustomEvent("app:startSinglePlayer"));
+	});
+
+	singlePlayerButton.classList.add("fs-3", "lobby-start-button");
+
 	const leaveButton = Button("Leave game", () => {
 		waitingModal?.remove();
 		if (socket.id) {
@@ -71,6 +77,7 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 	centerColumn.className = "lobby-center-column";
 	centerColumn.appendChild(logo);
 	centerColumn.appendChild(button);
+	centerColumn.appendChild(singlePlayerButton);
 	centerColumn.appendChild(leaveButton);
 
 	grid.appendChild(gamesColumn);
