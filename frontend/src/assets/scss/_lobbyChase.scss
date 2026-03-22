@@ -1,0 +1,64 @@
+.lobby-chase-layer {
+	--lobby-chase-y: 50%;
+	position: absolute;
+	top: 0;
+	height: 0;
+	left: 50%;
+	width: 100vw;
+	transform: translateX(-50%);
+	pointer-events: none;
+	z-index: 2;
+	overflow: hidden;
+}
+
+.lobby-chase-runner {
+	position: absolute;
+	top: var(--lobby-chase-y);
+	left: 0;
+	width: calc(200px + 4rem);
+	height: 100px;
+	transform: translate3d(0, -50%, 0);
+	will-change: transform;
+	contain: layout paint;
+	pointer-events: none;
+	image-rendering: auto;
+	backface-visibility: hidden;
+}
+
+.lobby-chase-spray,
+.lobby-chase-virus {
+	position: absolute;
+	top: 0;
+	width: 100px;
+	height: 100px;
+	object-fit: contain;
+	image-rendering: auto;
+	user-select: none;
+	-webkit-user-drag: none;
+}
+
+.lobby-chase-spray {
+	left: 0;
+	filter: drop-shadow(0 0 6px rgba($primary, 0.35));
+	opacity: 0.95;
+	z-index: 1;
+	transform: scaleX(-1);
+	transform-origin: center;
+}
+
+.lobby-chase-virus {
+	left: calc(100px + 2rem);
+	z-index: 2;
+	will-change: transform;
+	backface-visibility: hidden;
+	transform: rotate(var(--lobby-chase-virus-rotation, 0deg));
+}
+
+.lobby-chase-runner[data-direction="left"] .lobby-chase-spray {
+	left: calc(100px + 2rem);
+	transform: scaleX(1);
+}
+
+.lobby-chase-runner[data-direction="left"] .lobby-chase-virus {
+	left: 0;
+}
