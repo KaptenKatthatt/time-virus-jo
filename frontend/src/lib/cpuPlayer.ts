@@ -1,8 +1,13 @@
 export const CPU_PLAYER_ID = "cpu";
 export const CPU_PLAYER_NAME = "CPU";
 
+type Point = { x: number; y: number };
+
 const CPU_MIN_DELAY_MS = 500;
 const CPU_MAX_DELAY_MS = 2000;
+const CPU_CURSOR_SVG_VIEWBOX_SIZE = 20;
+const CPU_CURSOR_TIP_SVG_X = 2;
+const CPU_CURSOR_TIP_SVG_Y = 2;
 
 /** Mirrors backend summonVirus() but runs entirely in the browser. */
 export const summonVirusLocal = () => {
@@ -16,9 +21,54 @@ export const summonVirusLocal = () => {
 export const getCpuDelay = () =>
 	CPU_MIN_DELAY_MS + Math.random() * (CPU_MAX_DELAY_MS - CPU_MIN_DELAY_MS);
 
+const interpolateLinearly = (from: number, to: number, progress: number) =>
+	from + (to - from) * progress;
+
+const getRandomBoardEdgePoint = (boardRect: DOMRect): Point => {
+	const edge = Math.floor(Math.random() * 4);
+
+	switch (edge) {
+		case 0:
+			return { x: Math.random() * boardRect.width, y: 0 };
+		case 1:
+			return { x: boardRect.width, y: Math.random() * boardRect.height };
+		case 2:
+			return { x: Math.random() * boardRect.width, y: boardRect.height };
+		default:
+			return { x: 0, y: Math.random() * boardRect.height };
+	}
+};
+
+const setCursorTipPosition = (cursor: HTMLDivElement, position: Point) => {
+	const tipOffsetX = (CPU_CURSOR_TIP_SVG_X / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetWidth;
+	const tipOffsetY = (CPU_CURSOR_TIP_SVG_Y / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetHeight;
+
+	cursor.style.left = `${position.x - tipOffsetX}px`;
+	cursor.style.top = `${position.y - tipOffsetY}px`;
+};
+
+const getVisibleVirusCenter = (virusEl: HTMLDivElement, boardRect: DOMRect): Point => {
+	const virusImages = Array.from(virusEl.querySelectorAll<HTMLImageElement>(".virus"));
+	const visibleVirus =
+		virusImages.reduce<HTMLImageElement | null>((currentVisible, image) => {
+			const currentOpacity = Number.parseFloat(getComputedStyle(image).opacity);
+			const visibleOpacity = currentVisible
+				? Number.parseFloat(getComputedStyle(currentVisible).opacity)
+				: -1;
+
+			return currentOpacity > visibleOpacity ? image : currentVisible;
+		}, null) ?? virusEl;
+	const virusRect = visibleVirus.getBoundingClientRect();
+
+	return {
+		x: virusRect.left + virusRect.width / 2 - boardRect.left,
+		y: virusRect.top + virusRect.height / 2 - boardRect.top,
+	};
+};
+
 /**
- * Animates a visible CPU cursor from a random board position toward the virus,
- * then calls `onCpuClick` after `cpuDelay` ms.
+ * Moves the red CPU cursor in a straight line from a board edge to the
+ * currently visible virus center, then triggers the CPU hit.
  *
  * Returns a cancel function that aborts the animation and click.
  */
@@ -33,47 +83,55 @@ export const scheduleCpuClick = (
 	boardEl.appendChild(cursor);
 
 	let cancelled = false;
-	let timeoutId: number;
+	let animationFrameId = 0;
 
-	// Place cursor at a random start position, then animate to virus centre.
+	// Animate the visible cursor tip to the virus center and only then trigger the hit.
 	requestAnimationFrame(() => {
 		if (cancelled) return;
 
 		const boardRect = boardEl.getBoundingClientRect();
-		const virusRect = virusEl.getBoundingClientRect();
+		const startPoint = getRandomBoardEdgePoint(boardRect);
+		const animationStart = performance.now();
+		const animationDuration = Math.max(cpuDelay, 1);
 
-		const targetX = virusRect.left + virusRect.width / 2 - boardRect.left;
-		const targetY = virusRect.top + virusRect.height / 2 - boardRect.top;
+		setCursorTipPosition(cursor, startPoint);
 
-		const startX = Math.random() * boardRect.width;
-		const startY = Math.random() * boardRect.height;
-
-		cursor.style.left = `${startX}px`;
-		cursor.style.top = `${startY}px`;
-
-		// Trigger transition on next frame so initial position is painted first.
-		requestAnimationFrame(() => {
+		const animateCursor = (now: number) => {
 			if (cancelled) return;
-			cursor.style.transition = `left ${cpuDelay}ms linear, top ${cpuDelay}ms linear`;
-			cursor.style.left = `${targetX}px`;
-			cursor.style.top = `${targetY}px`;
 
-			// Wait one more frame so the transition has been committed by the browser
-			// before starting the timeout, ensuring they complete at the same time.
-			requestAnimationFrame(() => {
-				if (cancelled) return;
-				timeoutId = window.setTimeout(() => {
+			const elapsed = now - animationStart;
+			const progress = Math.min(elapsed / animationDuration, 1);
+			const liveBoardRect = boardEl.getBoundingClientRect();
+			const target = getVisibleVirusCenter(virusEl, liveBoardRect);
+			const currentPosition: Point = {
+				x: interpolateLinearly(startPoint.x, target.x, progress),
+				y: interpolateLinearly(startPoint.y, target.y, progress),
+			};
+
+			setCursorTipPosition(cursor, currentPosition);
+
+			if (progress >= 1) {
+				setCursorTipPosition(cursor, target);
+
+				animationFrameId = requestAnimationFrame(() => {
 					if (cancelled) return;
+					if (!virusEl.isConnected) return;
+
 					cursor.remove();
 					onCpuClick(cpuDelay);
-				}, cpuDelay);
-			});
-		});
+				});
+				return;
+			}
+
+			animationFrameId = requestAnimationFrame(animateCursor);
+		};
+
+		animationFrameId = requestAnimationFrame(animateCursor);
 	});
 
 	return () => {
 		cancelled = true;
-		clearTimeout(timeoutId);
+		cancelAnimationFrame(animationFrameId);
 		cursor.remove();
 	};
 };

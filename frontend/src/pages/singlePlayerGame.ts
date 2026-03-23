@@ -87,6 +87,12 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 		}
 	};
 
+	const explodeAndRemoveVirus = (virus: HTMLDivElement) => {
+		virus.style.pointerEvents = "none";
+		virus.classList.add("explode");
+		window.setTimeout(() => virus.remove(), 1000);
+	};
+
 	const startRound = () => {
 		roundActive = false;
 		GameTimer("stop");
@@ -111,10 +117,7 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 					roundActive = false;
 					cpuScore++;
 					player2Card.updateReactionTime(cpuReactionTime);
-					// Remove virus with explosion
-					virus.style.pointerEvents = "none";
-					virus.classList.add("explode");
-					window.setTimeout(() => virus.remove(), 1000);
+					explodeAndRemoveVirus(virus);
 					advanceRound();
 				},
 				cpuDelay,
@@ -134,9 +137,7 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 					const reactionTime = Date.now() - spawnTime;
 					player1Card.updateReactionTime(reactionTime);
 					playerScore++;
-					virus.style.pointerEvents = "none";
-					virus.classList.add("explode");
-					window.setTimeout(() => virus.remove(), 1000);
+					explodeAndRemoveVirus(virus);
 					advanceRound();
 				},
 				{ once: true },
