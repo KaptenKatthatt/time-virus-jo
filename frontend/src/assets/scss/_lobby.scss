@@ -1,9 +1,10 @@
 .lobby-logo {
-	width: 430px;
+	width: clamp(220px, 24vw, 430px);
+	height: clamp(110px, 12vw, 215px);
+	max-width: 100%;
 }
 
 .lobby-page {
-	// padding: 3vh 6vw;
 	padding-left: clamp(1rem, 5vw, 4rem);
 	padding-right: clamp(1rem, 5vw, 4rem);
 	padding-top: clamp(1rem, 3vh, 2rem);
@@ -23,8 +24,37 @@
 	z-index: 3;
 }
 
-.scoreboard-wrapper .overflow {
-	overflow-x: hidden !important;
+.scoreboard-wrapper .scoreboard-results {
+	overflow-x: hidden;
+}
+
+.scoreboard-results {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	overflow: auto;
+	padding: 0.5rem;
+	scrollbar-width: thin;
+	scrollbar-color: $primary #202020;
+
+	&::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #202020;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: $primary;
+		border: 4px solid #202020;
+		border-radius: 10px;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #555;
+	}
 }
 
 .lobby-games-column {
@@ -115,15 +145,24 @@
 	height: 100%;
 }
 
+.chat-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	height: 100%;
+	min-height: 50vh;
+}
+
 .chat-players {
-	max-height: 200px;
-	min-height: 120px;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 	flex-shrink: 0;
 }
 
 .chat-players-list {
 	overflow-y: auto;
-	max-height: 140px;
+	max-height: 160px;
 }
 
 .online-dot {
@@ -137,7 +176,9 @@
 
 .chat-section {
 	flex: 1;
-	min-height: 30vh;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .chat-messages {
@@ -238,77 +279,100 @@
 	}
 }
 
-@media (min-width: 921px) and (max-width: 1023px) {
-	// .lobby-page {
-	// 	max-width: 100%;
-	// 	padding-inline: 1.5rem;
-	// }
-
-	.lobby-grid {
-		grid-template-columns: minmax(0, 1.2fr) minmax(220px, 260px) minmax(0, 1.2fr);
-		row-gap: 2rem;
-		column-gap: 1.25rem;
-		align-items: start;
-	}
-
-	.lobby-games-column,
-	.lobby-chat-column {
-		padding-inline: 0.5rem;
-	}
-
-	.lobby-logo {
-		width: 260px;
-		height: 98px;
-	}
-
-	.lobby-center-column {
-		order: 0;
-		padding-top: 1rem;
-	}
-
-	.lobby-footer {
-		margin-top: 2.5rem;
-	}
-
-	.lobby-footer-heading {
-		font-size: 1.05rem;
-	}
-}
-
-@media (min-width: 1024px) {
-	.lobby-grid {
-		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-		row-gap: 2rem;
-		column-gap: 3rem;
-		align-items: start;
-	}
-
-	.lobby-center-column {
-		order: 0;
-		padding-top: 1rem;
-	}
-
-	.lobby-footer {
-		margin-top: 2.75rem;
-
-		.lobby-footer-top-line {
-			width: 70vw;
-		}
-	}
-}
-
 @media (min-width: 921px) {
 	.lobby-page {
 		max-width: 1700px;
 		margin: 0 auto;
 		width: 100%;
 		height: 100%;
+		overflow: hidden;
 		display: flex;
 		flex-direction: column;
 		padding-bottom: 3rem;
 	}
 
 	.lobby-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(220px, clamp(220px, 24vw, 430px)) minmax(
+				0,
+				1fr
+			);
+		row-gap: 2rem;
+		column-gap: clamp(1.25rem, 3vw, 3rem);
+		align-items: stretch;
 		flex: 1;
+		min-height: 0;
+	}
+
+	.lobby-chat-column {
+		padding-inline: 0.5rem;
+		height: 100%;
+		max-height: 70%;
+		min-height: 0;
+	}
+
+	.lobby-games-column {
+		padding-inline: 0.5rem;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.lobby-games-column > .scoreboard-wrapper:first-child {
+		flex-shrink: 0;
+	}
+
+	.lobby-games-column > .scoreboard-wrapper:last-child {
+		flex: 1;
+		min-height: 0;
+		margin-bottom: 0;
+	}
+
+	.lobby-games-column > .scoreboard-wrapper:last-child > .border-img-dark {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.lobby-games-column > .scoreboard-wrapper:last-child .scoreboard-results {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+	}
+
+	.lobby-center-column {
+		order: 0;
+		padding-top: 1rem;
+	}
+
+	.lobby-footer {
+		margin-top: clamp(2.5rem, 4vh, 2.75rem);
+
+		.lobby-footer-top-line {
+			width: 70vw;
+		}
+	}
+
+	.lobby-footer-heading {
+		font-size: 1.05rem;
+	}
+
+	.chat-panel {
+		flex-direction: row;
+		align-items: stretch;
+	}
+
+	.chat-section {
+		min-width: 0;
+		flex: 1;
+	}
+
+	.chat-players {
+		width: min(32%, 220px);
+		padding-left: 1rem;
+		border-left: 1px solid $border-color;
+	}
+
+	.chat-players-list {
+		max-height: 340px;
 	}
 }
