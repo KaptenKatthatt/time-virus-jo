@@ -3,11 +3,14 @@ import type { ChatMessage, OnlinePlayer } from "@shared/types/payloads.types";
 
 export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlayer[]) {
 	const wrapper = document.createElement("div");
-	wrapper.className = "chat-wrapper w-100 my-3 d-flex flex-column";
+	wrapper.className = "chat-wrapper w-100 my-3";
+
+	const panel = document.createElement("div");
+	panel.className = "chat-panel border-img-dark p-3";
 
 	// --- Online players list ---
 	const playersSection = document.createElement("div");
-	playersSection.className = "chat-players border-img-dark p-3 mb-3";
+	playersSection.className = "chat-players";
 
 	const playersHeading = document.createElement("h5");
 	playersHeading.className = "lobby-section-heading text-primary lacquer-regular";
@@ -33,7 +36,7 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 
 	// --- Chat messages ---
 	const chatSection = document.createElement("div");
-	chatSection.className = "chat-section border-img-dark p-3 d-flex flex-column flex-grow-1";
+	chatSection.className = "chat-section";
 
 	const chatHeading = document.createElement("h5");
 	chatHeading.className = "lobby-section-heading text-primary lacquer-regular";
@@ -72,8 +75,9 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 	chatSection.appendChild(messages);
 	chatSection.appendChild(form);
 
-	wrapper.appendChild(playersSection);
-	wrapper.appendChild(chatSection);
+	panel.appendChild(chatSection);
+	panel.appendChild(playersSection);
+	wrapper.appendChild(panel);
 
 	const addMessage = (payload: ChatMessage) => {
 		const msgEl = document.createElement("div");

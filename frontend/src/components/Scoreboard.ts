@@ -23,7 +23,7 @@ function GameResult(data: ScoreBoardPayload[]) {
 	const render = () => {
 		const div = document.createElement("div");
 
-		div.className = "text-center d-flex flex-column gap-3 overflow";
+		div.className = "scoreboard-results";
 
 		const elementList = data.map((item) => {
 			const div = document.createElement("div");

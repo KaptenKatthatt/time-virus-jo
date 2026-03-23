@@ -12,7 +12,7 @@ export let waitingModal: HTMLElement | null = null;
 export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePayload) {
 	const div = document.createElement("div");
 
-	div.className = "container lobby-page";
+	div.className = "lobby-page";
 
 	const logo = document.createElement("div");
 	logo.className = "img lobby-logo";
