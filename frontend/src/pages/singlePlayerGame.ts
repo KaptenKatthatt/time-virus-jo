@@ -153,7 +153,7 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 		exitButton.type = "button";
 		exitButton.className = "game-exit-button btn border-img-dark-small text-danger";
 		exitButton.textContent = "✕";
-		exitButton.setAttribute("aria-label", "Tillbaka till lobbyn");
+		exitButton.setAttribute("aria-label", "Exit to lobby");
 		exitButton.addEventListener("click", () => {
 			if (cancelCpu) cancelCpu();
 			GameTimer("stop");

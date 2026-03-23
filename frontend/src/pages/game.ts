@@ -221,7 +221,7 @@ export default function Game(socket: AppClientSocket) {
 		exitButton.type = "button";
 		exitButton.className = "game-exit-button btn border-img-dark-small text-danger";
 		exitButton.textContent = "✕";
-		exitButton.setAttribute("aria-label", "Tillbaka till lobbyn");
+		exitButton.setAttribute("aria-label", "Back to lobby");
 		exitButton.addEventListener("click", leaveGameWithFallback);
 
 		const aside = document.createElement("aside");

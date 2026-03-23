@@ -2,6 +2,7 @@ export const CPU_PLAYER_ID = "cpu";
 export const CPU_PLAYER_NAME = "CPU";
 
 type Point = { x: number; y: number };
+type CursorTipOffset = { x: number; y: number };
 
 const CPU_MIN_DELAY_MS = 500;
 const CPU_MAX_DELAY_MS = 2000;
@@ -39,26 +40,35 @@ const getRandomBoardEdgePoint = (boardRect: DOMRect): Point => {
 	}
 };
 
-const setCursorTipPosition = (cursor: HTMLDivElement, position: Point) => {
-	const tipOffsetX = (CPU_CURSOR_TIP_SVG_X / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetWidth;
-	const tipOffsetY = (CPU_CURSOR_TIP_SVG_Y / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetHeight;
+const getCursorTipOffset = (cursor: HTMLDivElement): CursorTipOffset => ({
+	x: (CPU_CURSOR_TIP_SVG_X / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetWidth,
+	y: (CPU_CURSOR_TIP_SVG_Y / CPU_CURSOR_SVG_VIEWBOX_SIZE) * cursor.offsetHeight,
+});
 
-	cursor.style.left = `${position.x - tipOffsetX}px`;
-	cursor.style.top = `${position.y - tipOffsetY}px`;
+const setCursorTipPosition = (
+	cursor: HTMLDivElement,
+	position: Point,
+	tipOffset: CursorTipOffset,
+) => {
+	cursor.style.left = `${position.x - tipOffset.x}px`;
+	cursor.style.top = `${position.y - tipOffset.y}px`;
 };
 
 const getVisibleVirusCenter = (virusEl: HTMLDivElement, boardRect: DOMRect): Point => {
 	const virusImages = Array.from(virusEl.querySelectorAll<HTMLImageElement>(".virus"));
-	const visibleVirus =
-		virusImages.reduce<HTMLImageElement | null>((currentVisible, image) => {
-			const currentOpacity = Number.parseFloat(getComputedStyle(image).opacity);
-			const visibleOpacity = currentVisible
-				? Number.parseFloat(getComputedStyle(currentVisible).opacity)
-				: -1;
+	let visibleVirus: HTMLImageElement | null = null;
+	let visibleOpacity = -1;
 
-			return currentOpacity > visibleOpacity ? image : currentVisible;
-		}, null) ?? virusEl;
-	const virusRect = visibleVirus.getBoundingClientRect();
+	for (const image of virusImages) {
+		const currentOpacity = Number.parseFloat(getComputedStyle(image).opacity);
+		if (currentOpacity > visibleOpacity) {
+			visibleOpacity = currentOpacity;
+			visibleVirus = image;
+		}
+	}
+
+	const visibleElement = visibleVirus ?? virusEl;
+	const virusRect = visibleElement.getBoundingClientRect();
 
 	return {
 		x: virusRect.left + virusRect.width / 2 - boardRect.left,
@@ -91,10 +101,11 @@ export const scheduleCpuClick = (
 
 		const boardRect = boardEl.getBoundingClientRect();
 		const startPoint = getRandomBoardEdgePoint(boardRect);
+		const cursorTipOffset = getCursorTipOffset(cursor);
 		const animationStart = performance.now();
 		const animationDuration = Math.max(cpuDelay, 1);
 
-		setCursorTipPosition(cursor, startPoint);
+		setCursorTipPosition(cursor, startPoint, cursorTipOffset);
 
 		const animateCursor = (now: number) => {
 			if (cancelled) return;
@@ -108,10 +119,10 @@ export const scheduleCpuClick = (
 				y: interpolateLinearly(startPoint.y, target.y, progress),
 			};
 
-			setCursorTipPosition(cursor, currentPosition);
+			setCursorTipPosition(cursor, currentPosition, cursorTipOffset);
 
 			if (progress >= 1) {
-				setCursorTipPosition(cursor, target);
+				setCursorTipPosition(cursor, target, cursorTipOffset);
 
 				animationFrameId = requestAnimationFrame(() => {
 					if (cancelled) return;
