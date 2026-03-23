@@ -3,6 +3,7 @@
 	max-width: 100%;
 	max-height: 100%;
 	aspect-ratio: 1 / 1;
+	position: relative;
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
@@ -110,12 +111,6 @@
 	display: block;
 	overflow: visible;
 
-	&::before {
-		content: "";
-		position: absolute;
-		inset: -18%;
-	}
-
 	&:hover .virus--loiter,
 	&:focus-visible .virus--loiter {
 		opacity: 0;
@@ -201,6 +196,18 @@
 		opacity: 0;
 		filter: saturate(4) hue-rotate(-60deg);
 	}
+}
+
+.cpu-cursor {
+	position: absolute;
+	width: 2.5rem;
+	height: 2.5rem;
+	pointer-events: none;
+	z-index: 10;
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M2 2 L2 16 L5.5 12.5 L8 18 L10 17 L7.5 11.5 L12 11.5 Z' fill='%23ee0000' stroke='white' stroke-width='1.2' stroke-linejoin='round'/></svg>");
+	background-size: contain;
+	background-repeat: no-repeat;
+	filter: drop-shadow(0 0 3px rgba(255, 80, 80, 0.6));
 }
 
 @media (max-width: 767px) {

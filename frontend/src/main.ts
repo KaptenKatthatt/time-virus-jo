@@ -10,6 +10,7 @@ import type { Player } from "../../backend/generated/prisma/client";
 // Pages
 import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
+import SinglePlayerGame from "./pages/singlePlayerGame";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
 import {
@@ -236,3 +237,78 @@ socket.on("game:over", (winnerData) => {
 socket.on("player:returnedToLobby", (payload) => {
 	showLobbyAfterJoin(payload);
 });
+
+window.addEventListener("app:startSinglePlayer", () => {
+	const name = currentPlayer?.name ?? "Player";
+	void withScreenFade(SinglePlayerGame(name));
+});
+
+window.addEventListener("app:singlePlayerGameOver", (e) => {
+	const payload = (e as CustomEvent<GameOverPayload>).detail;
+	const div = document.createElement("div");
+	div.className = "container flex-column gap-5 h-100 gameover-grid";
+
+	const title = document.createElement("div");
+	title.className = "d-flex justify-content-center align-items-center";
+	title.innerHTML = `<h1 class="border-img-dark p-5 w-50 text-center lacquer-regular text-primary">Game over</h1>`;
+
+	const buttonWrapper = document.createElement("div");
+	buttonWrapper.className = "d-flex justify-content-center align-items-center gap-5";
+
+	const score = buildSinglePlayerResult(payload);
+
+	const playAgainBtn = document.createElement("button");
+	playAgainBtn.type = "button";
+	playAgainBtn.className = "btn border-img-green-solid fs-2";
+	playAgainBtn.textContent = "Play again";
+	playAgainBtn.addEventListener("click", () => {
+		const name = currentPlayer?.name ?? "Player";
+		void withScreenFade(SinglePlayerGame(name));
+	});
+
+	const lobbyBtn = document.createElement("button");
+	lobbyBtn.type = "button";
+	lobbyBtn.className = "btn border-img-dark-solid fs-2";
+	lobbyBtn.textContent = "To lobby";
+	lobbyBtn.addEventListener("click", () => {
+		if (latestLobbyData) {
+			void showLobbyAfterJoin(latestLobbyData, currentPlayer);
+		} else {
+			void withScreenFade(playerName);
+		}
+	});
+
+	buttonWrapper.appendChild(playAgainBtn);
+	buttonWrapper.appendChild(lobbyBtn);
+	div.appendChild(title);
+	div.appendChild(score);
+	div.appendChild(buttonWrapper);
+
+	void withScreenFade(div);
+});
+
+function buildSinglePlayerResult(data: GameOverPayload): HTMLElement {
+	const div = document.createElement("div");
+	div.className = "d-flex p-5 gap-4 justify-content-evenly align-items-center border-img-dark";
+
+	const buildItem = (name: string, score: number, isWinner: boolean) => {
+		const item = document.createElement("div");
+		item.className =
+			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2";
+		item.innerHTML = `
+			${isWinner ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
+			<span class="${isWinner ? "text-primary fw-bold winnerStyle" : ""}">${name}</span>
+			<span>${score}</span>
+		`;
+		return item;
+	};
+
+	const vs = document.createElement("span");
+	vs.className = "fs-1 text-muted lacquer-regular";
+	vs.innerText = "Vs";
+
+	div.appendChild(buildItem(data.playerOne.name, data.playerOne.score, data.playerOne.isWinner));
+	div.appendChild(vs);
+	div.appendChild(buildItem(data.playerTwo.name, data.playerTwo.score, data.playerTwo.isWinner));
+	return div;
+}
