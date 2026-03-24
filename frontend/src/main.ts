@@ -45,6 +45,7 @@ let currentPlayer: Player | undefined = undefined;
 let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 let latestLobbyData: LobbyUpdatePayload | null = null;
 let roundSelectionModal: HTMLElement | null = null;
+let selectedSinglePlayerRounds = 3;
 let queuedScreenTransition: Promise<void> = Promise.resolve();
 
 applyFadeDurationCssVar();
@@ -150,6 +151,11 @@ const showGameOver = (payload: GameOverPayload) => {
 	void withScreenFade(GameOver(socket, payload));
 };
 
+const startSinglePlayerWithSelectedRounds = () => {
+	const name = currentPlayer?.name ?? "Player";
+	void withScreenFade(SinglePlayerGame(name, selectedSinglePlayerRounds));
+};
+
 /**
  * DOM Event Listeners
  */
@@ -239,8 +245,20 @@ socket.on("player:returnedToLobby", (payload) => {
 });
 
 window.addEventListener("app:startSinglePlayer", () => {
-	const name = currentPlayer?.name ?? "Player";
-	void withScreenFade(SinglePlayerGame(name));
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+
+	roundSelectionModal = SelectRoundsModal(
+		currentPlayer?.name ?? "Player",
+		(totalRounds) => {
+			selectedSinglePlayerRounds = totalRounds;
+			roundSelectionModal?.remove();
+			roundSelectionModal = null;
+			startSinglePlayerWithSelectedRounds();
+		},
+	);
+
+	document.body.appendChild(roundSelectionModal);
 });
 
 window.addEventListener("app:singlePlayerGameOver", (e) => {
@@ -262,8 +280,7 @@ window.addEventListener("app:singlePlayerGameOver", (e) => {
 	playAgainBtn.className = "btn border-img-green-solid fs-2";
 	playAgainBtn.textContent = "Play again";
 	playAgainBtn.addEventListener("click", () => {
-		const name = currentPlayer?.name ?? "Player";
-		void withScreenFade(SinglePlayerGame(name));
+		startSinglePlayerWithSelectedRounds();
 	});
 
 	const lobbyBtn = document.createElement("button");
