@@ -156,6 +156,37 @@ const startSinglePlayerWithSelectedRounds = () => {
 	void withScreenFade(SinglePlayerGame(name, selectedSinglePlayerRounds));
 };
 
+const openRoundSelectionModal = ({
+	selectorName,
+	onSelect,
+	minRounds = 1,
+	maxRounds = 10,
+	defaultRounds = 3,
+}: {
+	selectorName: string;
+	onSelect: (totalRounds: number) => void;
+	minRounds?: number;
+	maxRounds?: number;
+	defaultRounds?: number;
+}) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+
+	roundSelectionModal = SelectRoundsModal(
+		selectorName,
+		(totalRounds) => {
+			onSelect(totalRounds);
+			roundSelectionModal?.remove();
+			roundSelectionModal = null;
+		},
+		minRounds,
+		maxRounds,
+		defaultRounds,
+	);
+
+	document.body.appendChild(roundSelectionModal);
+};
+
 /**
  * DOM Event Listeners
  */
@@ -199,22 +230,15 @@ socket.on("game:start", () => {
 });
 
 socket.on("rounds:select", (payload) => {
-	waitingModal?.remove();
-	roundSelectionModal?.remove();
-
-	roundSelectionModal = SelectRoundsModal(
-		payload.selectorName,
-		(totalRounds) => {
+	openRoundSelectionModal({
+		selectorName: payload.selectorName,
+		onSelect: (totalRounds) => {
 			socket.emit("rounds:selected", { totalRounds });
-			roundSelectionModal?.remove();
-			roundSelectionModal = null;
 		},
-		payload.minRounds,
-		payload.maxRounds,
-		payload.defaultRounds,
-	);
-
-	document.body.appendChild(roundSelectionModal);
+		minRounds: payload.minRounds,
+		maxRounds: payload.maxRounds,
+		defaultRounds: payload.defaultRounds,
+	});
 });
 
 socket.on("rounds:waiting", (payload) => {
@@ -245,20 +269,13 @@ socket.on("player:returnedToLobby", (payload) => {
 });
 
 window.addEventListener("app:startSinglePlayer", () => {
-	waitingModal?.remove();
-	roundSelectionModal?.remove();
-
-	roundSelectionModal = SelectRoundsModal(
-		currentPlayer?.name ?? "Player",
-		(totalRounds) => {
+	openRoundSelectionModal({
+		selectorName: currentPlayer?.name ?? "Player",
+		onSelect: (totalRounds) => {
 			selectedSinglePlayerRounds = totalRounds;
-			roundSelectionModal?.remove();
-			roundSelectionModal = null;
 			startSinglePlayerWithSelectedRounds();
 		},
-	);
-
-	document.body.appendChild(roundSelectionModal);
+	});
 });
 
 window.addEventListener("app:singlePlayerGameOver", (e) => {
@@ -280,7 +297,13 @@ window.addEventListener("app:singlePlayerGameOver", (e) => {
 	playAgainBtn.className = "btn border-img-green-solid fs-2";
 	playAgainBtn.textContent = "Play again";
 	playAgainBtn.addEventListener("click", () => {
-		startSinglePlayerWithSelectedRounds();
+		openRoundSelectionModal({
+			selectorName: currentPlayer?.name ?? "Player",
+			onSelect: (totalRounds) => {
+				selectedSinglePlayerRounds = totalRounds;
+				startSinglePlayerWithSelectedRounds();
+			},
+		});
 	});
 
 	const lobbyBtn = document.createElement("button");
