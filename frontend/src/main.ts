@@ -45,6 +45,7 @@ let currentPlayer: Player | undefined = undefined;
 let lobbyInstance: ReturnType<typeof Lobby> | null = null;
 let latestLobbyData: LobbyUpdatePayload | null = null;
 let roundSelectionModal: HTMLElement | null = null;
+let selectedSinglePlayerRounds = 3;
 let queuedScreenTransition: Promise<void> = Promise.resolve();
 
 applyFadeDurationCssVar();
@@ -150,6 +151,42 @@ const showGameOver = (payload: GameOverPayload) => {
 	void withScreenFade(GameOver(socket, payload));
 };
 
+const startSinglePlayerWithSelectedRounds = () => {
+	const name = currentPlayer?.name ?? "Player";
+	void withScreenFade(SinglePlayerGame(name, selectedSinglePlayerRounds));
+};
+
+const openRoundSelectionModal = ({
+	selectorName,
+	onSelect,
+	minRounds = 1,
+	maxRounds = 10,
+	defaultRounds = 3,
+}: {
+	selectorName: string;
+	onSelect: (totalRounds: number) => void;
+	minRounds?: number;
+	maxRounds?: number;
+	defaultRounds?: number;
+}) => {
+	waitingModal?.remove();
+	roundSelectionModal?.remove();
+
+	roundSelectionModal = SelectRoundsModal(
+		selectorName,
+		(totalRounds) => {
+			onSelect(totalRounds);
+			roundSelectionModal?.remove();
+			roundSelectionModal = null;
+		},
+		minRounds,
+		maxRounds,
+		defaultRounds,
+	);
+
+	document.body.appendChild(roundSelectionModal);
+};
+
 /**
  * DOM Event Listeners
  */
@@ -193,22 +230,15 @@ socket.on("game:start", () => {
 });
 
 socket.on("rounds:select", (payload) => {
-	waitingModal?.remove();
-	roundSelectionModal?.remove();
-
-	roundSelectionModal = SelectRoundsModal(
-		payload.selectorName,
-		(totalRounds) => {
+	openRoundSelectionModal({
+		selectorName: payload.selectorName,
+		onSelect: (totalRounds) => {
 			socket.emit("rounds:selected", { totalRounds });
-			roundSelectionModal?.remove();
-			roundSelectionModal = null;
 		},
-		payload.minRounds,
-		payload.maxRounds,
-		payload.defaultRounds,
-	);
-
-	document.body.appendChild(roundSelectionModal);
+		minRounds: payload.minRounds,
+		maxRounds: payload.maxRounds,
+		defaultRounds: payload.defaultRounds,
+	});
 });
 
 socket.on("rounds:waiting", (payload) => {
@@ -239,8 +269,13 @@ socket.on("player:returnedToLobby", (payload) => {
 });
 
 window.addEventListener("app:startSinglePlayer", () => {
-	const name = currentPlayer?.name ?? "Player";
-	void withScreenFade(SinglePlayerGame(name));
+	openRoundSelectionModal({
+		selectorName: currentPlayer?.name ?? "Player",
+		onSelect: (totalRounds) => {
+			selectedSinglePlayerRounds = totalRounds;
+			startSinglePlayerWithSelectedRounds();
+		},
+	});
 });
 
 window.addEventListener("app:singlePlayerGameOver", (e) => {
@@ -262,8 +297,13 @@ window.addEventListener("app:singlePlayerGameOver", (e) => {
 	playAgainBtn.className = "btn border-img-green-solid fs-2";
 	playAgainBtn.textContent = "Play again";
 	playAgainBtn.addEventListener("click", () => {
-		const name = currentPlayer?.name ?? "Player";
-		void withScreenFade(SinglePlayerGame(name));
+		openRoundSelectionModal({
+			selectorName: currentPlayer?.name ?? "Player",
+			onSelect: (totalRounds) => {
+				selectedSinglePlayerRounds = totalRounds;
+				startSinglePlayerWithSelectedRounds();
+			},
+		});
 	});
 
 	const lobbyBtn = document.createElement("button");
