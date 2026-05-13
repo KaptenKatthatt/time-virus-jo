@@ -103,9 +103,14 @@ export interface ActiveGame {
 }
 
 export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
-	// Get all played games from db
-	const allPlayedGames = await getScoreboard();
-	const existingGameIds = new Set(await findExistingGameIds(Object.keys(activeGames)));
+	// ⚡ Bolt: Run database queries concurrently to reduce overall latency
+	const [allPlayedGames, existingGameIdsArray, onlinePlayers] = await Promise.all([
+		getScoreboard(),
+		findExistingGameIds(Object.keys(activeGames)),
+		getAllPlayers()
+	]);
+
+	const existingGameIds = new Set(existingGameIdsArray);
 
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
@@ -127,9 +132,6 @@ export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 			player_two_score: game.player_two_score,
 		});
 	}
-
-	// Get all online players from db
-	const onlinePlayers = await getAllPlayers();
 
 	return {
 		allPlayedGames,

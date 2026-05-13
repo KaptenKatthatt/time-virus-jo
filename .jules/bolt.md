@@ -1,0 +1,3 @@
+## 2024-05-13 - [Promise.all concurrency in real-time server]
+**Learning:** In the TimeVirus game backend (`socket.controller.ts`), `buildLobbyUpdate` performs multiple sequential database queries (`getScoreboard`, `findExistingGameIds`, `getAllPlayers`). Since this payload is built frequently (every time there's a lobby update or reconcile cleanup), the sequential approach causes unnecessary cumulative latency on the single thread.
+**Action:** Use `Promise.all()` to execute independent database queries concurrently to reduce overall network bottleneck latency. Wait for all promises to resolve before processing the results.
