@@ -1,0 +1,4 @@
+## 2025-05-14 - Missing Input Validation and XSS vulnerabilities
+**Vulnerability:** XSS vulnerability and missing input validation on player name and chat messages.
+**Learning:** The application received player names and chat messages without validating whether they were actually strings in the backend, leading to potential type errors and crashes. In the frontend, the `innerHTML` properties were used across various components (`Livematches`, `Scoreboard`, `PlayerCard`, `GameOver`) with unescaped user-controlled input.
+**Prevention:** Always validate that incoming variables on the backend are strings using `typeof input === "string"` before operations like `.trim()` are performed. In the frontend, always encode outputs before using them with `.innerHTML`. A reusable `escapeHtml` utility was created in `frontend/src/utils/escapeHtml.ts` for this purpose.

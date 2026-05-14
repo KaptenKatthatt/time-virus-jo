@@ -1,4 +1,5 @@
 import type { ScoreBoardPayload } from "@shared/types/payloads.types";
+import { escapeHtml } from "../utils/escapeHtml";
 
 export default function Scoreboard(data: ScoreBoardPayload[]) {
 	const render = () => {
@@ -81,7 +82,7 @@ function GameResultItem(name: string, score: number, winner: string) {
 		}
 
 		div.innerHTML = `
-			<span>${name}</span>
+			<span>${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 
