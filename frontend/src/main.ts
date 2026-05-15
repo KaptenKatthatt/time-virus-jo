@@ -26,6 +26,7 @@ import type {
 } from "@shared/types/payloads.types";
 import type { AppClientSocket } from "./types/socket.types";
 import { APP_FADE_DURATION_MS, applyFadeDurationCssVar } from "./lib/fadeConfig";
+import { escapeHtml } from "./utils/sanitize";
 
 const SOCKET_HOST = import.meta.env.VITE_SOCKET_HOST;
 console.log("🙇 Connecting to Socket.IO Server at:", SOCKET_HOST);
@@ -337,7 +338,7 @@ function buildSinglePlayerResult(data: GameOverPayload): HTMLElement {
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2";
 		item.innerHTML = `
 			${isWinner ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
-			<span class="${isWinner ? "text-primary fw-bold winnerStyle" : ""}">${name}</span>
+			<span class="${isWinner ? "text-primary fw-bold winnerStyle" : ""}">${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 		return item;
