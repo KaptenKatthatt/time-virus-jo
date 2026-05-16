@@ -10,6 +10,7 @@ import type { Player } from "../../backend/generated/prisma/client";
 // Pages
 import Lobby, { waitingModal } from "./pages/lobby";
 import Game from "./pages/game";
+import { escapeHtml } from "./utils/sanitize";
 import SinglePlayerGame from "./pages/singlePlayerGame";
 import { InputPlayerName } from "./components/InputPlayerName";
 import GameOver from "./pages/gameover";
@@ -337,7 +338,7 @@ function buildSinglePlayerResult(data: GameOverPayload): HTMLElement {
 			"d-flex fs-1 px-5 py-4 flex-column justify-content-center align-items-center gap-2";
 		item.innerHTML = `
 			${isWinner ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
-			<span class="${isWinner ? "text-primary fw-bold winnerStyle" : ""}">${name}</span>
+			<span class="${isWinner ? "text-primary fw-bold winnerStyle" : ""}">${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 		return item;
