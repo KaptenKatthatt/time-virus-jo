@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix DOM-based XSS via innerHTML in components
+**Vulnerability:** Widespread usage of `.innerHTML` to render untrusted user inputs (such as player names and chat messages) in frontend components without output encoding, leading to DOM-based Cross-Site Scripting (XSS).
+**Learning:** The codebase relies heavily on vanilla JavaScript/DOM manipulation and string literals for component rendering. This architectural pattern makes XSS extremely easy to introduce if inputs are not explicitly encoded. The `escapeHtml` utility existed locally in `Chat.ts` but wasn't shared or utilized across other vulnerable components (`Livematches`, `Scoreboard`, `PlayerCard`, `GameOver`, `main`).
+**Prevention:** Always use output encoding functions (e.g., `escapeHtml`) when dealing with user-controlled data in `.innerHTML` template literals, or consider switching to safer alternatives like `.textContent` where feasible.

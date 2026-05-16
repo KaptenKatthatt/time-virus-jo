@@ -1,5 +1,6 @@
 import type { AppClientSocket } from "../types/socket.types";
 import type { ChatMessage, OnlinePlayer } from "@shared/types/payloads.types";
+import { escapeHtml } from "../utils/sanitize";
 
 export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlayer[]) {
 	const wrapper = document.createElement("div");
@@ -96,12 +97,4 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 		addMessage,
 		updatePlayers: (players: OnlinePlayer[]) => renderPlayers(players),
 	};
-}
-
-function escapeHtml(str: string): string {
-	return str
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
 }
