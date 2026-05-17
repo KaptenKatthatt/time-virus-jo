@@ -1,0 +1,3 @@
+## 2024-05-24 - Lobby Update Frequency and In-Memory Caching
+**Learning:** `buildLobbyUpdate` is called extremely frequently (connect, disconnect, numerous game events). Calling un-cached database queries inside this payload generation creates a significant performance bottleneck. However, the backend maintains a single-instance architecture (in-memory `activeGames`), allowing for simple, safe in-memory caching strategies without distributed synchronization issues.
+**Action:** When working on lobby or frequently broadcast payload generation, always cache database results in memory and invalidate only on explicit write operations.
