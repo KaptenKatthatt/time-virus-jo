@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import Button from "../components/Button";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
+import { escapeHtml } from "../utils/sanitize";
 import type { GameOverPayload } from "@shared/types/payloads.types";
 import { DisconnectedUser, RematchModal } from "../components/LobbyModals";
 
@@ -135,7 +136,7 @@ function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 
 		div.innerHTML = `
 			${winnerStyle ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
-			<span class="${winnerStyle}">${name}</span>
+			<span class="${winnerStyle}">${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 

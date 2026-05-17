@@ -1,0 +1,1 @@
+## 2026-05-17 - [XSS Fix] \n**Vulnerability:** XSS vulnerabilities in UI components via user-provided inputs rendered using .innerHTML \n**Learning:** The frontend makes extensive use of .innerHTML to render elements natively without a framework, opening vectors for script injections \n**Prevention:** Ensure user input injected in the dom is run through escapeHtml
