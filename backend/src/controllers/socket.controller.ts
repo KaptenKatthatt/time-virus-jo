@@ -397,6 +397,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	});
 
 	socket.on("player:left", async (payload) => {
+		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
+			return;
+		}
 		const playerId = payload.playerId;
 		const player = await getPlayerByPlayerId(playerId);
 		const game = await getGameByPlayerId(playerId);
@@ -423,6 +426,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	});
 
 	socket.on("player:rematch", async (payload) => {
+		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
+			return;
+		}
 		const player = await getPlayerByPlayerId(payload.playerId);
 		const game = await getGameByPlayerId(payload.playerId);
 
@@ -486,6 +492,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Join game, await matchmaking
 	 */
 	socket.on("playerJoinGameRequest", async (playerId: string) => {
+		if (typeof playerId !== "string") {
+			return;
+		}
 		// Look for available games and create or join
 		const availableGame = await findAvailableGame();
 
@@ -539,7 +548,11 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		}
 	});
 
-	socket.on("rounds:selected", async ({ totalRounds }) => {
+	socket.on("rounds:selected", async (payload) => {
+		if (!payload || typeof payload !== "object" || typeof payload.totalRounds !== "number") {
+			return;
+		}
+		const { totalRounds } = payload;
 		const gameId = socket.data.gameId;
 		if (!gameId) {
 			return;
@@ -566,8 +579,11 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	/**
 	 * Chat message in lobby
 	 */
-	socket.on("chat:message", ({ message }) => {
-		if (typeof message !== "string") return;
+	socket.on("chat:message", (payload) => {
+		if (!payload || typeof payload !== "object" || typeof payload.message !== "string") {
+			return;
+		}
+		const { message } = payload;
 		if (!socket.data.name || !message.trim()) return;
 
 		const sanitized = message.trim().slice(0, 200);
@@ -630,6 +646,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Summon the virus
 	 */
 	socket.on("player:clicked", async (timestampPayload) => {
+		if (!timestampPayload || typeof timestampPayload !== "object" || typeof timestampPayload.timestamp !== "number" || typeof timestampPayload.playerId !== "string") {
+			return;
+		}
 		const gameId = socket.data.gameId;
 		const currentGame = activeGames[gameId];
 		if (!currentGame) {
