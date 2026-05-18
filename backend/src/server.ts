@@ -41,7 +41,7 @@ const startServer = async () => {
 	httpServer.listen(PORT);
 };
 
-startServer().catch((err) => {
+startServer().catch((err: unknown) => {
 	console.error("🛑 Failed to initialize backend state", err);
 	process.exit(1);
 });

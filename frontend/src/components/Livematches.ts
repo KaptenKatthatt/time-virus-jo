@@ -1,4 +1,5 @@
 import type { LiveGameData } from "@shared/types/payloads.types";
+import { escapeHtml } from "../utils/escapeHtml";
 
 export default function Livematches(liveGames: LiveGameData[]) {
 	const render = () => {
@@ -64,7 +65,7 @@ function LiveMatchItem(name: string, score: number) {
 		div.className = "d-flex p-3 flex-column justify-content-center align-items-center gap-2";
 
 		div.innerHTML = `
-			<span>${name}</span>
+			<span>${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 

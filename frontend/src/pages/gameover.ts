@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import type { ClientToServerEvents, ServerToClientEvents } from "@shared/types/SocketEvents.types";
 import type { GameOverPayload } from "@shared/types/payloads.types";
 import { DisconnectedUser, RematchModal } from "../components/LobbyModals";
+import { escapeHtml } from "../utils/escapeHtml";
 
 export default function GameOver(
 	socket: Socket<ServerToClientEvents, ClientToServerEvents>,
@@ -135,7 +136,7 @@ function ResultItem(data: { name: string; score: number; isWinner: boolean }) {
 
 		div.innerHTML = `
 			${winnerStyle ? '<span class="winnerIcon">👑</span>' : '<span class="loserIcon">😭</span>'}
-			<span class="${winnerStyle}">${name}</span>
+			<span class="${winnerStyle}">${escapeHtml(name)}</span>
 			<span>${score}</span>
 		`;
 

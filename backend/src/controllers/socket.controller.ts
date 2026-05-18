@@ -350,6 +350,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
+			if (typeof playerName !== "string") {
+				return;
+			}
 			// Save player name on socket for global use
 			socket.data.name = playerName;
 
@@ -549,6 +552,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Chat message in lobby
 	 */
 	socket.on("chat:message", ({ message }) => {
+		if (typeof message !== "string") return;
 		if (!socket.data.name || !message.trim()) return;
 
 		const sanitized = message.trim().slice(0, 200);
