@@ -102,10 +102,13 @@ export interface ActiveGame {
 	fastest_Time: number;
 }
 
-export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
-	// Get all played games from db
-	const allPlayedGames = await getScoreboard();
-	const existingGameIds = new Set(await findExistingGameIds(Object.keys(activeGames)));
+const buildBaseLobbyUpdate = async (): Promise<Omit<LobbyUpdatePayload, "onlinePlayers">> => {
+	// ⚡ Bolt: Fetch scoreboard and existing game ids concurrently
+	const [allPlayedGames, existingGameIdsArray] = await Promise.all([
+		getScoreboard(),
+		findExistingGameIds(Object.keys(activeGames)),
+	]);
+	const existingGameIds = new Set(existingGameIdsArray);
 
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
@@ -128,20 +131,32 @@ export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
 		});
 	}
 
-	// Get all online players from db
-	const onlinePlayers = await getAllPlayers();
-
 	return {
 		allPlayedGames,
 		allLiveGames,
+	};
+};
+
+export const buildLobbyUpdate = async (): Promise<LobbyUpdatePayload> => {
+	const [basePayload, onlinePlayers] = await Promise.all([
+		buildBaseLobbyUpdate(),
+		getAllPlayers(),
+	]);
+
+	return {
+		...basePayload,
 		onlinePlayers,
 	};
 };
 
 const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload> => {
-	const basePayload = await buildLobbyUpdate();
+	// ⚡ Bolt: Fetch lobby update base payload and sockets concurrently,
+	// skipping the redundant getAllPlayers() DB query since we derive it from io.fetchSockets()
+	const [basePayload, connectedSockets] = await Promise.all([
+		buildBaseLobbyUpdate(),
+		io.fetchSockets(),
+	]);
 
-	const connectedSockets = await io.fetchSockets();
 	const onlinePlayers = connectedSockets
 		.map((connectedSocket) => ({
 			id: connectedSocket.id,
