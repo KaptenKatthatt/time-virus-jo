@@ -1,8 +1,10 @@
 import { ScoreBoardPayload } from "@shared/types/payloads.types.ts";
 import { prisma } from "../lib/prisma.ts";
 
+let scoreboardCache: Omit<ScoreBoardPayload, 'id'>[] | null = null;
+
 export const createScoreboard = async (payload: ScoreBoardPayload) => {
-    return await prisma.scoreboard.create({
+    const result = await prisma.scoreboard.create({
         data: {
             name: payload.name,
             player_one_name: payload.player_one_name,
@@ -11,10 +13,18 @@ export const createScoreboard = async (payload: ScoreBoardPayload) => {
             player_two_score: payload.player_two_score,
         }
     });
+
+    scoreboardCache = null;
+
+    return result;
 }
 
 export const getScoreboard = async () => {
-    return await prisma.scoreboard.findMany({
+    if (scoreboardCache) {
+        return scoreboardCache;
+    }
+
+    const results = await prisma.scoreboard.findMany({
         orderBy: {
             createdAt: "desc",
         },
@@ -23,4 +33,7 @@ export const getScoreboard = async () => {
             id: true,
         }
     });
+
+    scoreboardCache = results;
+    return results;
 }
