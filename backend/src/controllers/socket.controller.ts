@@ -30,7 +30,6 @@ import {
 	deletePlayer,
 	deletePlayersByIds,
 	findGameIdsByPlayerIds,
-	findExistingGameIds,
 	checkIfFastestPlayer,
 	resetGame,
 	getAllPlayers,
@@ -103,25 +102,13 @@ export interface ActiveGame {
 }
 
 const buildBaseLobbyUpdate = async (): Promise<Omit<LobbyUpdatePayload, "onlinePlayers">> => {
-	// ⚡ Bolt: Fetch scoreboard and existing game ids concurrently
-	const [allPlayedGames, existingGameIdsArray] = await Promise.all([
-		getScoreboard(),
-		findExistingGameIds(Object.keys(activeGames)),
-	]);
-	const existingGameIds = new Set(existingGameIdsArray);
+	// ⚡ Bolt: Fetch scoreboard and remove redundant DB query for existing games
+	const allPlayedGames = await getScoreboard();
 
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
 
 	for (const [gameId, game] of Object.entries(activeGames)) {
-		if (!existingGameIds.has(gameId)) {
-			delete activeGames[gameId];
-			missingGamesSince.delete(gameId);
-			rematchRequestsByGame.delete(gameId);
-			pendingRoundSelectionByGame.delete(gameId);
-			continue;
-		}
-
 		allLiveGames.push({
 			gameId,
 			player_one_name: game.player_one_name,
@@ -157,16 +144,16 @@ const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload>
 		io.fetchSockets(),
 	]);
 
-	const onlinePlayers = connectedSockets
-		.map((connectedSocket) => ({
-			id: connectedSocket.id,
-			name: connectedSocket.data.name as string | undefined,
-		}))
-		.filter((player) => Boolean(player.name))
-		.map((player) => ({
-			id: player.id,
-			name: player.name!,
-		}));
+	const onlinePlayers = connectedSockets.reduce((acc, connectedSocket) => {
+		const name = connectedSocket.data.name as string | undefined;
+		if (name) {
+			acc.push({
+				id: connectedSocket.id,
+				name,
+			});
+		}
+		return acc;
+	}, [] as { id: string; name: string }[]);
 
 	return {
 		...basePayload,
