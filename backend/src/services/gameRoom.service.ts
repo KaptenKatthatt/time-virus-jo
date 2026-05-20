@@ -102,23 +102,6 @@ export const findGameIdsByPlayerIds = async (playerIds: string[]) => {
 	return games.map((game) => game.id);
 };
 
-export const findExistingGameIds = async (gameIds: string[]) => {
-	if (gameIds.length === 0) {
-		return [] as string[];
-	}
-
-	const games = await prisma.game.findMany({
-		where: {
-			id: { in: gameIds },
-		},
-		select: {
-			id: true,
-		},
-	});
-
-	return games.map((game) => game.id);
-};
-
 export const deleteGamesByPlayerIds = async (playerIds: string[]) => {
 	if (playerIds.length === 0) {
 		return;
