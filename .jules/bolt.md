@@ -1,3 +1,7 @@
 ## 2025-05-18 - [Unnecessary DB Call Due to Overwritten Property in Socket Updates]
 **Learning:** In `backend/src/controllers/socket.controller.ts`, `buildLobbyUpdate` queried `getAllPlayers()` from the database just to assign it to `onlinePlayers`. However, its wrapper `buildLobbyUpdateForIo` immediately overwrote `onlinePlayers` with a fresh list obtained from `io.fetchSockets()`. This resulted in a redundant database query being executed on *every* lobby update operation.
 **Action:** Always verify if a returned database property is actually consumed by the caller, especially when working with wrapper functions that inject real-time or augmented state into the base payloads.
+
+## 2026-05-22 - [Synchronous DB Validation Inside High-Frequency Broadcast Loop]
+**Learning:** In `backend/src/controllers/socket.controller.ts`, `buildBaseLobbyUpdate` called `findExistingGameIds` to validate `activeGames` from the database. Since `buildBaseLobbyUpdate` was called on almost every event as part of `updateLobbyForAll`, this created a significant performance bottleneck. Given the backend maintains `activeGames` naturally via connection handlers and an async reconcile loop (`startReconcileCleanup`), doing synchronous DB validation inside the broadcast payload construction is unnecessary.
+**Action:** Avoid placing heavy or un-cached DB queries in payload generators for frequently emitted lobby events. Trust the asynchronous sync processes for in-memory live states when generating frequent payload broadcasts.
