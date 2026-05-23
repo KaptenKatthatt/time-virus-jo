@@ -365,7 +365,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
-			if (typeof playerName !== "string") {
+			if (typeof playerName !== "string" || playerName.length > 20) {
 				return;
 			}
 			// Save player name on socket for global use

@@ -7,3 +7,7 @@
 **Vulnerability:** The application blindly destructured and assumed the presence of nested properties on payloads sent from WebSocket clients in various `socket.on` events.
 **Learning:** Sending malicious or malformed `null` or structurally-invalid payloads like `socket.emit("chat:message", null)` triggered a `TypeError` (e.g., `TypeError: Cannot destructure property 'message' of 'object null'`) that could crash the entire backend process. Unchecked destructuring of user-provided data directly creates DoS risks in node servers.
 **Prevention:** Always ensure payloads are checked to be objects (e.g., `typeof payload === "object" && payload !== null`) and validate the expected types of properties inside before destructuring or executing logic upon them.
+## 2024-05-23 - Missing input length validation DoS vulnerability
+**Vulnerability:** Socket.io event payload `playerName` lacked length limits, enabling potential memory exhaustion/DoS attack.
+**Learning:** Even simple socket parameters like a string name require upper bound length validations to protect the system memory and database performance.
+**Prevention:** Always implement maximum length constraints or truncation on unvalidated text inputs across all endpoints, specially when parsing directly from user provided buffers.
