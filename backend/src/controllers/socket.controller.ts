@@ -30,7 +30,6 @@ import {
 	deletePlayer,
 	deletePlayersByIds,
 	findGameIdsByPlayerIds,
-	findExistingGameIds,
 	checkIfFastestPlayer,
 	resetGame,
 	getAllPlayers,
@@ -103,25 +102,16 @@ export interface ActiveGame {
 }
 
 const buildBaseLobbyUpdate = async (): Promise<Omit<LobbyUpdatePayload, "onlinePlayers">> => {
-	// ⚡ Bolt: Fetch scoreboard and existing game ids concurrently
-	const [allPlayedGames, existingGameIdsArray] = await Promise.all([
-		getScoreboard(),
-		findExistingGameIds(Object.keys(activeGames)),
-	]);
-	const existingGameIds = new Set(existingGameIdsArray);
+	// ⚡ Bolt: Fetch scoreboard concurrently.
+	// We skip verifying activeGames against the DB here because the single-instance architecture
+	// relies on `startReconcileCleanup` to asynchronously handle orphaned games.
+	// This avoids a synchronous database hit on every frequent lobby broadcast.
+	const allPlayedGames = await getScoreboard();
 
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
 
 	for (const [gameId, game] of Object.entries(activeGames)) {
-		if (!existingGameIds.has(gameId)) {
-			delete activeGames[gameId];
-			missingGamesSince.delete(gameId);
-			rematchRequestsByGame.delete(gameId);
-			pendingRoundSelectionByGame.delete(gameId);
-			continue;
-		}
-
 		allLiveGames.push({
 			gameId,
 			player_one_name: game.player_one_name,
