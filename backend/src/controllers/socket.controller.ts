@@ -400,6 +400,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
 			return;
 		}
+		if (payload.playerId !== socket.id) {
+			return;
+		}
 		const playerId = payload.playerId;
 		const player = await getPlayerByPlayerId(playerId);
 		const game = await getGameByPlayerId(playerId);
@@ -427,6 +430,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 
 	socket.on("player:rematch", async (payload) => {
 		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
+			return;
+		}
+		if (payload.playerId !== socket.id) {
 			return;
 		}
 		const player = await getPlayerByPlayerId(payload.playerId);
@@ -493,6 +499,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("playerJoinGameRequest", async (playerId: string) => {
 		if (typeof playerId !== "string") {
+			return;
+		}
+		if (playerId !== socket.id) {
 			return;
 		}
 		// Look for available games and create or join
@@ -647,6 +656,9 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("player:clicked", async (timestampPayload) => {
 		if (!timestampPayload || typeof timestampPayload !== "object" || typeof timestampPayload.timestamp !== "number" || typeof timestampPayload.playerId !== "string") {
+			return;
+		}
+		if (timestampPayload.playerId !== socket.id) {
 			return;
 		}
 		const gameId = socket.data.gameId;
