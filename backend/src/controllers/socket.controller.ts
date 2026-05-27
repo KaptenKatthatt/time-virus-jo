@@ -103,25 +103,15 @@ export interface ActiveGame {
 }
 
 const buildBaseLobbyUpdate = async (): Promise<Omit<LobbyUpdatePayload, "onlinePlayers">> => {
-	// ⚡ Bolt: Fetch scoreboard and existing game ids concurrently
-	const [allPlayedGames, existingGameIdsArray] = await Promise.all([
-		getScoreboard(),
-		findExistingGameIds(Object.keys(activeGames)),
-	]);
-	const existingGameIds = new Set(existingGameIdsArray);
+	// ⚡ Bolt: Fetch scoreboard and construct live games directly from in-memory state
+	// Ghost game cleanup is delegated to the async startReconcileCleanup background task
+	// to avoid synchronous DB validation on every broadcast
+	const allPlayedGames = await getScoreboard();
 
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
 
 	for (const [gameId, game] of Object.entries(activeGames)) {
-		if (!existingGameIds.has(gameId)) {
-			delete activeGames[gameId];
-			missingGamesSince.delete(gameId);
-			rematchRequestsByGame.delete(gameId);
-			pendingRoundSelectionByGame.delete(gameId);
-			continue;
-		}
-
 		allLiveGames.push({
 			gameId,
 			player_one_name: game.player_one_name,
@@ -253,11 +243,17 @@ export const startReconcileCleanup = (io: AppServer) => {
 				}
 			}
 
-			if (stalePlayerIds.length === 0 && staleGameIdsFromMemory.length === 0) {
+			// ⚡ Bolt: Check for ghost games in memory that no longer exist in the DB
+			const inMemoryGameIds = Object.keys(activeGames);
+			const existingDbGameIdsArray = await findExistingGameIds(inMemoryGameIds);
+			const existingDbGameIds = new Set(existingDbGameIdsArray);
+			const ghostGameIdsFromMemory = inMemoryGameIds.filter(id => !existingDbGameIds.has(id));
+
+			if (stalePlayerIds.length === 0 && staleGameIdsFromMemory.length === 0 && ghostGameIdsFromMemory.length === 0) {
 				return;
 			}
 
-			const staleGameIds = new Set(staleGameIdsFromMemory);
+			const staleGameIds = new Set([...staleGameIdsFromMemory, ...ghostGameIdsFromMemory]);
 			for (const gameId of await findGameIdsByPlayerIds(stalePlayerIds)) {
 				staleGameIds.add(gameId);
 			}
