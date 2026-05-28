@@ -361,7 +361,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 */
 	socket.on("playerJoinLobbyRequest", async (playerName: string) => {
 		try {
-			if (typeof playerName !== "string") {
+			if (typeof playerName !== "string" || playerName.length > 20) {
 				return;
 			}
 			// Save player name on socket for global use
@@ -393,7 +393,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	});
 
 	socket.on("player:left", async (payload) => {
-		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
+		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string" || payload.playerId.length > 100) {
 			return;
 		}
 		if (payload.playerId !== socket.id) {
@@ -425,7 +425,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	});
 
 	socket.on("player:rematch", async (payload) => {
-		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string") {
+		if (!payload || typeof payload !== "object" || typeof payload.playerId !== "string" || payload.playerId.length > 100) {
 			return;
 		}
 		if (payload.playerId !== socket.id) {
@@ -494,7 +494,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Join game, await matchmaking
 	 */
 	socket.on("playerJoinGameRequest", async (playerId: string) => {
-		if (typeof playerId !== "string") {
+		if (typeof playerId !== "string" || playerId.length > 100) {
 			return;
 		}
 		if (playerId !== socket.id) {
@@ -585,7 +585,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Chat message in lobby
 	 */
 	socket.on("chat:message", (payload) => {
-		if (!payload || typeof payload !== "object" || typeof payload.message !== "string") {
+		if (!payload || typeof payload !== "object" || typeof payload.message !== "string" || payload.message.length > 1000) {
 			return;
 		}
 		const { message } = payload;
@@ -651,7 +651,7 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 	 * Summon the virus
 	 */
 	socket.on("player:clicked", async (timestampPayload) => {
-		if (!timestampPayload || typeof timestampPayload !== "object" || typeof timestampPayload.timestamp !== "number" || typeof timestampPayload.playerId !== "string") {
+		if (!timestampPayload || typeof timestampPayload !== "object" || typeof timestampPayload.timestamp !== "number" || typeof timestampPayload.playerId !== "string" || timestampPayload.playerId.length > 100) {
 			return;
 		}
 		if (timestampPayload.playerId !== socket.id) {
