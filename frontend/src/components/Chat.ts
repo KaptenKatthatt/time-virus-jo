@@ -21,7 +21,13 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 
 	const renderPlayers = (players: OnlinePlayer[]) => {
 		playersList.innerHTML = "";
-		const unique = players.filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i);
+		// ⚡ Bolt: Replace O(N²) filter/findIndex with O(N) Set lookup to prevent main thread blocking on large lobby updates
+		const seenIds = new Set<string>();
+		const unique = players.filter((p) => {
+			if (seenIds.has(p.id)) return false;
+			seenIds.add(p.id);
+			return true;
+		});
 		unique.forEach((p) => {
 			const li = document.createElement("li");
 			li.className = "d-flex align-items-center gap-2 py-1 ps-2";
