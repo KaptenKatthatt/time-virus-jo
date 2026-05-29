@@ -147,16 +147,14 @@ const buildLobbyUpdateForIo = async (io: AppServer): Promise<LobbyUpdatePayload>
 		io.fetchSockets(),
 	]);
 
-	const onlinePlayers = connectedSockets
-		.map((connectedSocket) => ({
-			id: connectedSocket.id,
-			name: connectedSocket.data.name as string | undefined,
-		}))
-		.filter((player) => Boolean(player.name))
-		.map((player) => ({
-			id: player.id,
-			name: player.name!,
-		}));
+	// ⚡ Bolt: Replace multi-pass map/filter chain with single-pass loop for faster online player serialization
+	const onlinePlayers = [];
+	for (const connectedSocket of connectedSockets) {
+		const name = connectedSocket.data.name as string | undefined;
+		if (name) {
+			onlinePlayers.push({ id: connectedSocket.id, name });
+		}
+	}
 
 	return {
 		...basePayload,
