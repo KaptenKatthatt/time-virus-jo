@@ -28,30 +28,27 @@ function Livematchlist(data: LiveGameData[]) {
 
 		div.className = "text-center d-flex flex-column gap-3";
 
-		const elementList = data.map((item) => {
-			const div = document.createElement("div");
+		// ⚡ Bolt: Replace multi-pass map/forEach with single-pass for...of loop to prevent intermediate array allocation
+		for (const item of data) {
+			const itemDiv = document.createElement("div");
 			const sep = document.createElement("span");
 			sep.className = "text-muted";
 
 			sep.innerHTML = `
 				<span>VS</span>
 			`;
-			div.className =
+			itemDiv.className =
 				"d-flex justify-content-around align-items-center border-img-green-small p-1 fs-4";
 
 			const result1 = LiveMatchItem(item.player_one_name, item.player_one_score);
 			const result2 = LiveMatchItem(item.player_two_name, item.player_two_score);
 
-			div.appendChild(result1);
-			div.appendChild(sep);
-			div.appendChild(result2);
+			itemDiv.appendChild(result1);
+			itemDiv.appendChild(sep);
+			itemDiv.appendChild(result2);
 
-			return div;
-		});
-
-		elementList.forEach((item: HTMLDivElement) => {
-			div.appendChild(item);
-		});
+			div.appendChild(itemDiv);
+		}
 
 		return div;
 	};
