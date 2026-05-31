@@ -26,10 +26,11 @@ function GameResult(data: ScoreBoardPayload[]) {
 
 		div.className = "scoreboard-results";
 
-		const elementList = data.map((item) => {
-			const div = document.createElement("div");
+		// ⚡ Bolt: Replace multi-pass map/forEach with single-pass for...of loop to prevent intermediate array allocation
+		for (const item of data) {
+			const itemDiv = document.createElement("div");
 
-			div.className = "d-flex justify-content-center flex-column border-img-green-small p-2";
+			itemDiv.className = "d-flex justify-content-center flex-column border-img-green-small p-2";
 
 			const dateTime = document.createElement("span");
 			const createdAt = new Date(item.createdAt!);
@@ -55,15 +56,11 @@ function GameResult(data: ScoreBoardPayload[]) {
 			wrapper.appendChild(separator);
 			wrapper.appendChild(result2);
 
-			div.appendChild(wrapper);
-			div.appendChild(dateTime);
+			itemDiv.appendChild(wrapper);
+			itemDiv.appendChild(dateTime);
 
-			return div;
-		});
-
-		elementList.forEach((item: HTMLDivElement) => {
-			div.appendChild(item);
-		});
+			div.appendChild(itemDiv);
+		}
 
 		return div;
 	};
