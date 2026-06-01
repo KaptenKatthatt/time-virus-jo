@@ -135,15 +135,29 @@ export default function Lobby(socket: AppClientSocket, payload: LobbyUpdatePaylo
 	};
 	socket.on("chat:message", onChatMessage);
 
+	// ⚡ Bolt: Memoize JSON payload state to prevent unneeded DOM teardown/re-render
+	let lastLiveGamesStr = "";
+	let lastPlayedGamesStr = "";
+
 	return {
 		element: div,
 		updateGameTables: (payload: LobbyUpdatePayload) => {
-			liveWrapper.innerHTML = "";
-			scoreboardWrapper.innerHTML = "";
-			liveEl = Livematches(payload.allLiveGames);
-			scoreboardEl = Scoreboard(payload.allPlayedGames);
-			liveWrapper.appendChild(liveEl);
-			scoreboardWrapper.appendChild(scoreboardEl);
+			const currentLiveStr = JSON.stringify(payload.allLiveGames);
+			if (currentLiveStr !== lastLiveGamesStr) {
+				liveWrapper.innerHTML = "";
+				liveEl = Livematches(payload.allLiveGames);
+				liveWrapper.appendChild(liveEl);
+				lastLiveGamesStr = currentLiveStr;
+			}
+
+			const currentPlayedStr = JSON.stringify(payload.allPlayedGames);
+			if (currentPlayedStr !== lastPlayedGamesStr) {
+				scoreboardWrapper.innerHTML = "";
+				scoreboardEl = Scoreboard(payload.allPlayedGames);
+				scoreboardWrapper.appendChild(scoreboardEl);
+				lastPlayedGamesStr = currentPlayedStr;
+			}
+
 			chatInstance.updatePlayers(payload.onlinePlayers ?? []);
 		},
 		destroy: () => {

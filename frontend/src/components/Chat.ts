@@ -19,7 +19,13 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 	const playersList = document.createElement("ul");
 	playersList.className = "list-unstyled mb-0 chat-players-list";
 
+	let lastPlayersStr = "";
 	const renderPlayers = (players: OnlinePlayer[]) => {
+		const currentPlayersStr = JSON.stringify(players);
+		if (currentPlayersStr === lastPlayersStr) {
+			return;
+		}
+
 		playersList.innerHTML = "";
 		// ⚡ Bolt: Replace O(N²) filter/findIndex with O(N) Set lookup to prevent main thread blocking on large lobby updates
 		const seenIds = new Set<string>();
@@ -34,6 +40,8 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 			li.innerHTML = `<span class="online-dot"></span><span class="text-light">${escapeHtml(p.name)}</span>`;
 			playersList.appendChild(li);
 		});
+
+		lastPlayersStr = currentPlayersStr;
 	};
 
 	renderPlayers(initialPlayers);
