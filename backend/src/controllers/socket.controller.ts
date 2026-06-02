@@ -664,6 +664,14 @@ export const handleConnection = (socket: AppSocket, io: AppServer) => {
 		//Player reaction time
 		const reactionTime = timestampPayload.timestamp;
 
+		// 🛡️ Sentinel: Validate that reactionTime isn't artificially negative and player hasn't already clicked
+		if (reactionTime < 0) {
+			return;
+		}
+		if (currentGame.clickedPlayers.some((p) => p.playerId === timestampPayload.playerId)) {
+			return;
+		}
+
 		const reactionDataPayLoad: ReactionData = {
 			playerId: timestampPayload.playerId,
 			reactionTime,
