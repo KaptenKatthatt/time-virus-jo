@@ -28,18 +28,21 @@ export default function Chat(socket: AppClientSocket, initialPlayers: OnlinePlay
 
 		playersList.innerHTML = "";
 		// ⚡ Bolt: Replace O(N²) filter/findIndex with O(N) Set lookup to prevent main thread blocking on large lobby updates
+		// ⚡ Bolt: Replace multi-pass filter/forEach with single-pass for...of loop and DocumentFragment to reduce intermediate allocations and DOM reflows
 		const seenIds = new Set<string>();
-		const unique = players.filter((p) => {
-			if (seenIds.has(p.id)) return false;
+		const fragment = document.createDocumentFragment();
+
+		for (const p of players) {
+			if (seenIds.has(p.id)) continue;
 			seenIds.add(p.id);
-			return true;
-		});
-		unique.forEach((p) => {
+
 			const li = document.createElement("li");
 			li.className = "d-flex align-items-center gap-2 py-1 ps-2";
 			li.innerHTML = `<span class="online-dot"></span><span class="text-light">${escapeHtml(p.name)}</span>`;
-			playersList.appendChild(li);
-		});
+			fragment.appendChild(li);
+		}
+
+		playersList.appendChild(fragment);
 
 		lastPlayersStr = currentPlayersStr;
 	};
