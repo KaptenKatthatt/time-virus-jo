@@ -111,7 +111,8 @@ const buildBaseLobbyUpdate = async (): Promise<Omit<LobbyUpdatePayload, "onlineP
 	// Get all live games and convert to an array
 	const allLiveGames: LiveGameData[] = [];
 
-	for (const [gameId, game] of Object.entries(activeGames)) {
+	for (const gameId in activeGames) {
+		const game = activeGames[gameId];
 		allLiveGames.push({
 			gameId,
 			player_one_name: game.player_one_name,
@@ -214,7 +215,8 @@ export const startReconcileCleanup = (io: AppServer) => {
 				}
 			}
 
-			for (const [gameId, game] of Object.entries(activeGames)) {
+			for (const gameId in activeGames) {
+				const game = activeGames[gameId];
 				const areBothPlayersConnected =
 					activeSocketIds.has(game.player_one_id) &&
 					activeSocketIds.has(game.player_two_id);
