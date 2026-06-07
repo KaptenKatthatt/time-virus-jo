@@ -17,3 +17,7 @@
 **Vulnerability:** The application trusted client-provided reaction times (`timestampPayload.timestamp`) and failed to enforce a single-click-per-round limit in the `player:clicked` socket.io event.
 **Learning:** Clients could send a negative timestamp to artificially guarantee they are the fastest player. Additionally, because duplicate submissions weren't prevented, a malicious client could rapidly submit multiple click events in a row to rack up points for the same round, effectively bypassing the opponent's turn and cheating the game state.
 **Prevention:** Always validate numeric inputs from clients (e.g., `reactionTime >= 0`) and strictly enforce state transitions or actions on the server (e.g., verify `clickedPlayers` array does not already contain the user before accepting another click event).
+## 2025-05-14 - Overly permissive CORS configuration
+**Vulnerability:** The application used wildcard CORS configuration ('origin: "*"' in Socket.io and 'app.use(cors())' without arguments in Express), which allowed any website to make cross-origin requests to the API and WebSocket server.
+**Learning:** Default CORS configurations are often overly permissive. While useful during initial development, they expose the application to CSRF-like attacks and unauthorized data access in production environments.
+**Prevention:** Always restrict CORS origins to explicitly allowed domains using environment variables (e.g., 'process.env.CORS_ORIGIN'). When allowing credentials, a specific origin must be provided instead of a wildcard.
