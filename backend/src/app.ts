@@ -23,7 +23,7 @@ console.log("🗺️ Frontend dist path:", frontendDistPathResolved);
 
 // Fire up a new express application
 const app = express();
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
 
