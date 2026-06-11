@@ -1,7 +1,7 @@
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
-import { Score } from "../components/game/Score";
+import { Score, type ScoreUI } from "../components/game/Score";
 import popSound from "../assets/soundfx/pop.mp3";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
@@ -42,19 +42,17 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 	// Component refs – assigned during render()
 	let player1Card: PlayerCardReturn;
 	let player2Card: PlayerCardReturn;
-	let scoreEl: HTMLDivElement;
+	let scoreUI: ScoreUI;
 	let board: HTMLDivElement;
 	let roundNbrEl: HTMLSpanElement;
 	let roundTotalEl: HTMLSpanElement;
 	let gameTimerEl: HTMLSpanElement;
 
 	const updateScoreDisplay = () => {
-		const updated = Score(
+		scoreUI.update(
 			{ ...playerData, score: playerScore },
-			{ ...cpuData, score: cpuScore },
-			PLAYER_ID,
+			{ ...cpuData, score: cpuScore }
 		);
-		scoreEl.innerHTML = updated.innerHTML;
 	};
 
 	const endGame = () => {
@@ -172,7 +170,7 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 
 		board = GameBoard();
 
-		scoreEl = Score(
+		scoreUI = Score(
 			{ ...playerData, score: playerScore },
 			{ ...cpuData, score: cpuScore },
 			PLAYER_ID,
@@ -181,12 +179,12 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 		player2Card = PlayerCard({ ...cpuData }, PLAYER_ID);
 
 		gameStatus.element.classList.add("game-info-card");
-		scoreEl.classList.add("game-info-card");
+		scoreUI.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(scoreEl);
+		aside.appendChild(scoreUI.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
