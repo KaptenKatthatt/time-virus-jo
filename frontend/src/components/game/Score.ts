@@ -9,13 +9,31 @@ export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socket
 		div.className =
 			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
 
-		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
-			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
-		`;
+		const p1Span = document.createElement("span");
+		p1Span.className = isMe;
+		p1Span.textContent = String(playerOne.score);
 
-		return div;
+		const separator = document.createElement("span");
+		separator.textContent = "-";
+
+		const p2Span = document.createElement("span");
+		p2Span.className = isPlayerTwo;
+		p2Span.textContent = String(playerTwo.score);
+
+		div.appendChild(p1Span);
+		div.appendChild(separator);
+		div.appendChild(p2Span);
+
+		return {
+			element: div,
+			update: (p1: PlayerPayload, p2: PlayerPayload) => {
+				p1Span.textContent = String(p1.score);
+				p2Span.textContent = String(p2.score);
+
+				p1Span.className = socketId === p1.id ? "text-primary" : "";
+				p2Span.className = socketId === p2.id ? "text-primary" : "";
+			},
+		};
 	};
 	return render();
 }
