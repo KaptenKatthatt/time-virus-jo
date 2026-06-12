@@ -38,7 +38,9 @@ if (fs.existsSync(frontendDistPathResolved)) {
 	// Catch-all route handler with message about missing frontend build
 	app.use((_req, res) => {
 		// Respond with 404 and a message in JSON-format
-		res.status(404).send(`Frontend build does not exist at ${frontendDistPathResolved}`);
+		// 🛡️ Sentinel: Prevent Information Disclosure by using a generic error message
+		// instead of exposing the internal absolute file path (frontendDistPathResolved).
+		res.status(404).json({ error: "Frontend build is missing or unavailable" });
 	});
 }
 
