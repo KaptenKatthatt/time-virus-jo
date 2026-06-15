@@ -21,3 +21,8 @@
 **Vulnerability:** The application used wildcard CORS configuration ('origin: "*"' in Socket.io and 'app.use(cors())' without arguments in Express), which allowed any website to make cross-origin requests to the API and WebSocket server.
 **Learning:** Default CORS configurations are often overly permissive. While useful during initial development, they expose the application to CSRF-like attacks and unauthorized data access in production environments.
 **Prevention:** Always restrict CORS origins to explicitly allowed domains using environment variables (e.g., 'process.env.CORS_ORIGIN'). When allowing credentials, a specific origin must be provided instead of a wildcard.
+
+## 2025-05-14 - Information Disclosure in HTTP Error Responses
+**Vulnerability:** The Express 404 fallback handler for missing frontend builds exposed the absolute server directory path to users (`res.status(404).send('Frontend build does not exist at ' + frontendDistPathResolved)`).
+**Learning:** Returning detailed internal server paths in HTTP responses can leak the directory structure of the host environment, aiding attackers in planning subsequent directory traversal or Local File Inclusion (LFI) attacks.
+**Prevention:** Always return generic error messages to clients (e.g., "Frontend build does not exist") and keep detailed error information or paths confined to internal server logs.
