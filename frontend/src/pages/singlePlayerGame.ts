@@ -42,19 +42,18 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 	// Component refs – assigned during render()
 	let player1Card: PlayerCardReturn;
 	let player2Card: PlayerCardReturn;
-	let scoreEl: HTMLDivElement;
+	let scoreComponent: { element: HTMLDivElement; update: (newP1: PlayerPayload, newP2: PlayerPayload, newSocketId: string) => void };
 	let board: HTMLDivElement;
 	let roundNbrEl: HTMLSpanElement;
 	let roundTotalEl: HTMLSpanElement;
 	let gameTimerEl: HTMLSpanElement;
 
 	const updateScoreDisplay = () => {
-		const updated = Score(
+		scoreComponent.update(
 			{ ...playerData, score: playerScore },
 			{ ...cpuData, score: cpuScore },
 			PLAYER_ID,
 		);
-		scoreEl.innerHTML = updated.innerHTML;
 	};
 
 	const endGame = () => {
@@ -172,7 +171,7 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 
 		board = GameBoard();
 
-		scoreEl = Score(
+		scoreComponent = Score(
 			{ ...playerData, score: playerScore },
 			{ ...cpuData, score: cpuScore },
 			PLAYER_ID,
@@ -181,12 +180,12 @@ export default function SinglePlayerGame(playerName: string, totalRounds = 3) {
 		player2Card = PlayerCard({ ...cpuData }, PLAYER_ID);
 
 		gameStatus.element.classList.add("game-info-card");
-		scoreEl.classList.add("game-info-card");
+		scoreComponent.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(scoreEl);
+		aside.appendChild(scoreComponent.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
