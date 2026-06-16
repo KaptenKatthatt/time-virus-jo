@@ -10,12 +10,21 @@ export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socket
 			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
 
 		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
+			<span class="player-one-score ${isMe}">${playerOne.score}</span>
 			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
+			<span class="player-two-score ${isPlayerTwo}">${playerTwo.score}</span>
 		`;
 
-		return div;
+		const playerOneScoreEl = div.querySelector<HTMLSpanElement>(".player-one-score")!;
+		const playerTwoScoreEl = div.querySelector<HTMLSpanElement>(".player-two-score")!;
+
+		return {
+			element: div,
+			updateScore: (p1Score: number, p2Score: number) => {
+				playerOneScoreEl.textContent = String(p1Score);
+				playerTwoScoreEl.textContent = String(p2Score);
+			},
+		};
 	};
 	return render();
 }
