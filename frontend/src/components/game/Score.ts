@@ -1,21 +1,33 @@
 import type { PlayerPayload } from "../../types/game.types";
 
 export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socketId: string) {
-	const render = () => {
-		const div = document.createElement("div");
-		const isMe = socketId === playerOne.id ? "text-primary" : "";
-		const isPlayerTwo = socketId === playerTwo.id ? "text-primary" : "";
+	const div = document.createElement("div");
+	div.className =
+		"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
 
-		div.className =
-			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
+	const playerOneSpan = document.createElement("span");
+	playerOneSpan.textContent = String(playerOne.score);
+	if (socketId === playerOne.id) playerOneSpan.className = "text-primary";
 
-		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
-			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
-		`;
+	const separatorSpan = document.createElement("span");
+	separatorSpan.textContent = "-";
 
-		return div;
+	const playerTwoSpan = document.createElement("span");
+	playerTwoSpan.textContent = String(playerTwo.score);
+	if (socketId === playerTwo.id) playerTwoSpan.className = "text-primary";
+
+	div.appendChild(playerOneSpan);
+	div.appendChild(separatorSpan);
+	div.appendChild(playerTwoSpan);
+
+	return {
+		element: div,
+		update: (newPlayerOne: PlayerPayload, newPlayerTwo: PlayerPayload, newSocketId: string) => {
+			playerOneSpan.textContent = String(newPlayerOne.score);
+			playerOneSpan.className = newSocketId === newPlayerOne.id ? "text-primary" : "";
+
+			playerTwoSpan.textContent = String(newPlayerTwo.score);
+			playerTwoSpan.className = newSocketId === newPlayerTwo.id ? "text-primary" : "";
+		},
 	};
-	return render();
 }
