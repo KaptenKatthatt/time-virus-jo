@@ -3,6 +3,7 @@ import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
 import { Score } from "../components/game/Score";
+import type { ScoreComponentReturn } from "../components/game/Score";
 import popSound from "../assets/soundfx/pop.mp3";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
@@ -42,9 +43,9 @@ export default function Game(socket: AppClientSocket) {
 	let spawnTime = 0;
 	let inactivityTimer: number | null = null;
 	let disconnectedModal: HTMLDivElement | null = null;
+	let scoreComponent: ScoreComponentReturn | undefined;
 
 	const setupGameDataListeners = (
-		score: HTMLDivElement,
 		roundNbrEl: HTMLSpanElement,
 		roundTotalEl: HTMLSpanElement,
 	) => {
@@ -69,8 +70,8 @@ export default function Game(socket: AppClientSocket) {
 				player1Card.updatePlayerId(player1Data.id);
 				player2Card.updatePlayerId(player2Data.id);
 
-				const updatedScore = Score(player1Data, player2Data, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
+				// ⚡ Bolt: Use direct textContent update instead of recreating the component and replacing innerHTML
+				scoreComponent?.updateScore(player1Data.score, player2Data.score);
 
 				// Update round nbr
 				if (payload.round) {
@@ -234,21 +235,21 @@ export default function Game(socket: AppClientSocket) {
 
 		const board = GameBoard();
 
-		const score = Score(player1Data, player2Data, socket.id!);
+		scoreComponent = Score(player1Data, player2Data, socket.id!);
 
 		player1Card = PlayerCard(player1Data, socket.id!);
 		player2Card = PlayerCard(player2Data, socket.id!);
 
 		gameStatus.element.classList.add("game-info-card");
-		score.classList.add("game-info-card");
+		scoreComponent.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
 		setupVirusListeners(board, gameTimerEl);
-		setupGameDataListeners(score, roundNbrEl, roundTotalEl);
+		setupGameDataListeners(roundNbrEl, roundTotalEl);
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(score);
+		aside.appendChild(scoreComponent.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
