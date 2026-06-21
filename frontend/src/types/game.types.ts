@@ -6,3 +6,8 @@ export interface PlayerPayload {
 	id: string;
 	score: number;
 }
+
+export interface ScoreReturn {
+	element: HTMLDivElement;
+	updateState: (playerOne: PlayerPayload, playerTwo: PlayerPayload) => void;
+}
