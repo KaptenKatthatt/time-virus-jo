@@ -8,7 +8,7 @@ import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
 import { GameStatus } from "../components/game/GameStatus";
 import { DisconnectedUser } from "../components/LobbyModals";
-import type { PlayerPayload } from "../types/game.types";
+import type { PlayerPayload, ScoreReturn } from "../types/game.types";
 import type { AppClientSocket } from "../types/socket.types";
 
 const INACTIVITY_TIMEOUT_MS = 60000;
@@ -44,7 +44,7 @@ export default function Game(socket: AppClientSocket) {
 	let disconnectedModal: HTMLDivElement | null = null;
 
 	const setupGameDataListeners = (
-		score: HTMLDivElement,
+		scoreInstance: ScoreReturn,
 		roundNbrEl: HTMLSpanElement,
 		roundTotalEl: HTMLSpanElement,
 	) => {
@@ -69,8 +69,7 @@ export default function Game(socket: AppClientSocket) {
 				player1Card.updatePlayerId(player1Data.id);
 				player2Card.updatePlayerId(player2Data.id);
 
-				const updatedScore = Score(player1Data, player2Data, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
+				scoreInstance.updateState(player1Data, player2Data);
 
 				// Update round nbr
 				if (payload.round) {
@@ -234,21 +233,21 @@ export default function Game(socket: AppClientSocket) {
 
 		const board = GameBoard();
 
-		const score = Score(player1Data, player2Data, socket.id!);
+		const scoreInstance = Score(player1Data, player2Data, socket.id!);
 
 		player1Card = PlayerCard(player1Data, socket.id!);
 		player2Card = PlayerCard(player2Data, socket.id!);
 
 		gameStatus.element.classList.add("game-info-card");
-		score.classList.add("game-info-card");
+		scoreInstance.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
 		setupVirusListeners(board, gameTimerEl);
-		setupGameDataListeners(score, roundNbrEl, roundTotalEl);
+		setupGameDataListeners(scoreInstance, roundNbrEl, roundTotalEl);
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(score);
+		aside.appendChild(scoreInstance.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
