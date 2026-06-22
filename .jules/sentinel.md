@@ -21,3 +21,7 @@
 **Vulnerability:** The application used wildcard CORS configuration ('origin: "*"' in Socket.io and 'app.use(cors())' without arguments in Express), which allowed any website to make cross-origin requests to the API and WebSocket server.
 **Learning:** Default CORS configurations are often overly permissive. While useful during initial development, they expose the application to CSRF-like attacks and unauthorized data access in production environments.
 **Prevention:** Always restrict CORS origins to explicitly allowed domains using environment variables (e.g., 'process.env.CORS_ORIGIN'). When allowing credentials, a specific origin must be provided instead of a wildcard.
+## 2024-05-18 - [Fix Information Disclosure]
+**Vulnerability:** Information Disclosure where Express 404 handler leaked `frontendDistPathResolved`.
+**Learning:** Returning resolved, absolute filepaths in API errors exposes server directory structures which can be used to launch path traversal attacks.
+**Prevention:** Avoid exposing absolute filepaths or server configurations in API errors or HTTP responses.
