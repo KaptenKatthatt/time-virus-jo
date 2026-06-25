@@ -15,7 +15,19 @@ export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socket
 			<span class="${isPlayerTwo}">${playerTwo.score}</span>
 		`;
 
-		return div;
+		const p1Span = div.children[0] as HTMLSpanElement;
+		const p2Span = div.children[2] as HTMLSpanElement;
+
+		return {
+			element: div,
+			updateScores: (newPlayerOne: PlayerPayload, newPlayerTwo: PlayerPayload) => {
+				p1Span.textContent = String(newPlayerOne.score);
+				p1Span.className = socketId === newPlayerOne.id ? "text-primary" : "";
+
+				p2Span.textContent = String(newPlayerTwo.score);
+				p2Span.className = socketId === newPlayerTwo.id ? "text-primary" : "";
+			}
+		};
 	};
 	return render();
 }
