@@ -2,7 +2,7 @@ import type { GamePayload, ReactionData } from "@shared/types/payloads.types";
 import { Virus } from "../components/game/Virus";
 import GameBoard from "../components/game/GameBoard";
 import { PlayerCard } from "../components/game/PlayerCard";
-import { Score } from "../components/game/Score";
+import { Score, type ScoreComponent } from "../components/game/Score";
 import popSound from "../assets/soundfx/pop.mp3";
 import type { PlayerCardReturn } from "../types/playerCard.types";
 import { GameTimer, restartGameTimer } from "../components/game/GameTimer";
@@ -44,7 +44,7 @@ export default function Game(socket: AppClientSocket) {
 	let disconnectedModal: HTMLDivElement | null = null;
 
 	const setupGameDataListeners = (
-		score: HTMLDivElement,
+		score: ScoreComponent,
 		roundNbrEl: HTMLSpanElement,
 		roundTotalEl: HTMLSpanElement,
 	) => {
@@ -69,8 +69,7 @@ export default function Game(socket: AppClientSocket) {
 				player1Card.updatePlayerId(player1Data.id);
 				player2Card.updatePlayerId(player2Data.id);
 
-				const updatedScore = Score(player1Data, player2Data, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
+				score.update(player1Data, player2Data, socket.id!);
 
 				// Update round nbr
 				if (payload.round) {
@@ -240,7 +239,7 @@ export default function Game(socket: AppClientSocket) {
 		player2Card = PlayerCard(player2Data, socket.id!);
 
 		gameStatus.element.classList.add("game-info-card");
-		score.classList.add("game-info-card");
+		score.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
@@ -248,7 +247,7 @@ export default function Game(socket: AppClientSocket) {
 		setupGameDataListeners(score, roundNbrEl, roundTotalEl);
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(score);
+		aside.appendChild(score.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
