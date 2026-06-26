@@ -20,3 +20,6 @@
 ## 2026-06-05 - [Unnecessary Object and String Allocations in Hot Paths]
 **Learning:** High-frequency operations, like emitting `lobby:update` to all users via `updateLobbyForAll`, suffered from unnecessary object allocation when using the spread operator (`{ ...lobbyData }`) simply to pass an existing payload object. Additionally, string manipulation utilities like `escapeHtml` used chained `.replace()` calls which created multiple intermediate strings.
 **Action:** Avoid redundant object spread operators when emitting existing payload objects in frequent socket events. Use a single-pass regex replacement with a map for string manipulation functions called frequently in render loops to reduce memory allocation pressure.
+## 2023-10-24 - Layout Thrashing in Real-time Game Updates
+**Learning:** Frequent `.innerHTML` assignments in hot paths (like a game data socket listener firing multiple times a second) cause significant DOM parsing overhead and layout thrashing in vanilla JS applications. The browser must constantly teardown and rebuild the DOM nodes.
+**Action:** Always refactor high-frequency frontend updates to maintain references to pre-created DOM nodes and mutate their `.textContent` and `.className` directly to bypass the HTML parser entirely.
