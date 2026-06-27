@@ -20,3 +20,6 @@
 ## 2026-06-05 - [Unnecessary Object and String Allocations in Hot Paths]
 **Learning:** High-frequency operations, like emitting `lobby:update` to all users via `updateLobbyForAll`, suffered from unnecessary object allocation when using the spread operator (`{ ...lobbyData }`) simply to pass an existing payload object. Additionally, string manipulation utilities like `escapeHtml` used chained `.replace()` calls which created multiple intermediate strings.
 **Action:** Avoid redundant object spread operators when emitting existing payload objects in frequent socket events. Use a single-pass regex replacement with a map for string manipulation functions called frequently in render loops to reduce memory allocation pressure.
+## 2026-06-27 - [Preventing Expensive DOM Thrashing on Game Score Updates]
+**Learning:** In frontend components like `Score.ts`, the DOM was being completely destroyed and recreated via `.innerHTML` every time the score changed. This created unnecessary allocations and string-to-DOM parsing overhead.
+**Action:** When a UI element (like a game score) is updated frequently, avoid recreating the component and replacing its `.innerHTML`. Instead, expose an `update` method that directly mutates `.textContent` or `.className` on existing DOM nodes to prevent severe layout thrashing and main-thread blocking.
