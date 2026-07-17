@@ -1,6 +1,6 @@
 # AGENTS.md - Project Instructions for AI Agents
 
-## Rules for Jules and other AI agents
+## Rules for AI agents
 
 ### PR Creation Rules
 - **Max 1 PR per issue/fix.** If a previous PR addressing the same problem exists, update it instead of creating a new one. Do NOT create duplicate PRs for the same fix.
@@ -13,7 +13,6 @@
 - **Always add length limits** to string inputs (playerName, playerId, chat messages, etc.) when adding new input validation.
 
 ### Code Quality
-- **Do NOT modify .jules/ files in PRs.** Learnings should be documented separately and should not be part of code changes.
 - **Include tests** when adding new functionality or fixing bugs.
 - **Keep changes minimal.** Small, focused diffs are easier to review and merge.
 
