@@ -9,13 +9,23 @@ export function Score(playerOne: PlayerPayload, playerTwo: PlayerPayload, socket
 		div.className =
 			"d-flex justify-content-center align-items-center display-5 bg-dark gap-4 border-img-dark p-4";
 
+		// ⚡ Bolt: Expose targeted DOM node updates for .textContent to prevent expensive .innerHTML string-to-DOM parsing overhead during high-frequency game updates
 		div.innerHTML = `
-			<span class="${isMe}">${playerOne.score}</span>
+			<span class="player-one-score ${isMe}">${playerOne.score}</span>
 			<span>-</span>
-			<span class="${isPlayerTwo}">${playerTwo.score}</span>
+			<span class="player-two-score ${isPlayerTwo}">${playerTwo.score}</span>
 		`;
 
-		return div;
+		const playerOneScoreEl = div.querySelector<HTMLSpanElement>(".player-one-score")!;
+		const playerTwoScoreEl = div.querySelector<HTMLSpanElement>(".player-two-score")!;
+
+		return {
+			element: div,
+			updateScores: (playerOneScore: number, playerTwoScore: number) => {
+				playerOneScoreEl.textContent = String(playerOneScore);
+				playerTwoScoreEl.textContent = String(playerTwoScore);
+			},
+		};
 	};
 	return render();
 }

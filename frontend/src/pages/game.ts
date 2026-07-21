@@ -44,7 +44,7 @@ export default function Game(socket: AppClientSocket) {
 	let disconnectedModal: HTMLDivElement | null = null;
 
 	const setupGameDataListeners = (
-		score: HTMLDivElement,
+		scoreComponent: ReturnType<typeof Score>,
 		roundNbrEl: HTMLSpanElement,
 		roundTotalEl: HTMLSpanElement,
 	) => {
@@ -69,8 +69,7 @@ export default function Game(socket: AppClientSocket) {
 				player1Card.updatePlayerId(player1Data.id);
 				player2Card.updatePlayerId(player2Data.id);
 
-				const updatedScore = Score(player1Data, player2Data, socket.id!);
-				score.innerHTML = updatedScore.innerHTML;
+				scoreComponent.updateScores(player1Data.score, player2Data.score);
 
 				// Update round nbr
 				if (payload.round) {
@@ -234,21 +233,21 @@ export default function Game(socket: AppClientSocket) {
 
 		const board = GameBoard();
 
-		const score = Score(player1Data, player2Data, socket.id!);
+		const scoreComponent = Score(player1Data, player2Data, socket.id!);
 
 		player1Card = PlayerCard(player1Data, socket.id!);
 		player2Card = PlayerCard(player2Data, socket.id!);
 
 		gameStatus.element.classList.add("game-info-card");
-		score.classList.add("game-info-card");
+		scoreComponent.element.classList.add("game-info-card");
 		player1Card.element.classList.add("game-info-card");
 		player2Card.element.classList.add("game-info-card");
 
 		setupVirusListeners(board, gameTimerEl);
-		setupGameDataListeners(score, roundNbrEl, roundTotalEl);
+		setupGameDataListeners(scoreComponent, roundNbrEl, roundTotalEl);
 
 		aside.appendChild(gameStatus.element);
-		aside.appendChild(score);
+		aside.appendChild(scoreComponent.element);
 		aside.appendChild(player1Card.element);
 		aside.appendChild(player2Card.element);
 
